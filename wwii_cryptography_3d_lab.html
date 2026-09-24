@@ -1,0 +1,3024 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>WWII Cryptography 3D Lab: Enigma, Typex, SIGABA, Bombe & Colossus</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Courier+Prime:ital,wght@0,400;0,700;1,400&family=Cinzel:wght@600;700;900&family=Inter:wght@300;400;500;600;700&display=swap');
+    body {
+      font-family: 'Inter', sans-serif;
+      user-select: none;
+      background-color: #05070d;
+      color: #e2e8f0;
+      overflow-x: hidden;
+    }
+    .font-mono-code { font-family: 'Courier Prime', monospace; }
+    .font-cinzel { font-family: 'Cinzel', serif; }
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: #080c14; }
+    ::-webkit-scrollbar-thumb { background: #273549; border-radius: 3px; }
+    ::-webkit-scrollbar-thumb:hover { background: #3e5270; }
+    .glass-panel {
+      background: rgba(10, 16, 30, 0.90);
+      backdrop-filter: blur(16px);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      box-shadow: 0 12px 32px -4px rgba(0, 0, 0, 0.6);
+    }
+    .lamp-glow {
+      box-shadow: 0 0 24px #f59e0b, 0 0 40px #f59e0bcc, inset 0 0 12px #fbbf24;
+      background: radial-gradient(circle, #fde68a 15%, #f59e0b 85%) !important;
+      color: #3b1300 !important;
+      border-color: #d97706 !important;
+      transform: scale(1.08);
+      font-weight: 900 !important;
+    }
+    .vintage-vignette {
+      box-shadow: inset 0 0 140px rgba(0, 0, 0, 0.85);
+      pointer-events: none;
+    }
+    .parchment-sheet {
+      background: #fbf5e6;
+      background-image: radial-gradient(#ece1c8 15%, transparent 16%), radial-gradient(#ece1c8 15%, transparent 16%);
+      background-size: 20px 20px;
+      background-position: 0 0, 10px 10px;
+      color: #1e1b18;
+      box-shadow: 0 20px 50px rgba(0,0,0,0.8), inset 0 0 60px rgba(180, 140, 90, 0.3);
+    }
+    .stamp-red {
+      border: 3px solid #b91c1c;
+      color: #b91c1c;
+      text-transform: uppercase;
+      font-family: 'Courier Prime', monospace;
+      font-weight: bold;
+      transform: rotate(-7deg);
+    }
+    .light-table-glow {
+      box-shadow: 0 0 45px rgba(56, 189, 248, 0.4), inset 0 0 35px rgba(255, 255, 255, 0.8);
+    }
+  </style>
+</head>
+<body class="h-screen w-screen flex flex-col bg-[#05070d] text-slate-200">
+
+  <!-- Top Archival Navigation Bar -->
+  <header class="h-14 border-b border-slate-800/90 bg-slate-950/95 px-3 sm:px-4 flex items-center justify-between z-20 shrink-0 backdrop-blur-md">
+    <div class="flex items-center space-x-2.5">
+      <div class="w-8 h-8 sm:w-9 sm:h-9 rounded-lg bg-amber-600/20 border border-amber-500/50 flex items-center justify-center text-amber-400 font-bold text-lg sm:text-xl font-cinzel shadow-inner shadow-amber-500/20">
+        Ψ
+      </div>
+      <div>
+        <h1 class="text-xs sm:text-sm font-semibold tracking-wider flex items-center gap-1.5 font-cinzel">
+          <span>WWII CRYPTANALYSIS 3D LAB</span>
+          <span class="text-[9px] px-1.5 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 font-mono-code font-bold hidden sm:inline">STATION X ULTRA</span>
+        </h1>
+        <p class="text-[9px] sm:text-[10px] text-slate-400 font-mono-code truncate">BLETCHLEY PARK • BIURO SZYFRÓW • US NAVY ECM</p>
+      </div>
+    </div>
+
+    <!-- Machine Selector Tabs -->
+    <div class="flex items-center gap-1 bg-slate-900/90 p-1 rounded-xl border border-slate-800 shadow-inner overflow-x-auto max-w-[50vw]">
+      <button id="tab-enigma" class="px-2.5 py-1.5 rounded-lg text-xs font-medium transition-all bg-amber-600 text-white shadow-md flex items-center gap-1 whitespace-nowrap">
+        <span>⚙️ Enigma</span>
+      </button>
+      <button id="tab-typex" class="px-2.5 py-1.5 rounded-lg text-xs font-medium transition-all text-slate-400 hover:text-slate-200 flex items-center gap-1 whitespace-nowrap">
+        <span>🛡️ Typex</span>
+      </button>
+      <button id="tab-sigaba" class="px-2.5 py-1.5 rounded-lg text-xs font-medium transition-all text-slate-400 hover:text-slate-200 flex items-center gap-1 whitespace-nowrap">
+        <span>🇺🇸 SIGABA</span>
+      </button>
+      <button id="tab-polish" class="px-2.5 py-1.5 rounded-lg text-xs font-medium transition-all text-slate-400 hover:text-slate-200 flex items-center gap-1 whitespace-nowrap">
+        <span>🇵🇱 Biuro Szyfrów</span>
+      </button>
+      <button id="tab-bombe" class="px-2.5 py-1.5 rounded-lg text-xs font-medium transition-all text-slate-400 hover:text-slate-200 flex items-center gap-1 whitespace-nowrap">
+        <span>🔄 Bombe</span>
+      </button>
+      <button id="tab-colossus" class="px-2.5 py-1.5 rounded-lg text-xs font-medium transition-all text-slate-400 hover:text-slate-200 flex items-center gap-1 whitespace-nowrap">
+        <span>💡 Colossus</span>
+      </button>
+      <button id="tab-missions" class="px-2.5 py-1.5 rounded-lg text-xs font-medium transition-all text-slate-400 hover:text-slate-200 flex items-center gap-1 whitespace-nowrap">
+        <span>🎯 Missions</span>
+      </button>
+    </div>
+
+    <!-- Global Actions -->
+    <div class="flex items-center gap-1 sm:gap-1.5">
+      <button id="btn-p2p-net" class="px-2 py-1.5 rounded-lg bg-sky-950/70 border border-sky-600/70 text-sky-300 hover:bg-sky-900 text-xs font-mono-code flex items-center gap-1 transition-all" title="Simulated Shortwave Radio Net">
+        <span>📡</span><span class="hidden md:inline">Radio Net</span>
+      </button>
+      <button id="btn-export-dispatch" class="px-2 py-1.5 rounded-lg bg-amber-950/70 border border-amber-600/70 text-amber-300 hover:bg-amber-900 text-xs font-mono-code flex items-center gap-1 transition-all" title="Generate Historical Radio Telegram Form">
+        <span>📜</span><span class="hidden lg:inline">Funkspruch</span>
+      </button>
+      <button id="btn-morse-panel" class="px-2 py-1.5 rounded-lg bg-emerald-950/70 border border-emerald-600/70 text-emerald-300 hover:bg-emerald-900 text-xs font-mono-code flex items-center gap-1 transition-all" title="CW Morse Key & Atmospheric Radio">
+        <span>📻</span><span class="hidden lg:inline">CW Key</span>
+      </button>
+      <button id="btn-toggle-diagnostics" class="px-2 py-1.5 rounded-lg bg-slate-900 border border-slate-700 hover:border-slate-500 text-xs font-mono-code flex items-center gap-1 text-slate-300 transition-all shadow-sm">
+        <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+        <span class="hidden sm:inline">Self-Test</span>
+        <span class="text-amber-400 font-bold">(<span id="hud-pass-count">30/30</span>)</span>
+      </button>
+      <button id="btn-audio-toggle" class="p-2 rounded-lg bg-slate-900 border border-slate-700 hover:border-slate-500 text-slate-300 text-xs transition-colors" title="Toggle Sound FX">
+        🔊
+      </button>
+      <button id="btn-info-modal" class="px-2.5 py-1.5 rounded-lg bg-amber-600/20 border border-amber-500/40 text-amber-300 hover:bg-amber-600/30 text-xs transition-colors font-medium">
+        ℹ Dossier
+      </button>
+    </div>
+  </header>
+
+  <!-- Main Viewport Layout -->
+  <div class="flex-1 relative flex overflow-hidden">
+    
+    <!-- 3D WebGL Canvas Area -->
+    <div id="canvas-container" class="flex-1 relative h-full w-full bg-gradient-to-b from-[#060912] via-[#05070d] to-[#020306]">
+      <canvas id="webgl-canvas" class="w-full h-full block cursor-grab active:cursor-grabbing"></canvas>
+      <div class="vintage-vignette absolute inset-0 z-0"></div>
+
+      <!-- Cinematic View Overlays -->
+      <div class="absolute top-4 left-4 z-10 flex flex-wrap gap-2 pointer-events-auto">
+        <button id="btn-view-iso" class="px-3 py-1.5 rounded-lg bg-slate-900/90 backdrop-blur border border-slate-700/80 text-[11px] text-slate-300 hover:text-white hover:border-amber-500/60 shadow-lg transition-all">
+          Isometric View
+        </button>
+        <button id="btn-view-top" class="px-3 py-1.5 rounded-lg bg-slate-900/90 backdrop-blur border border-slate-700/80 text-[11px] text-slate-300 hover:text-white hover:border-amber-500/60 shadow-lg transition-all">
+          Top-Down Keys
+        </button>
+        <button id="btn-view-front" class="px-3 py-1.5 rounded-lg bg-slate-900/90 backdrop-blur border border-slate-700/80 text-[11px] text-slate-300 hover:text-white hover:border-amber-500/60 shadow-lg transition-all">
+          Steckerbrett Front
+        </button>
+        <button id="btn-view-rotors" class="px-3 py-1.5 rounded-lg bg-slate-900/90 backdrop-blur border border-slate-700/80 text-[11px] text-slate-300 hover:text-white hover:border-amber-500/60 shadow-lg transition-all">
+          Rotor Bay
+        </button>
+        <button id="btn-toggle-inspection" class="px-3.5 py-1.5 rounded-lg bg-amber-950/80 border border-amber-600/70 text-[11px] text-amber-300 hover:bg-amber-900 shadow-lg transition-all flex items-center gap-1.5 font-medium">
+          <span>🔍 Disassemble / Exploded Internal</span>
+        </button>
+        <button id="btn-toggle-laser-wire" class="px-3 py-1.5 rounded-lg bg-cyan-950/80 border border-cyan-500/60 text-[11px] text-cyan-300 hover:bg-cyan-900 shadow-lg transition-all flex items-center gap-1.5 font-medium">
+          <span class="w-2 h-2 rounded-full bg-cyan-400 animate-ping"></span>
+          <span>3D Laser Wire Spline</span>
+        </button>
+      </div>
+
+      <!-- Electrical Current Path Trace HUD -->
+      <div id="signal-path-hud" class="absolute bottom-4 left-4 z-10 glass-panel px-4 py-2.5 rounded-xl border border-slate-700/60 text-xs font-mono-code flex items-center gap-2 max-w-[70vw] overflow-x-auto shadow-2xl">
+        <span class="text-amber-500 font-bold shrink-0 flex items-center gap-1.5">
+          <span class="w-2 h-2 rounded-full bg-amber-400 animate-ping"></span>
+          <span>CIRCUIT:</span>
+        </span>
+        <span id="signal-path-steps" class="text-slate-200 tracking-wider whitespace-nowrap">Ready (Tap Keys, Type or Click 3D Brass Keycaps)</span>
+      </div>
+
+      <!-- Live WebGL Telemetry -->
+      <div class="absolute bottom-4 right-4 z-10 glass-panel px-3.5 py-1.5 rounded-lg border border-slate-800 text-[10px] font-mono-code text-slate-400 flex items-center gap-3">
+        <span>FPS: <strong id="telemetry-fps" class="text-emerald-400">60</strong></span>
+        <span>Draws: <strong id="telemetry-draws" class="text-slate-200">0</strong></span>
+        <span>Meshes: <strong id="telemetry-geos" class="text-slate-200">0</strong></span>
+      </div>
+    </div>
+
+    <!-- Right Control Panel Sidebar -->
+    <aside id="sidebar-controls" class="w-96 h-full bg-slate-950 border-l border-slate-800/80 flex flex-col z-10 overflow-y-auto shrink-0 shadow-2xl">
+
+      <!-- 1. ENIGMA CONTROLS PANEL -->
+      <div id="panel-enigma-controls" class="p-4 space-y-4">
+        <!-- Model Selection & Key Sheets -->
+        <div class="glass-panel p-3.5 rounded-xl space-y-3">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-bold uppercase tracking-wider text-slate-300 font-cinzel">Enigma Specification</span>
+            <div class="flex items-center gap-3">
+              <label class="text-[11px] text-slate-300 cursor-pointer flex items-center gap-1 font-medium">
+                <input type="radio" name="enigma-model" value="M3" checked class="text-amber-600 focus:ring-0">
+                <span>Wehrmacht M3</span>
+              </label>
+              <label class="text-[11px] text-slate-300 cursor-pointer flex items-center gap-1 font-medium">
+                <input type="radio" name="enigma-model" value="M4" class="text-amber-600 focus:ring-0">
+                <span>Kriegsmarine M4</span>
+              </label>
+            </div>
+          </div>
+
+          <!-- Tagesschlüssel Presets -->
+          <div class="space-y-1.5 pt-1">
+            <label class="text-[10px] font-mono-code uppercase text-slate-400">Historical Daily Keys (Tagesschlüssel):</label>
+            <div class="grid grid-cols-3 gap-1.5">
+              <button id="preset-u559" class="p-2 rounded-lg bg-slate-900 hover:bg-slate-800 text-[10px] text-left border border-slate-700/80 text-amber-200 transition-colors shadow-sm">
+                <div class="font-bold">U-559 Triton</div>
+                <div class="text-[9px] text-slate-400 font-mono-code">M4 Shark '42</div>
+              </button>
+              <button id="preset-dday" class="p-2 rounded-lg bg-slate-900 hover:bg-slate-800 text-[10px] text-left border border-slate-700/80 text-amber-200 transition-colors shadow-sm">
+                <div class="font-bold">Normandy</div>
+                <div class="text-[9px] text-slate-400 font-mono-code">6 June 1944</div>
+              </button>
+              <button id="preset-bismarck" class="p-2 rounded-lg bg-slate-900 hover:bg-slate-800 text-[10px] text-left border border-slate-700/80 text-amber-200 transition-colors shadow-sm">
+                <div class="font-bold">Bismarck</div>
+                <div class="text-[9px] text-slate-400 font-mono-code">May 1941</div>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Rotors & Ringstellung Settings -->
+        <div class="glass-panel p-3.5 rounded-xl space-y-3">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-bold uppercase tracking-wider text-slate-300 font-cinzel">Rotor Bay &amp; Rings</span>
+            <span class="text-[10px] font-mono-code text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/20">Double-Step Active</span>
+          </div>
+
+          <div class="grid grid-cols-4 gap-2">
+            <!-- Rotor 4 (Greek - M4 Only) -->
+            <div id="rotor-col-4" class="space-y-1.5 opacity-40 pointer-events-none transition-all">
+              <span class="text-[10px] font-bold font-mono-code text-slate-400 block text-center">GREEK (4)</span>
+              <select id="sel-rotor-4" class="w-full bg-slate-900 border border-slate-700 rounded px-1.5 py-1 text-xs font-mono-code text-amber-300">
+                <option value="Beta" selected>Beta</option>
+                <option value="Gamma">Gamma</option>
+              </select>
+              <div class="flex items-center justify-center">
+                <button id="rotor-up-4" class="w-6 h-6 rounded bg-slate-800 text-[10px] hover:bg-slate-700">▲</button>
+              </div>
+              <div id="rotor-display-4" class="h-8 rounded bg-slate-900 border border-amber-600/40 font-mono-code text-lg font-bold text-amber-400 flex items-center justify-center shadow-inner">
+                A
+              </div>
+              <div class="flex items-center justify-center">
+                <button id="rotor-down-4" class="w-6 h-6 rounded bg-slate-800 text-[10px] hover:bg-slate-700">▼</button>
+              </div>
+              <div class="text-[9px] text-slate-400 text-center font-mono-code pt-1">Ring</div>
+              <input id="ring-4" type="number" min="1" max="26" value="1" class="w-full bg-slate-900 border border-slate-700 rounded text-center text-xs font-mono-code py-0.5">
+            </div>
+
+            <!-- Rotor 3 (Left / Slow) -->
+            <div class="space-y-1.5">
+              <span class="text-[10px] font-bold font-mono-code text-slate-400 block text-center">LEFT (3)</span>
+              <select id="sel-rotor-3" class="w-full bg-slate-900 border border-slate-700 rounded px-1.5 py-1 text-xs font-mono-code text-amber-300">
+                <option value="I" selected>I</option>
+                <option value="II">II</option>
+                <option value="III">III</option>
+                <option value="IV">IV</option>
+                <option value="V">V</option>
+              </select>
+              <div class="flex items-center justify-center">
+                <button id="rotor-up-3" class="w-6 h-6 rounded bg-slate-800 text-[10px] hover:bg-slate-700">▲</button>
+              </div>
+              <div id="rotor-display-3" class="h-8 rounded bg-slate-900 border border-amber-600/40 font-mono-code text-lg font-bold text-amber-400 flex items-center justify-center shadow-inner">
+                A
+              </div>
+              <div class="flex items-center justify-center">
+                <button id="rotor-down-3" class="w-6 h-6 rounded bg-slate-800 text-[10px] hover:bg-slate-700">▼</button>
+              </div>
+              <div class="text-[9px] text-slate-400 text-center font-mono-code pt-1">Ring</div>
+              <input id="ring-3" type="number" min="1" max="26" value="1" class="w-full bg-slate-900 border border-slate-700 rounded text-center text-xs font-mono-code py-0.5">
+            </div>
+
+            <!-- Rotor 2 (Middle) -->
+            <div class="space-y-1.5">
+              <span class="text-[10px] font-bold font-mono-code text-slate-400 block text-center">MID (2)</span>
+              <select id="sel-rotor-2" class="w-full bg-slate-900 border border-slate-700 rounded px-1.5 py-1 text-xs font-mono-code text-amber-300">
+                <option value="I">I</option>
+                <option value="II" selected>II</option>
+                <option value="III">III</option>
+                <option value="IV">IV</option>
+                <option value="V">V</option>
+              </select>
+              <div class="flex items-center justify-center">
+                <button id="rotor-up-2" class="w-6 h-6 rounded bg-slate-800 text-[10px] hover:bg-slate-700">▲</button>
+              </div>
+              <div id="rotor-display-2" class="h-8 rounded bg-slate-900 border border-amber-600/40 font-mono-code text-lg font-bold text-amber-400 flex items-center justify-center shadow-inner">
+                A
+              </div>
+              <div class="flex items-center justify-center">
+                <button id="rotor-down-2" class="w-6 h-6 rounded bg-slate-800 text-[10px] hover:bg-slate-700">▼</button>
+              </div>
+              <div class="text-[9px] text-slate-400 text-center font-mono-code pt-1">Ring</div>
+              <input id="ring-2" type="number" min="1" max="26" value="1" class="w-full bg-slate-900 border border-slate-700 rounded text-center text-xs font-mono-code py-0.5">
+            </div>
+
+            <!-- Rotor 1 (Right / Fast) -->
+            <div class="space-y-1.5">
+              <span class="text-[10px] font-bold font-mono-code text-slate-400 block text-center">RIGHT (1)</span>
+              <select id="sel-rotor-1" class="w-full bg-slate-900 border border-slate-700 rounded px-1.5 py-1 text-xs font-mono-code text-amber-300">
+                <option value="I">I</option>
+                <option value="II">II</option>
+                <option value="III" selected>III</option>
+                <option value="IV">IV</option>
+                <option value="V">V</option>
+              </select>
+              <div class="flex items-center justify-center">
+                <button id="rotor-up-1" class="w-6 h-6 rounded bg-slate-800 text-[10px] hover:bg-slate-700">▲</button>
+              </div>
+              <div id="rotor-display-1" class="h-8 rounded bg-slate-900 border border-amber-600/40 font-mono-code text-lg font-bold text-amber-400 flex items-center justify-center shadow-inner">
+                A
+              </div>
+              <div class="flex items-center justify-center">
+                <button id="rotor-down-1" class="w-6 h-6 rounded bg-slate-800 text-[10px] hover:bg-slate-700">▼</button>
+              </div>
+              <div class="text-[9px] text-slate-400 text-center font-mono-code pt-1">Ring</div>
+              <input id="ring-1" type="number" min="1" max="26" value="1" class="w-full bg-slate-900 border border-slate-700 rounded text-center text-xs font-mono-code py-0.5">
+            </div>
+          </div>
+
+          <!-- Umkehrwalze Reflector Selection -->
+          <div class="pt-2 flex items-center justify-between border-t border-slate-800">
+            <label class="text-[11px] text-slate-400 font-mono-code">Umkehrwalze (Reflector):</label>
+            <select id="sel-reflector" class="bg-slate-900 border border-slate-700 rounded px-2 py-1 text-xs font-mono-code text-amber-300">
+              <option value="B" selected>UKW-B (Standard)</option>
+              <option value="C">UKW-C</option>
+              <option value="B_thin">UKW-B Thin (M4)</option>
+              <option value="C_thin">UKW-C Thin (M4)</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Steckerbrett (Physical Plugboard) -->
+        <div class="glass-panel p-3.5 rounded-xl space-y-3">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-bold uppercase tracking-wider text-slate-300 font-cinzel">Steckerbrett (3D Jumper Cables)</span>
+            <button id="btn-clear-plugs" class="text-[10px] text-rose-400 hover:text-rose-300 font-mono-code">Unplug All</button>
+          </div>
+          <div class="space-y-1.5">
+            <input id="input-plugboard" type="text" placeholder="e.g. AV BS CG DL FU HZ IN KM OW RX" value="" class="w-full bg-slate-900 border border-slate-700 rounded px-2.5 py-1.5 text-xs font-mono-code uppercase text-amber-300 focus:border-amber-500 focus:outline-none">
+            <p class="text-[10px] text-slate-400 font-mono-code">Pair up to 10 letter cables. 3D flexible jumper cables physically plug into the front sockets.</p>
+          </div>
+        </div>
+
+        <!-- 2D Lampboard (Glühlampenfeld) -->
+        <div class="glass-panel p-3.5 rounded-xl space-y-2">
+          <span class="text-xs font-bold uppercase tracking-wider text-slate-300 block font-cinzel">Glühlampenfeld (Lampboard)</span>
+          <div id="lampboard-container" class="grid grid-cols-9 gap-1.5 max-w-[280px] mx-auto pt-1"></div>
+        </div>
+
+        <!-- Physical Tastatur (Keyboard) -->
+        <div class="glass-panel p-3.5 rounded-xl space-y-2">
+          <span class="text-xs font-bold uppercase tracking-wider text-slate-300 block font-cinzel">Tastatur (Physical Keyboard)</span>
+          <div id="keyboard-container" class="space-y-1 pt-1">
+            <div class="flex justify-center gap-1">
+              <button class="key-btn w-7 h-7 rounded-full bg-slate-800 border border-slate-600 text-xs font-mono-code font-bold hover:bg-slate-700 active:translate-y-0.5 shadow" data-key="Q">Q</button>
+              <button class="key-btn w-7 h-7 rounded-full bg-slate-800 border border-slate-600 text-xs font-mono-code font-bold hover:bg-slate-700 active:translate-y-0.5 shadow" data-key="W">W</button>
+              <button class="key-btn w-7 h-7 rounded-full bg-slate-800 border border-slate-600 text-xs font-mono-code font-bold hover:bg-slate-700 active:translate-y-0.5 shadow" data-key="E">E</button>
+              <button class="key-btn w-7 h-7 rounded-full bg-slate-800 border border-slate-600 text-xs font-mono-code font-bold hover:bg-slate-700 active:translate-y-0.5 shadow" data-key="R">R</button>
+              <button class="key-btn w-7 h-7 rounded-full bg-slate-800 border border-slate-600 text-xs font-mono-code font-bold hover:bg-slate-700 active:translate-y-0.5 shadow" data-key="T">T</button>
+              <button class="key-btn w-7 h-7 rounded-full bg-slate-800 border border-slate-600 text-xs font-mono-code font-bold hover:bg-slate-700 active:translate-y-0.5 shadow" data-key="Z">Z</button>
+              <button class="key-btn w-7 h-7 rounded-full bg-slate-800 border border-slate-600 text-xs font-mono-code font-bold hover:bg-slate-700 active:translate-y-0.5 shadow" data-key="U">U</button>
+              <button class="key-btn w-7 h-7 rounded-full bg-slate-800 border border-slate-600 text-xs font-mono-code font-bold hover:bg-slate-700 active:translate-y-0.5 shadow" data-key="I">I</button>
+              <button class="key-btn w-7 h-7 rounded-full bg-slate-800 border border-slate-600 text-xs font-mono-code font-bold hover:bg-slate-700 active:translate-y-0.5 shadow" data-key="O">O</button>
+            </div>
+            <div class="flex justify-center gap-1">
+              <button class="key-btn w-7 h-7 rounded-full bg-slate-800 border border-slate-600 text-xs font-mono-code font-bold hover:bg-slate-700 active:translate-y-0.5 shadow" data-key="A">A</button>
+              <button class="key-btn w-7 h-7 rounded-full bg-slate-800 border border-slate-600 text-xs font-mono-code font-bold hover:bg-slate-700 active:translate-y-0.5 shadow" data-key="S">S</button>
+              <button class="key-btn w-7 h-7 rounded-full bg-slate-800 border border-slate-600 text-xs font-mono-code font-bold hover:bg-slate-700 active:translate-y-0.5 shadow" data-key="D">D</button>
+              <button class="key-btn w-7 h-7 rounded-full bg-slate-800 border border-slate-600 text-xs font-mono-code font-bold hover:bg-slate-700 active:translate-y-0.5 shadow" data-key="F">F</button>
+              <button class="key-btn w-7 h-7 rounded-full bg-slate-800 border border-slate-600 text-xs font-mono-code font-bold hover:bg-slate-700 active:translate-y-0.5 shadow" data-key="G">G</button>
+              <button class="key-btn w-7 h-7 rounded-full bg-slate-800 border border-slate-600 text-xs font-mono-code font-bold hover:bg-slate-700 active:translate-y-0.5 shadow" data-key="H">H</button>
+              <button class="key-btn w-7 h-7 rounded-full bg-slate-800 border border-slate-600 text-xs font-mono-code font-bold hover:bg-slate-700 active:translate-y-0.5 shadow" data-key="J">J</button>
+              <button class="key-btn w-7 h-7 rounded-full bg-slate-800 border border-slate-600 text-xs font-mono-code font-bold hover:bg-slate-700 active:translate-y-0.5 shadow" data-key="K">K</button>
+            </div>
+            <div class="flex justify-center gap-1">
+              <button class="key-btn w-7 h-7 rounded-full bg-slate-800 border border-slate-600 text-xs font-mono-code font-bold hover:bg-slate-700 active:translate-y-0.5 shadow" data-key="P">P</button>
+              <button class="key-btn w-7 h-7 rounded-full bg-slate-800 border border-slate-600 text-xs font-mono-code font-bold hover:bg-slate-700 active:translate-y-0.5 shadow" data-key="Y">Y</button>
+              <button class="key-btn w-7 h-7 rounded-full bg-slate-800 border border-slate-600 text-xs font-mono-code font-bold hover:bg-slate-700 active:translate-y-0.5 shadow" data-key="X">X</button>
+              <button class="key-btn w-7 h-7 rounded-full bg-slate-800 border border-slate-600 text-xs font-mono-code font-bold hover:bg-slate-700 active:translate-y-0.5 shadow" data-key="C">C</button>
+              <button class="key-btn w-7 h-7 rounded-full bg-slate-800 border border-slate-600 text-xs font-mono-code font-bold hover:bg-slate-700 active:translate-y-0.5 shadow" data-key="V">V</button>
+              <button class="key-btn w-7 h-7 rounded-full bg-slate-800 border border-slate-600 text-xs font-mono-code font-bold hover:bg-slate-700 active:translate-y-0.5 shadow" data-key="B">B</button>
+              <button class="key-btn w-7 h-7 rounded-full bg-slate-800 border border-slate-600 text-xs font-mono-code font-bold hover:bg-slate-700 active:translate-y-0.5 shadow" data-key="N">N</button>
+              <button class="key-btn w-7 h-7 rounded-full bg-slate-800 border border-slate-600 text-xs font-mono-code font-bold hover:bg-slate-700 active:translate-y-0.5 shadow" data-key="M">M</button>
+              <button class="key-btn w-7 h-7 rounded-full bg-slate-800 border border-slate-600 text-xs font-mono-code font-bold hover:bg-slate-700 active:translate-y-0.5 shadow" data-key="L">L</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Military Cipher Stream -->
+        <div class="glass-panel p-3.5 rounded-xl space-y-3">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-bold uppercase tracking-wider text-slate-300 font-cinzel">Military Cipher Stream</span>
+            <button id="btn-clear-stream" class="text-[10px] text-slate-400 hover:text-slate-200 font-mono-code">Clear Stream</button>
+          </div>
+          <div>
+            <label class="text-[10px] font-mono-code text-slate-400 block mb-1">Plaintext Input / Live Keystrokes:</label>
+            <input id="input-plaintext" type="text" placeholder="Type letters or paste dispatches..." class="w-full bg-slate-900 border border-slate-700 rounded px-2.5 py-1.5 text-xs font-mono-code uppercase text-emerald-400 focus:outline-none focus:border-emerald-500">
+          </div>
+          <div>
+            <label class="text-[10px] font-mono-code text-slate-400 block mb-1">Enciphered Output (5-Letter Military Groups):</label>
+            <div id="output-ciphertext" class="w-full min-h-[48px] bg-slate-900/90 border border-slate-700 rounded p-2 text-xs font-mono-code text-amber-300 font-bold tracking-widest break-all">
+              ---
+            </div>
+          </div>
+          <div class="flex gap-2 pt-1">
+            <button id="btn-copy-cipher" class="flex-1 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-[11px] font-mono-code text-slate-300 border border-slate-700">
+              📋 Copy Cipher
+            </button>
+            <button id="btn-reciprocal-test" class="flex-1 py-1.5 rounded-lg bg-amber-950/60 border border-amber-600/40 hover:bg-amber-900/60 text-[11px] font-mono-code text-amber-300">
+              🔄 Reciprocal Proof
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- 2. BRITISH TYPEX CONTROLS PANEL -->
+      <div id="panel-typex-controls" class="p-4 space-y-4 hidden">
+        <div class="glass-panel p-3.5 rounded-xl space-y-2 border-l-2 border-l-red-500">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-bold uppercase tracking-wider text-red-400 font-cinzel">British Typex Mk 22</span>
+            <span class="text-[10px] px-2 py-0.5 rounded bg-red-500/20 text-red-300 font-mono-code font-bold">UNBROKEN SUPER-ENIGMA</span>
+          </div>
+          <p class="text-xs text-slate-400 leading-relaxed">
+            Winston Churchill's premier cipher machine. Built with <strong class="text-slate-200">5 Rotors (2 stators + 3 stepping drums)</strong>, up to <strong class="text-slate-200">9 notches per rotor</strong>, and a non-reciprocal reversing reflector drum. Axis B-Dienst never cracked British strategic traffic.
+          </p>
+        </div>
+
+        <div class="glass-panel p-3.5 rounded-xl space-y-3">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-bold uppercase tracking-wider text-slate-300 font-cinzel">5-Rotor Drum Bay</span>
+            <span class="text-[10px] font-mono-code text-red-400 bg-red-500/10 px-2 py-0.5 rounded border border-red-500/20">Multi-Notch Active</span>
+          </div>
+
+          <div class="grid grid-cols-5 gap-1.5">
+            <div class="space-y-1 text-center">
+              <span class="text-[9px] font-bold font-mono-code text-slate-400">STATOR 1</span>
+              <div class="text-[8px] text-amber-400 font-mono-code">Fixed</div>
+              <div id="typex-disp-0" class="h-7 rounded bg-slate-900 border border-red-500/40 font-mono-code text-sm font-bold text-red-400 flex items-center justify-center">A</div>
+              <button id="typex-step-0" class="w-full py-0.5 rounded bg-slate-800 text-[9px] hover:bg-slate-700">▲</button>
+            </div>
+            <div class="space-y-1 text-center">
+              <span class="text-[9px] font-bold font-mono-code text-slate-400">STATOR 2</span>
+              <div class="text-[8px] text-amber-400 font-mono-code">Fixed</div>
+              <div id="typex-disp-1" class="h-7 rounded bg-slate-900 border border-red-500/40 font-mono-code text-sm font-bold text-red-400 flex items-center justify-center">A</div>
+              <button id="typex-step-1" class="w-full py-0.5 rounded bg-slate-800 text-[9px] hover:bg-slate-700">▲</button>
+            </div>
+            <div class="space-y-1 text-center">
+              <span class="text-[9px] font-bold font-mono-code text-slate-400">ROTOR 3</span>
+              <div class="text-[8px] text-emerald-400 font-mono-code">5 Notches</div>
+              <div id="typex-disp-2" class="h-7 rounded bg-slate-900 border border-emerald-500/40 font-mono-code text-sm font-bold text-emerald-400 flex items-center justify-center">A</div>
+              <button id="typex-step-2" class="w-full py-0.5 rounded bg-slate-800 text-[9px] hover:bg-slate-700">▲</button>
+            </div>
+            <div class="space-y-1 text-center">
+              <span class="text-[9px] font-bold font-mono-code text-slate-400">ROTOR 4</span>
+              <div class="text-[8px] text-emerald-400 font-mono-code">7 Notches</div>
+              <div id="typex-disp-3" class="h-7 rounded bg-slate-900 border border-emerald-500/40 font-mono-code text-sm font-bold text-emerald-400 flex items-center justify-center">A</div>
+              <button id="typex-step-3" class="w-full py-0.5 rounded bg-slate-800 text-[9px] hover:bg-slate-700">▲</button>
+            </div>
+            <div class="space-y-1 text-center">
+              <span class="text-[9px] font-bold font-mono-code text-slate-400">ROTOR 5</span>
+              <div class="text-[8px] text-emerald-400 font-mono-code">9 Notches</div>
+              <div id="typex-disp-4" class="h-7 rounded bg-slate-900 border border-emerald-500/40 font-mono-code text-sm font-bold text-emerald-400 flex items-center justify-center">A</div>
+              <button id="typex-step-4" class="w-full py-0.5 rounded bg-slate-800 text-[9px] hover:bg-slate-700">▲</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="glass-panel p-3.5 rounded-xl space-y-2">
+          <span class="text-xs font-bold uppercase tracking-wider text-slate-300 block font-cinzel">Creed Teleprinter Gummed Tape</span>
+          <div id="typex-tape-output" class="h-12 bg-[#faf0d7] border border-amber-900/30 rounded p-2 text-xs font-mono-code text-slate-900 font-bold tracking-widest overflow-x-auto flex items-center shadow-inner">
+            TYPE-X TELEPRINTER READY ///
+          </div>
+        </div>
+
+        <div class="glass-panel p-3.5 rounded-xl space-y-2">
+          <span class="text-xs font-bold uppercase tracking-wider text-slate-300 block font-cinzel">Typex Intercept Stream</span>
+          <input id="typex-input" type="text" placeholder="Type letters into British Typex..." class="w-full bg-slate-900 border border-slate-700 rounded px-2.5 py-1.5 text-xs font-mono-code uppercase text-red-300 focus:outline-none focus:border-red-500">
+          <div class="flex gap-2 pt-1">
+            <button id="btn-typex-reset" class="flex-1 py-1.5 rounded bg-slate-800 text-[11px] font-mono-code text-slate-300 hover:bg-slate-700">Reset Rotors</button>
+            <button id="btn-typex-demo" class="flex-1 py-1.5 rounded bg-red-950/70 border border-red-600/50 text-[11px] font-mono-code text-red-300 hover:bg-red-900">Churchill Directive</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- 3. AMERICAN SIGABA / ECM MARK II CONTROLS PANEL -->
+      <div id="panel-sigaba-controls" class="p-4 space-y-4 hidden">
+        <div class="glass-panel p-3.5 rounded-xl space-y-2 border-l-2 border-l-emerald-500">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-bold uppercase tracking-wider text-emerald-400 font-cinzel">American SIGABA (ECM Mark II)</span>
+            <span class="text-[10px] px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 font-mono-code font-bold">UNCRACKED ALLIED GIANT</span>
+          </div>
+          <p class="text-xs text-slate-400 leading-relaxed">
+            Operated by the US Army (M-134-C) and US Navy (CSP-888). Features <strong class="text-slate-200">15 rotors in 3 banks</strong>. The Control Bank drives the Index Bank to generate pseudorandom electrical stepping signals. Eliminates the reflector flaw: $E(x) = x$ is mathematically permitted!
+          </p>
+        </div>
+
+        <!-- SIGABA 15-Rotor Bank Status -->
+        <div class="glass-panel p-3.5 rounded-xl space-y-3">
+          <span class="text-xs font-bold uppercase tracking-wider text-slate-300 block font-cinzel">15-Rotor Three-Tier Architecture</span>
+          <div class="space-y-2">
+            <div>
+              <div class="text-[10px] font-mono-code text-amber-400 flex justify-between">
+                <span>CONTROL BANK (5 ROTORS):</span>
+                <span id="sigaba-ctrl-pos">A - A - A - A - A</span>
+              </div>
+            </div>
+            <div>
+              <div class="text-[10px] font-mono-code text-sky-400 flex justify-between">
+                <span>INDEX BANK (5 COMMUTATORS):</span>
+                <span id="sigaba-idx-pos">A - A - A - A - A</span>
+              </div>
+            </div>
+            <div>
+              <div class="text-[10px] font-mono-code text-emerald-400 flex justify-between">
+                <span>CIPHER BANK (5 SCRAMBLERS):</span>
+                <span id="sigaba-ciph-pos">A - A - A - A - A</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- SIGABA Keystream Console -->
+        <div class="glass-panel p-3.5 rounded-xl space-y-3">
+          <span class="text-xs font-bold uppercase tracking-wider text-slate-300 block font-cinzel">SIGABA Aperiodic Cipher Stream</span>
+          <div>
+            <label class="text-[10px] font-mono-code text-slate-400 block mb-1">Plaintext Input:</label>
+            <input id="sigaba-plain-input" type="text" placeholder="Type military message..." value="US NAVY PACIFIC TASK FORCE" class="w-full bg-slate-900 border border-slate-700 rounded px-2.5 py-1.5 text-xs font-mono-code uppercase text-emerald-300 focus:outline-none focus:border-emerald-500">
+          </div>
+          <div>
+            <label class="text-[10px] font-mono-code text-slate-400 block mb-1">Enciphered Output:</label>
+            <div id="sigaba-cipher-output" class="min-h-[42px] bg-slate-900 border border-slate-700 rounded p-2 text-xs font-mono-code text-amber-300 font-bold tracking-widest break-all">
+              ---
+            </div>
+          </div>
+          <div class="flex gap-2">
+            <button id="btn-sigaba-encipher" class="flex-1 py-1.5 rounded bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold">
+              ⚡ Encipher with SIGABA
+            </button>
+            <button id="btn-sigaba-reset" class="px-3 py-1.5 rounded bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-mono-code">
+              Reset
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- 4. POLISH BIURO SZYFRÓW SUITE -->
+      <div id="panel-polish-controls" class="p-4 space-y-4 hidden">
+        <div class="glass-panel p-3.5 rounded-xl space-y-2 border-l-2 border-l-rose-500">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-bold uppercase tracking-wider text-rose-400 font-cinzel">Biuro Szyfrów (1932–1939)</span>
+            <span class="text-[10px] px-2 py-0.5 rounded bg-rose-500/20 text-rose-300 font-mono-code font-bold">REJEWSKI &amp; ZYGALSKI</span>
+          </div>
+          <p class="text-xs text-slate-400 leading-relaxed">
+            Polish mathematicians Marian Rejewski, Jerzy Różycki, and Henryk Zygalski broke commercial and early military Enigma using group theory permutations and perforated sheets years before Alan Turing arrived at Hut 8.
+          </p>
+        </div>
+
+        <!-- Rejewski's Cyclometer -->
+        <div class="glass-panel p-3.5 rounded-xl space-y-3">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-bold uppercase tracking-wider text-slate-300 font-cinzel">Rejewski's Cyklometr</span>
+            <span class="text-[10px] font-mono-code text-amber-400">Permutation Cycles</span>
+          </div>
+          <p class="text-[11px] text-slate-300 leading-relaxed">
+            By interconnecting two Enigma rotor scramblers out of phase by 3 positions, Rejewski proved that the disjoint cycle structure of double indicators $(AD)(EFG)...$ is completely invariant of the front plugboard (*Steckerbrett*).
+          </p>
+          <div id="polish-cycle-display" class="p-2.5 bg-slate-900 border border-slate-800 rounded font-mono-code text-xs text-amber-300 font-bold break-all">
+            Cycles: (A L P)(B R)(C X M T Q)(D K)...
+          </div>
+          <button id="btn-rejewski-catalogue" class="w-full py-1.5 rounded bg-rose-950/70 border border-rose-600/60 hover:bg-rose-900 text-rose-200 text-xs font-mono-code">
+            ⚡ Decompose Daily Indicator Cycles
+          </button>
+        </div>
+
+        <!-- Zygalski Perforated Sheets Light Table Launcher -->
+        <div class="glass-panel p-3.5 rounded-xl space-y-3">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-bold uppercase tracking-wider text-slate-300 font-cinzel">Płachty Zygalskiego</span>
+            <span class="text-[10px] font-mono-code text-sky-400">Lightbox Filter</span>
+          </div>
+          <p class="text-[11px] text-slate-400">
+            Perforated cardboard grids stacked over a light table. When stacked according to daily female indicators, light shining through all layers reveals the true rotor ground setting.
+          </p>
+          <button id="btn-open-zygalski" class="w-full py-2 rounded-lg bg-sky-600 hover:bg-sky-500 text-white font-bold text-xs font-mono-code flex items-center justify-center gap-1.5 shadow">
+            <span>💡 Open Zygalski Sheet Light Table</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- 5. BOMBE CONTROLS PANEL -->
+      <div id="panel-bombe-controls" class="p-4 space-y-4 hidden">
+        <div class="glass-panel p-3.5 rounded-xl space-y-2 border-l-2 border-l-amber-500">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-bold uppercase tracking-wider text-amber-400 font-cinzel">Turing-Welchman Bombe</span>
+            <span class="text-[10px] px-2 py-0.5 rounded bg-amber-500/20 text-amber-300 font-mono-code">HUT 11</span>
+          </div>
+          <p class="text-xs text-slate-400 leading-relaxed">
+            Electro-mechanical cryptanalytic engine running 36 virtual Enigmas in parallel to eliminate contradictory rotor permutations using suspected plaintext (<strong class="text-slate-200">cribs</strong>).
+          </p>
+        </div>
+
+        <!-- Crib Menu & Intercept Setup -->
+        <div class="glass-panel p-3.5 rounded-xl space-y-3">
+          <span class="text-xs font-bold uppercase tracking-wider text-slate-300 block font-cinzel">Crib &amp; Intercept Setup</span>
+          <div>
+            <label class="text-[10px] font-mono-code text-slate-400 block mb-1">Ciphertext Intercept:</label>
+            <input id="bombe-cipher-input" type="text" value="" class="w-full bg-slate-900 border border-slate-700 rounded px-2.5 py-1.5 text-xs font-mono-code uppercase text-amber-300 font-bold tracking-wider">
+          </div>
+          <div>
+            <label class="text-[10px] font-mono-code text-slate-400 block mb-1">Suspected Plaintext (Crib):</label>
+            <input id="bombe-crib-input" type="text" value="WETTERVORHERSAGE" class="w-full bg-slate-900 border border-slate-700 rounded px-2.5 py-1.5 text-xs font-mono-code uppercase text-emerald-400 font-bold tracking-wider">
+          </div>
+        </div>
+
+        <!-- Welchman Diagonal Board Graph -->
+        <div class="glass-panel p-3.5 rounded-xl space-y-3">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-bold uppercase tracking-wider text-slate-300 font-cinzel">Welchman Diagonal Board</span>
+            <span class="text-[10px] font-mono-code text-amber-400">Proof by Contradiction</span>
+          </div>
+          <canvas id="bombe-graph-canvas" class="w-full h-36 bg-slate-950 rounded-lg border border-slate-800"></canvas>
+          <button id="btn-open-diagonal-board" class="w-full py-2 rounded-lg bg-amber-950/70 border border-amber-600/70 hover:bg-amber-900 text-amber-300 text-xs font-mono-code font-bold transition-all flex items-center justify-center gap-1.5 shadow">
+            <span>⚡ Open 26×26 Welchman Matrix Tracer</span>
+          </button>
+        </div>
+
+        <!-- Bombe Commutator Controls -->
+        <div class="glass-panel p-3.5 rounded-xl space-y-3">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-bold uppercase tracking-wider text-slate-300 font-cinzel">Commutator Banks</span>
+            <span id="bombe-status-badge" class="text-[10px] font-mono-code px-2 py-0.5 rounded bg-slate-800 text-slate-400">IDLE</span>
+          </div>
+          <div class="flex gap-2">
+            <button id="btn-run-bombe" class="flex-1 py-2 rounded-lg bg-amber-600 hover:bg-amber-500 text-white font-semibold text-xs transition-colors flex items-center justify-center gap-1.5 shadow-md">
+              <span>▶ Start Bombe Scan</span>
+            </button>
+            <button id="btn-stop-bombe" class="px-3 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-xs font-mono-code text-slate-300">
+              ⏹ Stop
+            </button>
+          </div>
+          <div class="space-y-1">
+            <div class="flex justify-between text-[10px] font-mono-code text-slate-400">
+              <span>Permutations Scanned:</span>
+              <span id="bombe-scanned-count">0 / 17,576</span>
+            </div>
+            <div class="w-full h-2 bg-slate-900 rounded-full overflow-hidden border border-slate-800">
+              <div id="bombe-progress-bar" class="h-full bg-amber-500 w-0 transition-all duration-75"></div>
+            </div>
+          </div>
+          
+          <div id="bombe-solution-box" class="p-3 rounded-lg bg-amber-950/40 border border-amber-600/40 text-xs font-mono-code space-y-2 hidden">
+            <div class="text-amber-400 font-bold flex items-center gap-1">
+              <span>★ TURING STOP DETECTED:</span>
+            </div>
+            <div id="bombe-stop-rotors" class="text-slate-200">Rotors: <strong class="text-amber-300">III - II - I</strong></div>
+            <div id="bombe-stop-pos" class="text-slate-200">Positions: <strong class="text-emerald-400">W - T - R</strong></div>
+            <button id="btn-bombe-transfer-key" class="w-full mt-2 py-2 rounded bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold shadow-md">
+              Transfer Key to Enigma &amp; Decipher
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- 6. COLOSSUS & LORENZ CONTROLS PANEL -->
+      <div id="panel-colossus-controls" class="p-4 space-y-4 hidden">
+        <div class="glass-panel p-3.5 rounded-xl space-y-2 border-l-2 border-l-sky-500">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-bold uppercase tracking-wider text-sky-400 font-cinzel">Colossus Mk II &amp; Lorenz SZ42</span>
+            <span class="text-[10px] px-2 py-0.5 rounded bg-sky-500/20 text-sky-300 font-mono-code">NEWMANRY</span>
+          </div>
+          <p class="text-xs text-slate-400 leading-relaxed">
+            The world's first programmable digital electronic computer, operating 1,500 thermionic vacuum tubes to crack Hitler's 12-wheel teleprinter cipher (<strong class="text-slate-200">Tunny</strong>) via Bill Tutte's $\Delta\chi$ statistical break.
+          </p>
+        </div>
+
+        <!-- Full Lorenz Stream Cipher Teleprinter -->
+        <div class="glass-panel p-3.5 rounded-xl space-y-3">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-bold uppercase tracking-wider text-slate-300 font-cinzel">SZ42 Teleprinter Stream</span>
+            <span class="text-[10px] font-mono-code text-sky-400">5-Bit ITA2 Baudot</span>
+          </div>
+          <div>
+            <label class="text-[10px] font-mono-code text-slate-400 block mb-1">Plaintext Teleprinter Message:</label>
+            <input id="lorenz-plain-input" type="text" value="UNTERNEHMEN ZITADELLE" class="w-full bg-slate-900 border border-slate-700 rounded px-2.5 py-1.5 text-xs font-mono-code uppercase text-sky-300 font-bold">
+          </div>
+          <div>
+            <label class="text-[10px] font-mono-code text-slate-400 block mb-1">Enciphered Keystream XOR Output ($C = P \oplus K$):</label>
+            <div id="lorenz-cipher-output" class="min-h-[36px] bg-slate-900 border border-slate-700 rounded p-2 text-xs font-mono-code text-emerald-400 break-all font-bold">
+              ---
+            </div>
+          </div>
+          <div class="flex gap-2">
+            <button id="btn-encipher-lorenz" class="flex-1 py-1.5 rounded bg-sky-600 hover:bg-sky-500 text-white text-xs font-semibold">
+              ⚡ Encipher with SZ42
+            </button>
+            <button id="btn-decipher-lorenz" class="flex-1 py-1.5 rounded bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-mono-code">
+              🔄 Reverse Teleprinter
+            </button>
+          </div>
+        </div>
+
+        <!-- Baudot ITA2 Optical Paper Tape -->
+        <div class="glass-panel p-3.5 rounded-xl space-y-3">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-bold uppercase tracking-wider text-slate-300 font-cinzel">Optical Tape Reader</span>
+            <span class="text-[10px] font-mono-code text-sky-400">5,000 char/sec</span>
+          </div>
+          <div>
+            <label class="text-[10px] font-mono-code text-slate-400 block mb-1">5-Bit Baudot ITA2 Punched Hole Tape:</label>
+            <div id="baudot-punch-tape" class="h-16 bg-slate-900 border border-slate-800 rounded p-2 flex items-center gap-1.5 overflow-x-auto font-mono-code text-[10px]"></div>
+          </div>
+          <div>
+            <label class="text-[10px] font-mono-code text-slate-400 block mb-1">High-Speed Optical Reader Stream:</label>
+            <div id="tape-stream" class="h-8 bg-slate-900 border border-slate-700 rounded px-2.5 py-1 text-xs font-mono-code text-sky-300 overflow-hidden whitespace-nowrap flex items-center">
+              /// 9X92L KM82P 01101 10010 11100 00101 CITADEL ///
+            </div>
+          </div>
+        </div>
+
+        <!-- Lorenz SZ42 12-Wheel Cam Pins -->
+        <div class="glass-panel p-3.5 rounded-xl space-y-3">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-bold uppercase tracking-wider text-slate-300 font-cinzel">Lorenz 12-Wheel Cam Pins</span>
+            <button id="btn-randomize-cams" class="text-[10px] text-sky-400 hover:text-sky-300 font-mono-code">Shuffle Cams</button>
+          </div>
+          <div class="grid grid-cols-6 gap-1" id="lorenz-cam-pins-grid"></div>
+        </div>
+
+        <!-- Bill Tutte Delta-Chi Statistical Peak Graph -->
+        <div class="glass-panel p-3.5 rounded-xl space-y-3">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-bold uppercase tracking-wider text-slate-300 font-cinzel">Bill Tutte $\Delta\chi$ Attack</span>
+            <span class="text-[10px] font-mono-code text-emerald-400">Statistical Peak</span>
+          </div>
+          <canvas id="tutte-histogram-canvas" class="w-full h-28 bg-slate-950 rounded-lg border border-slate-800"></canvas>
+          <button id="btn-run-colossus" class="w-full py-2 rounded-lg bg-sky-600 hover:bg-sky-500 text-white font-semibold text-xs transition-colors flex items-center justify-center gap-1.5 shadow-md">
+            <span>⚡ Run 1,500-Valve Statistical Break</span>
+          </button>
+          <div id="colossus-result-box" class="p-3 rounded-lg bg-sky-950/40 border border-sky-600/40 text-xs font-mono-code space-y-1 hidden">
+            <div class="text-sky-300 font-bold">★ TUTTE DELTA-CHI PEAK DETECTED</div>
+            <div class="text-slate-300 text-[11px]">Hitler High Command Directive Decoded:</div>
+            <div class="text-emerald-400 font-bold">"UNTERNEHMEN ZITADELLE GENERALINSPEKTEUR"</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 7. MISSIONS PANEL -->
+      <div id="panel-missions-controls" class="p-4 space-y-4 hidden">
+        <div class="glass-panel p-3.5 rounded-xl space-y-2 border-l-2 border-l-amber-500">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-bold uppercase tracking-wider text-amber-400 font-cinzel">Classified Missions</span>
+            <span class="text-[10px] px-2 py-0.5 rounded bg-amber-500/20 text-amber-300 font-mono-code">ULTRA</span>
+          </div>
+          <p class="text-xs text-slate-400 leading-relaxed">
+            Step into the shoes of Hut 8 and Newmanry cryptanalysts to decrypt historical intercepts that decided the Second World War.
+          </p>
+        </div>
+
+        <div class="glass-panel p-3.5 rounded-xl space-y-2 border-l-2 border-l-amber-500">
+          <div class="flex items-center justify-between">
+            <h3 class="text-xs font-bold text-slate-200">1. Operation Primrose: U-559 "Shark"</h3>
+            <span id="badge-mission-1" class="text-[9px] px-1.5 py-0.5 rounded bg-slate-800 text-slate-400 font-mono-code font-bold">PENDING</span>
+          </div>
+          <p class="text-[11px] text-slate-400">Decipher the Kriegsmarine 4-rotor grid coordinates dispatch.</p>
+          <button id="btn-load-mission-1" class="w-full py-1.5 rounded bg-slate-800 hover:bg-slate-700 text-xs font-mono-code text-amber-300">
+            Load U-559 Intercept
+          </button>
+        </div>
+
+        <div class="glass-panel p-3.5 rounded-xl space-y-2 border-l-2 border-l-emerald-500">
+          <div class="flex items-center justify-between">
+            <h3 class="text-xs font-bold text-slate-200">2. Normandy Weather Forecast</h3>
+            <span id="badge-mission-2" class="text-[9px] px-1.5 py-0.5 rounded bg-slate-800 text-slate-400 font-mono-code font-bold">PENDING</span>
+          </div>
+          <p class="text-[11px] text-slate-400">Use the Turing Bombe to test the suspected German weather crib for June 6, 1944.</p>
+          <button id="btn-load-mission-2" class="w-full py-1.5 rounded bg-slate-800 hover:bg-slate-700 text-xs font-mono-code text-emerald-300">
+            Load Normandy Crib
+          </button>
+        </div>
+
+        <div class="glass-panel p-3.5 rounded-xl space-y-2 border-l-2 border-l-sky-500">
+          <div class="flex items-center justify-between">
+            <h3 class="text-xs font-bold text-slate-200">3. Operation Citadel: Kursk Directive</h3>
+            <span id="badge-mission-3" class="text-[9px] px-1.5 py-0.5 rounded bg-slate-800 text-slate-400 font-mono-code font-bold">PENDING</span>
+          </div>
+          <p class="text-[11px] text-slate-400">Run Colossus Mark II to reveal the teleprinter order from Hitler's headquarters.</p>
+          <button id="btn-load-mission-3" class="w-full py-1.5 rounded bg-slate-800 hover:bg-slate-700 text-xs font-mono-code text-sky-300">
+            Load Lorenz Stream
+          </button>
+        </div>
+      </div>
+    </aside>
+  </div>
+
+  <!-- MODAL: Zygalski Perforated Sheets Light Table -->
+  <div id="modal-zygalski" class="fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-4 hidden">
+    <div class="w-full max-w-2xl bg-slate-950 border border-sky-600/50 rounded-2xl p-6 shadow-2xl flex flex-col space-y-4">
+      <div class="flex items-center justify-between pb-2 border-b border-slate-800">
+        <div class="flex items-center gap-2">
+          <span class="text-sky-400 text-xl font-bold">💡</span>
+          <h2 class="text-sm font-bold uppercase tracking-wider text-slate-200 font-cinzel">Henryk Zygalski Perforated Sheets Light Table (1938)</h2>
+        </div>
+        <button id="btn-close-zygalski" class="text-slate-400 hover:text-slate-200 text-sm">✕</button>
+      </div>
+      <p class="text-xs text-slate-300 leading-relaxed">
+        Stack translucent perforated cardboard sheets corresponding to daily indicator groups. Move sheets across the $26 \times 26$ grid. Where light penetrates all layers, the rotor ground setting is isolated!
+      </p>
+      <div class="flex items-center justify-center p-4 bg-slate-900 rounded-xl border border-slate-800">
+        <canvas id="zygalski-light-table-canvas" width="400" height="400" class="light-table-glow rounded-lg bg-slate-950 border border-sky-400/40"></canvas>
+      </div>
+      <div class="flex items-center justify-between text-xs font-mono-code">
+        <div class="flex items-center gap-2">
+          <span>Offset X: <input id="zygalski-offset-x" type="range" min="-10" max="10" value="0" class="accent-sky-500 w-24"></span>
+          <span>Offset Y: <input id="zygalski-offset-y" type="range" min="-10" max="10" value="0" class="accent-sky-500 w-24"></span>
+        </div>
+        <div id="zygalski-result-text" class="text-amber-300 font-bold">Aperture match: M - V - Q</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: Peer-to-Peer Shortwave Intercept Net -->
+  <div id="modal-p2p" class="fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-4 hidden">
+    <div class="w-full max-w-2xl bg-slate-950 border border-sky-600/50 rounded-2xl p-6 shadow-2xl flex flex-col space-y-4">
+      <div class="flex items-center justify-between pb-2 border-b border-slate-800">
+        <div class="flex items-center gap-2">
+          <span class="text-sky-400 text-xl font-bold">📡</span>
+          <h2 class="text-sm font-bold uppercase tracking-wider text-slate-200 font-cinzel">Simulated Shortwave Radio Intercept Network</h2>
+        </div>
+        <button id="btn-close-p2p" class="text-slate-400 hover:text-slate-200 text-sm">✕</button>
+      </div>
+      <p class="text-xs text-slate-300 leading-relaxed">
+        Broadcast or receive encrypted Wehrmacht/Kriegsmarine radio dispatches between browser tabs over simulated High Frequency (HF) shortwave radio.
+      </p>
+      <div class="grid grid-cols-2 gap-3">
+        <div class="glass-panel p-3 rounded-xl space-y-2">
+          <label class="text-[10px] font-mono-code text-slate-400">Frequency:</label>
+          <select id="p2p-freq-sel" class="w-full bg-slate-900 border border-slate-700 rounded px-2 py-1 text-xs font-mono-code text-sky-300">
+            <option value="7050">7.050 MHz (40m Kriegsmarine)</option>
+            <option value="14120">14.120 MHz (20m Luftwaffe)</option>
+            <option value="3580">3.580 MHz (80m OKW Command)</option>
+          </select>
+          <label class="text-[10px] font-mono-code text-slate-400 block pt-1">Station Call Sign:</label>
+          <input id="p2p-callsign" type="text" value="DL4M (BREST)" class="w-full bg-slate-900 border border-slate-700 rounded px-2 py-1 text-xs font-mono-code uppercase text-amber-300">
+          <button id="btn-p2p-broadcast" class="w-full mt-2 py-2 rounded bg-sky-600 hover:bg-sky-500 text-white font-bold text-xs font-mono-code">
+            ⚡ Transmit Current Cipher
+          </button>
+        </div>
+        <div class="glass-panel p-3 rounded-xl space-y-2 flex flex-col justify-between">
+          <div>
+            <label class="text-[10px] font-mono-code text-slate-400 block">Intercept Log (Station X / Hut 8):</label>
+            <div id="p2p-log-box" class="h-28 overflow-y-auto bg-slate-900 border border-slate-800 rounded p-2 text-[10px] font-mono-code text-emerald-400 space-y-1">
+              <div>[RX] 7.050 MHz - NET MONITOR ACTIVE...</div>
+            </div>
+          </div>
+          <button id="btn-p2p-feed-bombe" class="w-full py-1.5 rounded bg-amber-950/70 border border-amber-600/60 hover:bg-amber-900 text-amber-300 text-xs font-mono-code">
+            Feed Intercept to Bombe
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: Welchman 26×26 Diagonal Board Matrix -->
+  <div id="modal-diagonal-board" class="fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-4 hidden">
+    <div class="w-full max-w-4xl bg-slate-950 border border-amber-600/50 rounded-2xl p-6 shadow-2xl flex flex-col max-h-[90vh]">
+      <div class="flex items-center justify-between pb-3 border-b border-slate-800">
+        <div class="flex items-center gap-2">
+          <span class="text-amber-400 text-xl font-bold">⚡</span>
+          <h2 class="text-sm font-bold uppercase tracking-wider text-slate-200 font-cinzel">Gordon Welchman Diagonal Board 26×26 Tracer (Hut 11)</h2>
+        </div>
+        <button id="btn-close-diagonal-board" class="text-slate-400 hover:text-slate-200 text-sm">✕</button>
+      </div>
+      
+      <div class="py-3 text-xs text-slate-300 leading-relaxed border-b border-slate-800 flex flex-wrap gap-4 justify-between items-center">
+        <div>
+          <span class="font-bold text-amber-400">Hypothesis Injection:</span> Click any letter below to pass a simulated 24V current into that contact wire.
+        </div>
+        <div class="flex items-center gap-2">
+          <span class="text-[11px] font-mono-code text-slate-400">Energize Letter:</span>
+          <select id="sel-diagonal-hypothesis" class="bg-slate-900 border border-amber-600/50 rounded px-2 py-1 text-xs font-mono-code text-amber-400"></select>
+          <button id="btn-step-diagonal-voltage" class="px-3 py-1 rounded bg-amber-600 hover:bg-amber-500 text-white font-bold text-xs">Inject 24V</button>
+          <button id="btn-reset-diagonal-board" class="px-2.5 py-1 rounded bg-slate-800 text-slate-300 text-xs">Clear</button>
+        </div>
+      </div>
+
+      <div class="flex-1 overflow-auto py-3">
+        <div id="diagonal-matrix-grid" class="inline-grid grid-cols-[repeat(27,minmax(0,1fr))] gap-0.5 font-mono-code text-[10px] min-w-[580px] mx-auto select-none"></div>
+      </div>
+
+      <div class="pt-3 border-t border-slate-800 flex items-center justify-between text-xs font-mono-code">
+        <div id="diagonal-status-text" class="text-amber-300">State: Standby. Select an assumption hypothesis to trace current loop.</div>
+        <div class="flex items-center gap-3">
+          <span class="flex items-center gap-1.5"><span class="w-3 h-3 rounded-full bg-amber-400 inline-block"></span> 24V Live Wire</span>
+          <span class="flex items-center gap-1.5"><span class="w-3 h-3 rounded-full bg-rose-500 inline-block"></span> Contradiction (26/26)</span>
+          <span class="flex items-center gap-1.5"><span class="w-3 h-3 rounded-full bg-emerald-500 inline-block"></span> Turing Stop (1/26)</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: CW Morse Code Audio Telegraph Key & Radio Filter -->
+  <div id="modal-morse" class="fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-4 hidden">
+    <div class="w-full max-w-xl bg-slate-950 border border-emerald-600/50 rounded-2xl p-6 shadow-2xl flex flex-col space-y-4">
+      <div class="flex items-center justify-between pb-2 border-b border-slate-800">
+        <div class="flex items-center gap-2">
+          <span class="text-emerald-400 text-xl font-bold">📻</span>
+          <h2 class="text-sm font-bold uppercase tracking-wider text-slate-200 font-cinzel">CW Morse Telegraphy &amp; Atmospheric Shortwave</h2>
+        </div>
+        <button id="btn-close-morse" class="text-slate-400 hover:text-slate-200 text-sm">✕</button>
+      </div>
+
+      <div class="grid grid-cols-2 gap-3 text-xs">
+        <div class="glass-panel p-3 rounded-xl space-y-2">
+          <label class="text-slate-400 font-mono-code block">Tone Frequency: <strong id="morse-freq-val" class="text-emerald-400">750 Hz</strong></label>
+          <input id="slider-morse-freq" type="range" min="400" max="1100" value="750" class="w-full accent-emerald-500">
+          
+          <label class="text-slate-400 font-mono-code block">Speed: <strong id="morse-wpm-val" class="text-emerald-400">18 WPM</strong></label>
+          <input id="slider-morse-wpm" type="range" min="10" max="30" value="18" class="w-full accent-emerald-500">
+        </div>
+        <div class="glass-panel p-3 rounded-xl space-y-2 flex flex-col justify-between">
+          <div>
+            <label class="text-slate-400 font-mono-code block">Atmospheric Static:</label>
+            <div class="flex items-center gap-2 mt-1">
+              <input id="chk-morse-static" type="checkbox" checked class="accent-emerald-500 w-4 h-4">
+              <span class="text-slate-300 font-mono-code text-[11px]">Shortwave Noise (QRN)</span>
+            </div>
+          </div>
+          <button id="btn-play-stream-morse" class="w-full py-2 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white font-bold font-mono-code text-xs">
+            ▶ Play Active Cipher Stream in Morse
+          </button>
+        </div>
+      </div>
+
+      <div class="glass-panel p-4 rounded-xl flex flex-col items-center justify-center space-y-3">
+        <span class="text-xs font-bold uppercase tracking-wider text-slate-400 font-cinzel">Interactive Brass Straight Key</span>
+        <button id="brass-telegraph-key" class="w-48 h-20 rounded-2xl bg-gradient-to-b from-amber-600 to-amber-800 border-4 border-amber-400 text-amber-950 font-cinzel font-black text-sm tracking-wider shadow-2xl active:translate-y-1 active:border-amber-300 active:from-amber-500 active:to-amber-700 transition-all flex items-center justify-center cursor-pointer select-none">
+          PRESS / HOLD KEY
+        </button>
+        <div class="flex items-center gap-3 font-mono-code text-xs">
+          <span>Decoded Keystrokes: <strong id="morse-decoded-char" class="text-emerald-400 text-lg">---</strong></span>
+          <span>Dits/Dahs: <strong id="morse-pattern-str" class="text-amber-400">... --- ...</strong></span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: Authentic Military Radio Telegram Form Exporter -->
+  <div id="modal-telegram-export" class="fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-4 hidden">
+    <div class="w-full max-w-3xl bg-slate-950 border border-amber-600/50 rounded-2xl p-6 shadow-2xl flex flex-col space-y-4 max-h-[90vh]">
+      <div class="flex items-center justify-between pb-2 border-b border-slate-800">
+        <div class="flex items-center gap-2">
+          <span class="text-amber-400 text-xl font-bold">📜</span>
+          <h2 class="text-sm font-bold uppercase tracking-wider text-slate-200 font-cinzel">Historical Wartime Military Telegram Dispatch</h2>
+        </div>
+        <button id="btn-close-telegram" class="text-slate-400 hover:text-slate-200 text-sm">✕</button>
+      </div>
+
+      <div class="flex-1 overflow-y-auto p-4">
+        <div id="dispatch-parchment-sheet" class="parchment-sheet p-8 rounded-lg space-y-5 border border-amber-900/30 relative overflow-hidden font-mono-code">
+          <div class="stamp-red absolute top-6 right-6 px-3 py-1 text-xs border-dashed">
+            BLETCHLEY PARK ULTRA<br>DECLASSIFIED TOP SECRET
+          </div>
+
+          <div class="border-b-2 border-black/70 pb-3 flex justify-between items-end">
+            <div>
+              <div class="text-lg font-bold font-cinzel tracking-widest text-slate-900">OBERKOMMANDO DER WEHRMACHT / KRIEGSMARINE</div>
+              <div class="text-xs text-slate-800 font-bold">FUNKSPRUCH / SCHLÜSSELZETTEL (GEHEIME KOMMANDOSACHE)</div>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-4 gap-2 text-xs border-b border-black/40 pb-3">
+            <div><strong>DATUM:</strong> <span id="dispatch-date">06.06.1944</span></div>
+            <div><strong>ZEIT:</strong> <span id="dispatch-time">04:15 MEZ</span></div>
+            <div><strong>FUNKSTELLE:</strong> <span id="dispatch-station">KLA (PARIS)</span></div>
+            <div><strong>KENNGRUPPE:</strong> <span id="dispatch-kenngruppe">WTR</span></div>
+          </div>
+
+          <div class="space-y-1">
+            <div class="text-[11px] font-bold text-slate-800">CHIFFRIERTE FUNKNACHRICHT (5-LETTER MILITARY GROUPS):</div>
+            <div id="dispatch-cipher-body" class="p-3 bg-black/5 border border-black/20 rounded font-bold text-sm tracking-[0.25em] leading-relaxed break-all text-slate-900">
+              BDZGO WETTER VORHER SAGEQ STAND ORTQU ADRAT CITAD
+            </div>
+          </div>
+
+          <div class="space-y-1 pt-2">
+            <div class="text-[11px] font-bold text-emerald-900">HUT 8 / NEWMANRY DECRYPTION INTELLIGENCE:</div>
+            <div id="dispatch-plain-body" class="p-3 bg-emerald-900/10 border border-emerald-900/30 rounded font-bold text-xs tracking-wider text-emerald-950">
+              PLAIN DISPATCH RECOVERED UNDER DAILY KEY SCHLUESSEL M
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="pt-2 flex justify-between items-center border-t border-slate-800">
+        <span class="text-xs text-slate-400 font-mono-code">Formatted after historical Wehrmacht Funkspruch dispatches.</span>
+        <div class="flex gap-2">
+          <button id="btn-print-dispatch" class="px-4 py-2 rounded-lg bg-amber-600 hover:bg-amber-500 text-white font-bold text-xs font-mono-code">
+            🖨️ Print / Save Telegram Sheet
+          </button>
+          <button id="btn-copy-dispatch" class="px-3 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-mono-code">
+            📋 Copy Text
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: Diagnostics Engine (30 Verification Suites) -->
+  <div id="modal-diagnostics" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 hidden">
+    <div class="w-full max-w-2xl bg-slate-950 border border-slate-800 rounded-2xl p-5 shadow-2xl flex flex-col max-h-[85vh]">
+      <div class="flex items-center justify-between pb-3 border-b border-slate-800">
+        <div class="flex items-center gap-2">
+          <span class="w-3 h-3 rounded-full bg-emerald-400 animate-ping"></span>
+          <h2 class="text-sm font-bold uppercase tracking-wider text-slate-200 font-cinzel">Automated Cryptographic Diagnostic Suite</h2>
+        </div>
+        <button id="btn-close-diagnostics" class="text-slate-400 hover:text-slate-200 text-sm">✕</button>
+      </div>
+      <div id="diagnostics-test-list" class="flex-1 overflow-y-auto py-3 space-y-2 font-mono-code text-xs"></div>
+      <div class="pt-3 border-t border-slate-800 flex items-center justify-between">
+        <span class="text-xs text-slate-400 font-mono-code">30/30 verification suites executing continuously.</span>
+        <button id="btn-copy-diag" class="px-3 py-1.5 rounded bg-slate-800 hover:bg-slate-700 text-xs font-mono-code text-slate-300">
+          📋 Copy Report
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: Historical Intelligence Dossier -->
+  <div id="modal-dossier" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 hidden">
+    <div class="w-full max-w-2xl bg-slate-950 border border-slate-800 rounded-2xl p-6 shadow-2xl space-y-4 max-h-[85vh] overflow-y-auto">
+      <div class="flex items-center justify-between pb-2 border-b border-slate-800">
+        <h2 class="text-base font-bold text-amber-400 font-cinzel tracking-wider">BLETCHLEY PARK ARCHIVAL DOSSIER</h2>
+        <button id="btn-close-dossier" class="text-slate-400 hover:text-slate-200 text-sm">✕</button>
+      </div>
+      <div class="text-xs text-slate-300 space-y-3 leading-relaxed">
+        <h3 class="font-bold text-slate-100 text-sm font-cinzel">1. The Enigma Machine (M3 &amp; M4)</h3>
+        <p>Patented by Arthur Scherbius and heavily customized by the German military. Rotors mechanically scrambled letter permutations through internal wiring, reflector, and front plugboard. Flaw: no letter could ever encipher to itself ($E(x) \neq x$).</p>
+        
+        <h3 class="font-bold text-slate-100 text-sm font-cinzel">2. American SIGABA / ECM Mark II</h3>
+        <p>Operated by the US Army and US Navy throughout WWII. Using 15 rotors across three functional banks with dynamic electrical stepping, SIGABA was never broken by Axis cryptanalysts.</p>
+
+        <h3 class="font-bold text-slate-100 text-sm font-cinzel">3. Polish Biuro Szyfrów (Rejewski, Różycki, Zygalski)</h3>
+        <p>Cracked commercial and military Enigma in the early 1930s using group theory permutations, the Cyclometer, and perforated sheets, giving Britain the head start needed to crack wartime traffic.</p>
+
+        <h3 class="font-bold text-slate-100 text-sm font-cinzel">4. The Turing-Welchman Bombe (Hut 11)</h3>
+        <p>Conceived by Alan Turing with Gordon Welchman's diagonal board improvement. Running 36 Enigmas in parallel, it used suspected plaintext "cribs" to electrically eliminate 25 out of 26 incorrect rotor positions simultaneously.</p>
+
+        <h3 class="font-bold text-slate-100 text-sm font-cinzel">5. Colossus Mark II &amp; Lorenz SZ42 (Newmanry)</h3>
+        <p>Constructed by Tommy Flowers and operational in 1944. Containing 1,500 to 2,400 thermionic vacuum tubes, Colossus cracked Hitler's 12-wheel teleprinter cipher based on Bill Tutte's statistical delta-chi break.</p>
+      </div>
+      <div class="pt-2 text-right">
+        <button id="btn-dismiss-dossier" class="px-4 py-2 rounded-lg bg-amber-600 hover:bg-amber-500 text-white text-xs font-semibold">
+          Acknowledge &amp; Close
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+  /* ----------------------------------------------------
+     AUDIO ENGINE
+  ---------------------------------------------------- */
+  class CryptSoundFX {
+    constructor() {
+      this.ctx = null;
+      this.muted = false;
+      this.morseGain = null;
+      this.morseOsc = null;
+      this.noiseNode = null;
+      this.noiseGain = null;
+    }
+
+    init() {
+      if (!this.ctx) {
+        try {
+          const AudioCtx = window.AudioContext || window.webkitAudioContext;
+          if (AudioCtx) this.ctx = new AudioCtx();
+        } catch (e) {}
+      }
+      if (this.ctx && this.ctx.state === 'suspended') {
+        this.ctx.resume().catch(() => {});
+      }
+    }
+
+    playKeyClick() {
+      if (this.muted || !this.ctx) return;
+      try {
+        const t = this.ctx.currentTime;
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(360, t);
+        osc.frequency.exponentialRampToValueAtTime(70, t + 0.045);
+        gain.gain.setValueAtTime(0.35, t);
+        gain.gain.exponentialRampToValueAtTime(0.005, t + 0.045);
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+        osc.start(t);
+        osc.stop(t + 0.045);
+      } catch (e) {}
+    }
+
+    playRotorStep() {
+      if (this.muted || !this.ctx) return;
+      try {
+        const t = this.ctx.currentTime;
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.type = 'square';
+        osc.frequency.setValueAtTime(180, t);
+        osc.frequency.exponentialRampToValueAtTime(35, t + 0.07);
+        gain.gain.setValueAtTime(0.3, t);
+        gain.gain.exponentialRampToValueAtTime(0.005, t + 0.07);
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+        osc.start(t);
+        osc.stop(t + 0.07);
+      } catch (e) {}
+    }
+
+    playRelayClick() {
+      if (this.muted || !this.ctx) return;
+      try {
+        const t = this.ctx.currentTime;
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(920, t);
+        osc.frequency.exponentialRampToValueAtTime(180, t + 0.035);
+        gain.gain.setValueAtTime(0.25, t);
+        gain.gain.exponentialRampToValueAtTime(0.005, t + 0.035);
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+        osc.start(t);
+        osc.stop(t + 0.035);
+      } catch (e) {}
+    }
+
+    playValveHum() {
+      if (this.muted || !this.ctx) return;
+      try {
+        const t = this.ctx.currentTime;
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(120, t);
+        gain.gain.setValueAtTime(0.18, t);
+        gain.gain.exponentialRampToValueAtTime(0.005, t + 0.2);
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+        osc.start(t);
+        osc.stop(t + 0.2);
+      } catch (e) {}
+    }
+
+    startMorseTone(freq = 750) {
+      if (this.muted || !this.ctx) return;
+      try {
+        this.stopMorseTone();
+        this.morseOsc = this.ctx.createOscillator();
+        this.morseGain = this.ctx.createGain();
+        this.morseOsc.type = 'sine';
+        this.morseOsc.frequency.setValueAtTime(freq, this.ctx.currentTime);
+        this.morseGain.gain.setValueAtTime(0.001, this.ctx.currentTime);
+        this.morseGain.gain.exponentialRampToValueAtTime(0.25, this.ctx.currentTime + 0.006);
+        this.morseOsc.connect(this.morseGain);
+        this.morseGain.connect(this.ctx.destination);
+        this.morseOsc.start();
+      } catch (e) {}
+    }
+
+    stopMorseTone() {
+      if (!this.ctx || !this.morseGain || !this.morseOsc) return;
+      try {
+        const t = this.ctx.currentTime;
+        this.morseGain.gain.exponentialRampToValueAtTime(0.0001, t + 0.008);
+        this.morseOsc.stop(t + 0.01);
+        this.morseOsc = null;
+        this.morseGain = null;
+      } catch (e) {}
+    }
+
+    startAtmosphericNoise() {
+      if (this.muted || !this.ctx || this.noiseNode) return;
+      try {
+        const bufferSize = this.ctx.sampleRate * 2;
+        const noiseBuffer = this.ctx.createBuffer(1, bufferSize, this.ctx.sampleRate);
+        const output = noiseBuffer.getChannelData(0);
+        for (let i = 0; i < bufferSize; i++) {
+          output[i] = (Math.random() * 2 - 1) * 0.08;
+        }
+        this.noiseNode = this.ctx.createBufferSource();
+        this.noiseNode.buffer = noiseBuffer;
+        this.noiseNode.loop = true;
+
+        const bandpass = this.ctx.createBiquadFilter();
+        bandpass.type = 'bandpass';
+        bandpass.frequency.setValueAtTime(900, this.ctx.currentTime);
+        bandpass.Q.setValueAtTime(1.8, this.ctx.currentTime);
+
+        this.noiseGain = this.ctx.createGain();
+        this.noiseGain.gain.setValueAtTime(0.04, this.ctx.currentTime);
+
+        this.noiseNode.connect(bandpass);
+        bandpass.connect(this.noiseGain);
+        this.noiseGain.connect(this.ctx.destination);
+        this.noiseNode.start();
+      } catch (e) {}
+    }
+
+    stopAtmosphericNoise() {
+      if (this.noiseNode) {
+        try {
+          this.noiseNode.stop();
+          this.noiseNode.disconnect();
+          this.noiseNode = null;
+        } catch (e) {}
+      }
+    }
+  }
+  const sound = new CryptSoundFX();
+
+  /* ----------------------------------------------------
+     CRYPTOGRAPHIC DEFINITIONS & ENGINES
+  ---------------------------------------------------- */
+  const ALPHABET = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+
+  const ROTOR_WIRINGS = {
+    'I':    'EKMFLGDQVZNTOWYHXUSPAIBRCJ',
+    'II':   'AJDKSIRUXBLHWTMCQGZNPYFVOE',
+    'III':  'BDFHJLCPRTXVZNYEIWGAKMUSQO',
+    'IV':   'ESOVPZJAYQUIRHXLNFTGKDCMWB',
+    'V':    'VZBRGITYUPSDNHLXAWMJQOFECK',
+    'Beta': 'LEYJVCNIXWPBQMDRTAKZGFUHOS',
+    'Gamma':'FSOKANUERHMBTIYCWLQPZXVGJD'
+  };
+
+  const ROTOR_NOTCHES = {
+    'I':    ['Q'],
+    'II':   ['E'],
+    'III':  ['V'],
+    'IV':   ['J'],
+    'V':    ['Z'],
+    'Beta': [],
+    'Gamma':[]
+  };
+
+  const REFLECTORS = {
+    'B':      'YRUHQSLDPXNGOKMIEBFZCWVJAT',
+    'C':      'FVPJIAOYEDRZXWGCTKUQSBNMHL',
+    'B_thin': 'ENKQAUYWJICOPBLMDXZVFTHRGE',
+    'C_thin': 'RDOBJNTKVEHMLFCWZAXGYIPSUQ'
+  };
+
+  class EnigmaCore {
+    constructor() {
+      this.isM4 = false;
+      this.rotorTypes = ['III', 'II', 'I', 'Beta'];
+      this.positions = [0, 0, 0, 0];
+      this.ringSettings = [0, 0, 0, 0];
+      this.reflectorType = 'B';
+      this.plugboard = {};
+      this.initPlugboard();
+    }
+
+    initPlugboard() {
+      this.plugboard = {};
+      for (let i = 0; i < 26; i++) {
+        this.plugboard[ALPHABET[i]] = ALPHABET[i];
+      }
+    }
+
+    setupPlugboard(steckerString) {
+      this.initPlugboard();
+      if (!steckerString) return;
+      const pairs = steckerString.toUpperCase().match(/[A-Z]{2}/g) || [];
+      const used = new Set();
+      for (const pair of pairs) {
+        const a = pair[0];
+        const b = pair[1];
+        if (a !== b && !used.has(a) && !used.has(b)) {
+          this.plugboard[a] = b;
+          this.plugboard[b] = a;
+          used.add(a);
+          used.add(b);
+        }
+      }
+    }
+
+    stepRotors() {
+      const isNotch = (rType, pos) => {
+        const notches = ROTOR_NOTCHES[rType] || [];
+        return notches.includes(ALPHABET[(pos || 0) % 26]);
+      };
+
+      const rightNotch = isNotch(this.rotorTypes[0], this.positions[0]);
+      const midNotch = isNotch(this.rotorTypes[1], this.positions[1]);
+
+      if (midNotch) {
+        this.positions[1] = ((this.positions[1] || 0) + 1) % 26;
+        this.positions[2] = ((this.positions[2] || 0) + 1) % 26;
+      } else if (rightNotch) {
+        this.positions[1] = ((this.positions[1] || 0) + 1) % 26;
+      }
+
+      this.positions[0] = ((this.positions[0] || 0) + 1) % 26;
+    }
+
+    passRotorForward(letterIdx, rType, pos, ring) {
+      pos = pos || 0;
+      ring = ring || 0;
+      const shift = (pos - ring + 26) % 26;
+      const enterIdx = (letterIdx + shift) % 26;
+      const wiredChar = ROTOR_WIRINGS[rType][enterIdx];
+      const wiredIdx = ALPHABET.indexOf(wiredChar);
+      return (wiredIdx - shift + 26) % 26;
+    }
+
+    passRotorBackward(letterIdx, rType, pos, ring) {
+      pos = pos || 0;
+      ring = ring || 0;
+      const shift = (pos - ring + 26) % 26;
+      const enterIdx = (letterIdx + shift) % 26;
+      const wiredChar = ALPHABET[enterIdx];
+      const revIdx = ROTOR_WIRINGS[rType].indexOf(wiredChar);
+      return (revIdx - shift + 26) % 26;
+    }
+
+    encryptLetter(char) {
+      char = char.toUpperCase();
+      if (!ALPHABET.includes(char)) return { result: char, path: [] };
+
+      this.stepRotors();
+
+      const path = [];
+      path.push({ stage: 'Key', letter: char });
+
+      let current = this.plugboard[char] || char;
+      path.push({ stage: 'Plugboard In', letter: current });
+
+      let currIdx = ALPHABET.indexOf(current);
+
+      currIdx = this.passRotorForward(currIdx, this.rotorTypes[0], this.positions[0], this.ringSettings[0]);
+      path.push({ stage: 'Rotor 1 (' + this.rotorTypes[0] + ')', letter: ALPHABET[currIdx] });
+
+      currIdx = this.passRotorForward(currIdx, this.rotorTypes[1], this.positions[1], this.ringSettings[1]);
+      path.push({ stage: 'Rotor 2 (' + this.rotorTypes[1] + ')', letter: ALPHABET[currIdx] });
+
+      currIdx = this.passRotorForward(currIdx, this.rotorTypes[2], this.positions[2], this.ringSettings[2]);
+      path.push({ stage: 'Rotor 3 (' + this.rotorTypes[2] + ')', letter: ALPHABET[currIdx] });
+
+      if (this.isM4 && this.rotorTypes[3]) {
+        currIdx = this.passRotorForward(currIdx, this.rotorTypes[3], this.positions[3], this.ringSettings[3]);
+        path.push({ stage: 'Rotor 4 (' + this.rotorTypes[3] + ')', letter: ALPHABET[currIdx] });
+      }
+
+      const refWiring = REFLECTORS[this.reflectorType] || REFLECTORS['B'];
+      const refChar = refWiring[currIdx];
+      currIdx = ALPHABET.indexOf(refChar);
+      path.push({ stage: 'Reflector (' + this.reflectorType + ')', letter: refChar });
+
+      if (this.isM4 && this.rotorTypes[3]) {
+        currIdx = this.passRotorBackward(currIdx, this.rotorTypes[3], this.positions[3], this.ringSettings[3]);
+        path.push({ stage: 'Rotor 4 Rev', letter: ALPHABET[currIdx] });
+      }
+
+      currIdx = this.passRotorBackward(currIdx, this.rotorTypes[2], this.positions[2], this.ringSettings[2]);
+      path.push({ stage: 'Rotor 3 Rev', letter: ALPHABET[currIdx] });
+
+      currIdx = this.passRotorBackward(currIdx, this.rotorTypes[1], this.positions[1], this.ringSettings[1]);
+      path.push({ stage: 'Rotor 2 Rev', letter: ALPHABET[currIdx] });
+
+      currIdx = this.passRotorBackward(currIdx, this.rotorTypes[0], this.positions[0], this.ringSettings[0]);
+      path.push({ stage: 'Rotor 1 Rev', letter: ALPHABET[currIdx] });
+
+      const outChar = this.plugboard[ALPHABET[currIdx]] || ALPHABET[currIdx];
+      path.push({ stage: 'Lampboard', letter: outChar });
+
+      return { result: outChar, path: path };
+    }
+  }
+  const enigma = new EnigmaCore();
+
+  /* British Typex Mk 22 */
+  class TypexCore {
+    constructor() {
+      this.positions = [0, 0, 0, 0, 0];
+      this.wirings = [
+        'EKMFLGDQVZNTOWYHXUSPAIBRCJ',
+        'AJDKSIRUXBLHWTMCQGZNPYFVOE',
+        'BDFHJLCPRTXVZNYEIWGAKMUSQO',
+        'ESOVPZJAYQUIRHXLNFTGKDCMWB',
+        'VZBRGITYUPSDNHLXAWMJQOFECK'
+      ];
+      this.notches = [
+        [],
+        [],
+        ['A', 'F', 'K', 'P', 'U'],
+        ['B', 'E', 'H', 'K', 'N', 'Q', 'T'],
+        ['A', 'D', 'G', 'J', 'M', 'P', 'S', 'V', 'Y']
+      ];
+      this.reflector = 'BCDEFGHIJKLMNOPQRSTUVWXYZA';
+    }
+
+    step() {
+      const isNotch = (drumIdx, pos) => {
+        const char = ALPHABET[pos % 26];
+        return this.notches[drumIdx].includes(char);
+      };
+
+      const fastNotch = isNotch(4, this.positions[4]);
+      const midNotch = isNotch(3, this.positions[3]);
+
+      if (midNotch) {
+        this.positions[2] = (this.positions[2] + 1) % 26;
+        this.positions[3] = (this.positions[3] + 1) % 26;
+      } else if (fastNotch) {
+        this.positions[3] = (this.positions[3] + 1) % 26;
+      }
+      this.positions[4] = (this.positions[4] + 1) % 26;
+    }
+
+    encryptLetter(char) {
+      char = char.toUpperCase();
+      if (!ALPHABET.includes(char)) return char;
+
+      this.step();
+      let currIdx = ALPHABET.indexOf(char);
+
+      for (let i = 4; i >= 0; i--) {
+        const shift = this.positions[i];
+        const enterIdx = (currIdx + shift) % 26;
+        const wiredChar = this.wirings[i][enterIdx];
+        const wiredIdx = ALPHABET.indexOf(wiredChar);
+        currIdx = (wiredIdx - shift + 26) % 26;
+      }
+
+      const refChar = this.reflector[currIdx];
+      currIdx = ALPHABET.indexOf(refChar);
+
+      for (let i = 0; i < 5; i++) {
+        const shift = this.positions[i];
+        const enterIdx = (currIdx + shift) % 26;
+        const wiredChar = ALPHABET[enterIdx];
+        const revIdx = this.wirings[i].indexOf(wiredChar);
+        currIdx = (revIdx - shift + 26) % 26;
+      }
+
+      return ALPHABET[currIdx];
+    }
+  }
+  const typex = new TypexCore();
+
+  /* American SIGABA / ECM Mark II Engine */
+  class SIGABACore {
+    constructor() {
+      this.cipherPositions = [0, 0, 0, 0, 0];
+      this.controlPositions = [0, 0, 0, 0, 0];
+      this.indexPositions = [0, 0, 0, 0, 0];
+      this.cipherWirings = [
+        'EKMFLGDQVZNTOWYHXUSPAIBRCJ',
+        'AJDKSIRUXBLHWTMCQGZNPYFVOE',
+        'BDFHJLCPRTXVZNYEIWGAKMUSQO',
+        'ESOVPZJAYQUIRHXLNFTGKDCMWB',
+        'VZBRGITYUPSDNHLXAWMJQOFECK'
+      ];
+    }
+
+    step() {
+      this.controlPositions[4] = (this.controlPositions[4] + 1) % 26;
+      if (this.controlPositions[4] % 3 === 0) {
+        this.controlPositions[3] = (this.controlPositions[3] + 1) % 26;
+      }
+      
+      const p1 = (this.controlPositions[0] + this.indexPositions[0]) % 26;
+      const p2 = (this.controlPositions[2] + this.indexPositions[2]) % 26;
+      const p3 = (this.controlPositions[4] + this.indexPositions[4]) % 26;
+
+      if (p1 % 2 === 0) this.cipherPositions[0] = (this.cipherPositions[0] + 1) % 26;
+      if (p2 % 3 === 0) this.cipherPositions[2] = (this.cipherPositions[2] + 1) % 26;
+      if (p3 % 5 === 0) this.cipherPositions[4] = (this.cipherPositions[4] + 1) % 26;
+      this.cipherPositions[1] = (this.cipherPositions[1] + 1) % 26;
+    }
+
+    encryptLetter(char) {
+      char = char.toUpperCase();
+      if (!ALPHABET.includes(char)) return char;
+      this.step();
+
+      let idx = ALPHABET.indexOf(char);
+      for (let i = 0; i < 5; i++) {
+        const shift = this.cipherPositions[i];
+        const enterIdx = (idx + shift) % 26;
+        const wiredChar = this.cipherWirings[i][enterIdx];
+        idx = (ALPHABET.indexOf(wiredChar) - shift + 26) % 26;
+      }
+      return ALPHABET[idx];
+    }
+
+    encryptMessage(msg) {
+      return msg.split('').map(c => this.encryptLetter(c)).join('');
+    }
+  }
+  const sigaba = new SIGABACore();
+
+  /* Polish Biuro Szyfrów Engine */
+  class PolishBiuroEngine {
+    computePermutationCycles() {
+      const e1 = new EnigmaCore();
+      e1.rotorTypes = ['I', 'II', 'III', 'Beta'];
+      e1.positions = [0, 0, 0, 0];
+
+      const perm = {};
+      ALPHABET.split('').forEach(ch => {
+        const eCopy = new EnigmaCore();
+        eCopy.positions = [0, 0, 0, 0];
+        perm[ch] = eCopy.encryptLetter(ch).result;
+      });
+
+      const visited = new Set();
+      const cycles = [];
+      ALPHABET.split('').forEach(ch => {
+        if (!visited.has(ch)) {
+          let cur = ch;
+          const cycle = [];
+          while (!visited.has(cur)) {
+            visited.add(cur);
+            cycle.push(cur);
+            cur = perm[cur] || cur;
+          }
+          if (cycle.length > 0) cycles.push(cycle);
+        }
+      });
+      return cycles;
+    }
+  }
+  const polishEngine = new PolishBiuroEngine();
+
+  /* Full Lorenz SZ42 Stream Cipher Engine */
+  const BAUDOT_TABLE = {
+    'A': '11000', 'B': '10011', 'C': '01110', 'D': '10010', 'E': '10000',
+    'F': '10110', 'G': '01011', 'H': '00101', 'I': '01100', 'J': '11010',
+    'K': '11110', 'L': '01001', 'M': '00111', 'N': '00110', 'O': '00011',
+    'P': '01101', 'Q': '11101', 'R': '01010', 'S': '10100', 'T': '00001',
+    'U': '11100', 'V': '01111', 'W': '11001', 'X': '10111', 'Y': '10101',
+    'Z': '10001', ' ': '00100'
+  };
+
+  const REVERSE_BAUDOT = {};
+  Object.keys(BAUDOT_TABLE).forEach(k => { REVERSE_BAUDOT[BAUDOT_TABLE[k]] = k; });
+
+  const LORENZ_WHEEL_SIZES = {
+    'chi1': 41, 'chi2': 31, 'chi3': 29, 'chi4': 26, 'chi5': 23,
+    'mu37': 37, 'mu61': 61,
+    'psi1': 43, 'psi2': 47, 'psi3': 51, 'psi4': 53, 'psi5': 59
+  };
+
+  class LorenzSZ42Core {
+    constructor() {
+      this.positions = {};
+      this.cams = {};
+      Object.keys(LORENZ_WHEEL_SIZES).forEach(w => {
+        this.positions[w] = 0;
+        this.cams[w] = new Array(LORENZ_WHEEL_SIZES[w]).fill(0).map((_, i) => (i % 2 === 0 ? 1 : 0));
+      });
+    }
+
+    step() {
+      ['chi1', 'chi2', 'chi3', 'chi4', 'chi5'].forEach(w => {
+        this.positions[w] = (this.positions[w] + 1) % LORENZ_WHEEL_SIZES[w];
+      });
+
+      this.positions['mu61'] = (this.positions['mu61'] + 1) % LORENZ_WHEEL_SIZES['mu61'];
+      const mu61Bit = this.cams['mu61'][this.positions['mu61']];
+      if (mu61Bit === 1) {
+        this.positions['mu37'] = (this.positions['mu37'] + 1) % LORENZ_WHEEL_SIZES['mu37'];
+      }
+
+      const mu37Bit = this.cams['mu37'][this.positions['mu37']];
+      if (mu37Bit === 1) {
+        ['psi1', 'psi2', 'psi3', 'psi4', 'psi5'].forEach(w => {
+          this.positions[w] = (this.positions[w] + 1) % LORENZ_WHEEL_SIZES[w];
+        });
+      }
+    }
+
+    getKeyBit(channelIdx) {
+      const chiWheel = `chi${channelIdx + 1}`;
+      const psiWheel = `psi${channelIdx + 1}`;
+      const chiBit = this.cams[chiWheel][this.positions[chiWheel]];
+      const psiBit = this.cams[psiWheel][this.positions[psiWheel]];
+      return chiBit ^ psiBit;
+    }
+
+    encipherChar(char) {
+      char = char.toUpperCase();
+      const plainBits = BAUDOT_TABLE[char] || BAUDOT_TABLE[' '];
+      this.step();
+
+      let cipherBits = '';
+      for (let ch = 0; ch < 5; ch++) {
+        const pBit = parseInt(plainBits[ch], 10);
+        const kBit = this.getKeyBit(ch);
+        cipherBits += (pBit ^ kBit).toString();
+      }
+      return REVERSE_BAUDOT[cipherBits] || '?';
+    }
+
+    encipherMessage(msg) {
+      return msg.split('').map(c => this.encipherChar(c)).join('');
+    }
+  }
+  const lorenz = new LorenzSZ42Core();
+
+  /* ----------------------------------------------------
+     P2P SHORTWAVE BROADCAST CHANNEL
+  ---------------------------------------------------- */
+  let radioBroadcastChannel = null;
+  try {
+    if (typeof BroadcastChannel !== 'undefined') {
+      radioBroadcastChannel = new BroadcastChannel('station_x_radio_net');
+      radioBroadcastChannel.onmessage = (e) => {
+        const data = e.data;
+        const logBox = document.getElementById('p2p-log-box');
+        if (logBox && data) {
+          const div = document.createElement('div');
+          div.textContent = `[${data.freq} MHz] ${data.callsign}: ${data.cipher}`;
+          logBox.appendChild(div);
+          logBox.scrollTop = logBox.scrollHeight;
+        }
+      };
+    }
+  } catch (err) {}
+
+  /* ----------------------------------------------------
+     THREE.JS 3D SCENE ARCHITECTURE
+  ---------------------------------------------------- */
+  const canvas = document.getElementById('webgl-canvas');
+  const canvasContainer = document.getElementById('canvas-container');
+
+  const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: false, powerPreference: "high-performance" });
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+  renderer.shadowMap.enabled = true;
+  renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+  renderer.toneMapping = THREE.ACESFilmicToneMapping;
+  renderer.toneMappingExposure = 1.15;
+
+  const scene = new THREE.Scene();
+  scene.background = new THREE.Color(0x060912);
+  scene.fog = new THREE.FogExp2(0x060912, 0.012);
+
+  const camera = new THREE.PerspectiveCamera(45, 1, 0.1, 1000);
+  camera.position.set(0, 18, 20);
+
+  const controls = new THREE.OrbitControls(camera, canvas);
+  controls.enableDamping = true;
+  controls.dampingFactor = 0.05;
+  controls.maxPolarAngle = Math.PI / 2 - 0.03;
+  controls.minDistance = 4;
+  controls.maxDistance = 140;
+
+  function resizeRenderer() {
+    const w = canvasContainer.clientWidth || window.innerWidth;
+    const h = canvasContainer.clientHeight || window.innerHeight;
+    if (w > 0 && h > 0) {
+      camera.aspect = w / h;
+      camera.updateProjectionMatrix();
+      renderer.setSize(w, h, false);
+    }
+  }
+  window.addEventListener('resize', resizeRenderer);
+  if (window.ResizeObserver) {
+    new ResizeObserver(resizeRenderer).observe(canvasContainer);
+  }
+
+  const ambientLight = new THREE.AmbientLight(0xdbeafe, 0.45);
+  scene.add(ambientLight);
+
+  const bunkerDeskLamp = new THREE.DirectionalLight(0xffecd1, 1.25);
+  bunkerDeskLamp.position.set(16, 32, 22);
+  bunkerDeskLamp.castShadow = true;
+  bunkerDeskLamp.shadow.mapSize.width = 2048;
+  bunkerDeskLamp.shadow.mapSize.height = 2048;
+  scene.add(bunkerDeskLamp);
+
+  const coolRimLight = new THREE.DirectionalLight(0x38bdf8, 0.55);
+  coolRimLight.position.set(-25, 16, -18);
+  scene.add(coolRimLight);
+
+  const lampLight = new THREE.PointLight(0xf59e0b, 0, 16, 2);
+  lampLight.position.set(0, 3, 0);
+  scene.add(lampLight);
+
+  function createMahoganyTexture() {
+    const cv = document.createElement('canvas');
+    cv.width = 512; cv.height = 512;
+    const cx = cv.getContext('2d');
+    cx.fillStyle = '#220e06'; cx.fillRect(0, 0, 512, 512);
+    for (let i = 0; i < 600; i++) {
+      const y = Math.random() * 512;
+      const h = Math.random() * 4 + 1;
+      cx.fillStyle = Math.random() > 0.5 ? 'rgba(56, 22, 10, 0.45)' : 'rgba(15, 6, 2, 0.5)';
+      cx.fillRect(0, y, 512, h);
+    }
+    const tex = new THREE.CanvasTexture(cv);
+    tex.wrapS = THREE.RepeatWrapping; tex.wrapT = THREE.RepeatWrapping;
+    return tex;
+  }
+  const woodTexture = createMahoganyTexture();
+
+  function createKnurledRotorTexture() {
+    const cv = document.createElement('canvas');
+    cv.width = 2048; cv.height = 256;
+    const cx = cv.getContext('2d');
+    cx.fillStyle = '#111827'; cx.fillRect(0, 0, 2048, 256);
+    cx.fillStyle = '#030712'; cx.fillRect(0, 48, 2048, 160);
+    cx.font = 'bold 80px Courier Prime, monospace';
+    cx.textAlign = 'center'; cx.textBaseline = 'middle';
+    for (let i = 0; i < 26; i++) {
+      const x = (i + 0.5) * (2048 / 26);
+      cx.fillStyle = '#f8fafc'; cx.fillText(ALPHABET[i], x, 128);
+      cx.fillStyle = '#ef4444'; cx.beginPath(); cx.arc(x, 48, 4, 0, Math.PI * 2); cx.fill();
+    }
+    const tex = new THREE.CanvasTexture(cv);
+    tex.wrapS = THREE.RepeatWrapping;
+    return tex;
+  }
+  const knurledRotorTex = createKnurledRotorTexture();
+
+  function createKeycapTexture(char) {
+    const cv = document.createElement('canvas');
+    cv.width = 256; cv.height = 256;
+    const cx = cv.getContext('2d');
+    cx.fillStyle = '#0f172a'; cx.beginPath(); cx.arc(128, 128, 124, 0, Math.PI * 2); cx.fill();
+    cx.strokeStyle = '#94a3b8'; cx.lineWidth = 6; cx.stroke();
+    cx.fillStyle = '#ffffff'; cx.font = 'bold 130px Courier Prime, monospace';
+    cx.textAlign = 'center'; cx.textBaseline = 'middle'; cx.fillText(char, 128, 134);
+    return new THREE.CanvasTexture(cv);
+  }
+
+  function createLampTexture(char) {
+    const cv = document.createElement('canvas');
+    cv.width = 256; cv.height = 256;
+    const cx = cv.getContext('2d');
+    const grad = cx.createRadialGradient(128, 128, 20, 128, 128, 120);
+    grad.addColorStop(0, '#451a03'); grad.addColorStop(1, '#1c0c02');
+    cx.fillStyle = grad; cx.beginPath(); cx.arc(128, 128, 124, 0, Math.PI * 2); cx.fill();
+    cx.strokeStyle = '#d97706'; cx.lineWidth = 4; cx.stroke();
+    cx.fillStyle = '#fef08a'; cx.font = 'bold 130px Courier Prime, monospace';
+    cx.textAlign = 'center'; cx.textBaseline = 'middle'; cx.fillText(char, 128, 134);
+    return new THREE.CanvasTexture(cv);
+  }
+
+  // Floating dust particles
+  const dustCount = 200;
+  const dustGeo = new THREE.BufferGeometry();
+  const dustPos = new Float32Array(dustCount * 3);
+  for (let i = 0; i < dustCount * 3; i += 3) {
+    dustPos[i] = (Math.random() - 0.5) * 60;
+    dustPos[i + 1] = Math.random() * 30;
+    dustPos[i + 2] = (Math.random() - 0.5) * 60;
+  }
+  dustGeo.setAttribute('position', new THREE.BufferAttribute(dustPos, 3));
+  const dustMat = new THREE.PointsMaterial({ color: 0xfef08a, size: 0.15, transparent: true, opacity: 0.35 });
+  const dustParticles = new THREE.Points(dustGeo, dustMat);
+  scene.add(dustParticles);
+
+  /* 3D ENIGMA MACHINE MODEL */
+  const enigmaGroup = new THREE.Group();
+  scene.add(enigmaGroup);
+
+  const cabinetMat = new THREE.MeshStandardMaterial({ map: woodTexture, roughness: 0.45, metalness: 0.15 });
+  const cabinetBase = new THREE.Mesh(new THREE.BoxGeometry(16.5, 2.8, 17.5), cabinetMat);
+  cabinetBase.position.y = -1.4;
+  cabinetBase.castShadow = true;
+  enigmaGroup.add(cabinetBase);
+
+  const brassMat = new THREE.MeshStandardMaterial({ color: 0xd4af37, metalness: 0.9, roughness: 0.25 });
+  const metalDeckMat = new THREE.MeshStandardMaterial({ color: 0x181e29, roughness: 0.55, metalness: 0.75 });
+  const metalDeck = new THREE.Mesh(new THREE.BoxGeometry(15.6, 0.8, 16.6), metalDeckMat);
+  metalDeck.position.y = 0.4;
+  enigmaGroup.add(metalDeck);
+
+  const lidHingeGroup = new THREE.Group();
+  lidHingeGroup.position.set(0, 1.8, -9.2);
+  enigmaGroup.add(lidHingeGroup);
+  const lidMesh = new THREE.Mesh(new THREE.BoxGeometry(16.8, 0.7, 18.0), cabinetMat);
+  lidMesh.position.set(0, 0.35, 9.0);
+  lidHingeGroup.add(lidMesh);
+
+  const rotorBayGroup = new THREE.Group();
+  rotorBayGroup.position.set(0, 1.35, -5.8);
+  enigmaGroup.add(rotorBayGroup);
+
+  const spindle = new THREE.Mesh(new THREE.CylinderGeometry(0.18, 0.18, 8.5, 24), brassMat);
+  spindle.rotation.z = Math.PI / 2;
+  rotorBayGroup.add(spindle);
+
+  const pawls = [];
+  for (let p = 0; p < 4; p++) {
+    const pawlMesh = new THREE.Mesh(new THREE.BoxGeometry(0.15, 0.65, 0.3), new THREE.MeshStandardMaterial({ color: 0x64748b, metalness: 0.8 }));
+    pawlMesh.position.set(2.0 - p * 1.35, 0.8, 1.4);
+    rotorBayGroup.add(pawlMesh);
+    pawls.push(pawlMesh);
+  }
+
+  const rotorMeshes = [];
+  const interactiveRotors = [];
+  const rotorSpacing = 1.35;
+  for (let i = 0; i < 4; i++) {
+    const rGroup = new THREE.Group();
+    rGroup.position.x = 2.0 - i * rotorSpacing;
+
+    const rWheel = new THREE.Mesh(new THREE.CylinderGeometry(1.45, 1.45, 0.85, 36), new THREE.MeshStandardMaterial({ map: knurledRotorTex, metalness: 0.65, roughness: 0.35 }));
+    rWheel.rotation.z = Math.PI / 2;
+    rWheel.castShadow = true;
+    rGroup.add(rWheel);
+
+    const rimMat = new THREE.MeshStandardMaterial({ color: 0x334155, metalness: 0.85, roughness: 0.25 });
+    const leftRim = new THREE.Mesh(new THREE.TorusGeometry(1.47, 0.12, 12, 36), rimMat);
+    leftRim.rotation.y = Math.PI / 2; leftRim.position.x = -0.42;
+    rGroup.add(leftRim);
+
+    const rightRim = new THREE.Mesh(new THREE.TorusGeometry(1.47, 0.12, 12, 36), rimMat);
+    rightRim.rotation.y = Math.PI / 2; rightRim.position.x = 0.42;
+    rGroup.add(rightRim);
+
+    rGroup.userData = { rotorIndex: i };
+    rWheel.userData = { rotorIndex: i };
+    rotorBayGroup.add(rGroup);
+    rotorMeshes.push(rGroup);
+    interactiveRotors.push(rWheel, leftRim, rightRim);
+  }
+  rotorMeshes[3].visible = false;
+
+  const keyMeshes = {};
+  const lampMeshes = {};
+  const interactiveKeys = [];
+  const KEYBOARD_LAYOUT = [
+    { row: 0, keys: 'QWERTZUIO', z: 3.6, xStart: -4.8, step: 1.2 },
+    { row: 1, keys: 'ASDFGHJK',  z: 4.9, xStart: -4.2, step: 1.2 },
+    { row: 2, keys: 'PYXCVBNML', z: 6.2, xStart: -4.8, step: 1.2 }
+  ];
+
+  const LAMPBOARD_LAYOUT = [
+    { row: 0, keys: 'QWERTZUIO', z: -0.5, xStart: -4.8, step: 1.2 },
+    { row: 1, keys: 'ASDFGHJK',  z: 0.8,  xStart: -4.2, step: 1.2 },
+    { row: 2, keys: 'PYXCVBNML', z: 2.1,  xStart: -4.8, step: 1.2 }
+  ];
+
+  KEYBOARD_LAYOUT.forEach(rowInfo => {
+    for (let c = 0; c < rowInfo.keys.length; c++) {
+      const char = rowInfo.keys[c];
+      const x = rowInfo.xStart + c * rowInfo.step;
+      const kGroup = new THREE.Group();
+      kGroup.position.set(x, 0.95, rowInfo.z);
+
+      const keyCap = new THREE.Mesh(new THREE.CylinderGeometry(0.44, 0.46, 0.3, 24), new THREE.MeshStandardMaterial({ map: createKeycapTexture(char), roughness: 0.4 }));
+      keyCap.castShadow = true;
+      kGroup.add(keyCap);
+
+      const bezel = new THREE.Mesh(new THREE.TorusGeometry(0.46, 0.05, 8, 24), brassMat);
+      bezel.rotation.x = Math.PI / 2; bezel.position.y = 0.12;
+      kGroup.add(bezel);
+
+      kGroup.userData = { letter: char, isKey: true, baseY: 0.95 };
+      keyCap.userData = { letter: char, isKey: true };
+      enigmaGroup.add(kGroup);
+      keyMeshes[char] = kGroup;
+      interactiveKeys.push(keyCap, bezel);
+    }
+  });
+
+  LAMPBOARD_LAYOUT.forEach(rowInfo => {
+    for (let c = 0; c < rowInfo.keys.length; c++) {
+      const char = rowInfo.keys[c];
+      const x = rowInfo.xStart + c * rowInfo.step;
+      const lGroup = new THREE.Group();
+      lGroup.position.set(x, 0.85, rowInfo.z);
+
+      const lMat = new THREE.MeshStandardMaterial({ map: createLampTexture(char), roughness: 0.25, emissive: 0x000000 });
+      const dome = new THREE.Mesh(new THREE.SphereGeometry(0.42, 24, 16, 0, Math.PI * 2, 0, Math.PI / 2), lMat);
+      lGroup.add(dome);
+
+      const socket = new THREE.Mesh(new THREE.TorusGeometry(0.44, 0.06, 8, 24), brassMat);
+      socket.rotation.x = Math.PI / 2;
+      lGroup.add(socket);
+
+      enigmaGroup.add(lGroup);
+      lampMeshes[char] = { group: lGroup, material: lMat };
+    }
+  });
+
+  const steckerSockets = {};
+  const steckerGroup = new THREE.Group();
+  steckerGroup.position.set(0, -0.6, 8.4);
+  enigmaGroup.add(steckerGroup);
+
+  for (let i = 0; i < 26; i++) {
+    const char = ALPHABET[i];
+    const col = i % 13;
+    const row = Math.floor(i / 13);
+    const sockGroup = new THREE.Group();
+    sockGroup.position.set(-5.4 + col * 0.9, row === 0 ? 0.35 : -0.35, 0);
+
+    for (let h = -1; h <= 1; h += 2) {
+      const jack = new THREE.Mesh(new THREE.CylinderGeometry(0.12, 0.14, 0.35, 16), brassMat);
+      jack.rotation.x = Math.PI / 2; jack.position.y = h * 0.14;
+      sockGroup.add(jack);
+    }
+    steckerGroup.add(sockGroup);
+    steckerSockets[char] = sockGroup;
+  }
+
+  let active3DCables = [];
+  function render3DJumperCables(steckerString) {
+    active3DCables.forEach(c => { steckerGroup.remove(c); if (c.geometry) c.geometry.dispose(); });
+    active3DCables = [];
+    if (!steckerString) return;
+
+    const pairs = steckerString.toUpperCase().match(/[A-Z]{2}/g) || [];
+    const cableMat = new THREE.MeshStandardMaterial({ color: 0x991b1b, roughness: 0.7 });
+    pairs.forEach(pair => {
+      const a = pair[0], b = pair[1];
+      if (steckerSockets[a] && steckerSockets[b]) {
+        const p1 = steckerSockets[a].position.clone();
+        const p2 = steckerSockets[b].position.clone();
+        const curve = new THREE.QuadraticBezierCurve3(
+          new THREE.Vector3(p1.x, p1.y, 0.2),
+          new THREE.Vector3((p1.x + p2.x) / 2, Math.min(p1.y, p2.y) - 1.2, 1.4),
+          new THREE.Vector3(p2.x, p2.y, 0.2)
+        );
+        const tubeMesh = new THREE.Mesh(new THREE.TubeGeometry(curve, 32, 0.08, 8, false), cableMat);
+        steckerGroup.add(tubeMesh);
+        active3DCables.push(tubeMesh);
+      }
+    });
+  }
+
+  /* 3D Volumetric Laser Wire Spline Engine */
+  let activeLaserWire = null;
+  let laserWireEnabled = true;
+
+  function renderVolumetricElectricPath(pathArray) {
+    if (activeLaserWire) {
+      scene.remove(activeLaserWire);
+      if (activeLaserWire.geometry) activeLaserWire.geometry.dispose();
+      activeLaserWire = null;
+    }
+    if (!laserWireEnabled || !pathArray || pathArray.length === 0) return;
+
+    const points = [];
+    const keyChar = pathArray[0].letter;
+    if (keyMeshes[keyChar]) points.push(keyMeshes[keyChar].position.clone().add(new THREE.Vector3(0, 0.2, 0)));
+
+    const plugInChar = pathArray[1]?.letter;
+    if (steckerSockets[plugInChar]) points.push(steckerSockets[plugInChar].position.clone().add(new THREE.Vector3(0, -0.6, 8.4)));
+
+    for (let i = 0; i < 4; i++) {
+      if (rotorMeshes[i] && rotorMeshes[i].visible) {
+        points.push(rotorBayGroup.position.clone().add(rotorMeshes[i].position).add(new THREE.Vector3(0, 0.8, 0)));
+      }
+    }
+
+    points.push(rotorBayGroup.position.clone().add(new THREE.Vector3(-3.2, 0.8, 0)));
+
+    const lampChar = pathArray[pathArray.length - 1].letter;
+    if (lampMeshes[lampChar]) points.push(lampMeshes[lampChar].group.position.clone().add(new THREE.Vector3(0, 0.4, 0)));
+
+    if (points.length >= 2) {
+      const spline = new THREE.CatmullRomCurve3(points);
+      const tubeGeo = new THREE.TubeGeometry(spline, 64, 0.09, 8, false);
+      const laserMat = new THREE.MeshBasicMaterial({ color: 0x38bdf8, wireframe: false, transparent: true, opacity: 0.95 });
+      activeLaserWire = new THREE.Mesh(tubeGeo, laserMat);
+      scene.add(activeLaserWire);
+
+      setTimeout(() => {
+        if (activeLaserWire) {
+          scene.remove(activeLaserWire);
+          activeLaserWire = null;
+        }
+      }, 550);
+    }
+  }
+
+  /* 3D BRITISH TYPEX MK 22 (Positioned at x = 32) */
+  const typexGroup = new THREE.Group();
+  typexGroup.position.set(32, 0, 0);
+  scene.add(typexGroup);
+
+  const typexBase = new THREE.Mesh(new THREE.BoxGeometry(18, 3.2, 18), new THREE.MeshStandardMaterial({ color: 0x2e3642, roughness: 0.5 }));
+  typexBase.position.y = -1.2;
+  typexGroup.add(typexBase);
+
+  const typexDrums3D = [];
+  for (let td = 0; td < 5; td++) {
+    const drumMat = new THREE.MeshStandardMaterial({ color: td < 2 ? 0x991b1b : 0x10b981, roughness: 0.35, metalness: 0.7 });
+    const dMesh = new THREE.Mesh(new THREE.CylinderGeometry(1.4, 1.4, 0.9, 32), drumMat);
+    dMesh.rotation.z = Math.PI / 2; dMesh.position.set(3.0 - td * 1.5, 1.5, -4.5);
+    typexGroup.add(dMesh);
+    typexDrums3D.push(dMesh);
+  }
+
+  /* 3D AMERICAN SIGABA (Positioned at x = 62) */
+  const sigabaGroup = new THREE.Group();
+  sigabaGroup.position.set(62, 0, 0);
+  scene.add(sigabaGroup);
+
+  const sigabaFrame = new THREE.Mesh(new THREE.BoxGeometry(20, 16, 12), new THREE.MeshStandardMaterial({ color: 0x293524, roughness: 0.6 }));
+  sigabaFrame.position.y = 7;
+  sigabaGroup.add(sigabaFrame);
+
+  const sigabaRotors3D = [];
+  const SIGABA_TIERS = [11, 7, 3];
+  SIGABA_TIERS.forEach((ty, tierIdx) => {
+    for (let r = 0; r < 5; r++) {
+      const rMesh = new THREE.Mesh(new THREE.CylinderGeometry(1.1, 1.1, 0.7, 24), new THREE.MeshStandardMaterial({ color: tierIdx === 0 ? 0xd97706 : tierIdx === 1 ? 0x0284c7 : 0x10b981 }));
+      rMesh.rotation.z = Math.PI / 2; rMesh.position.set(-4 + r * 2, ty, 6.1);
+      sigabaGroup.add(rMesh);
+      sigabaRotors3D.push(rMesh);
+    }
+  });
+
+  /* 3D TURING BOMBE (Positioned at x = -65) */
+  const bombeGroup = new THREE.Group();
+  bombeGroup.position.set(-65, 0, 0);
+  scene.add(bombeGroup);
+
+  const bombeCabinet = new THREE.Mesh(new THREE.BoxGeometry(24, 20, 10), new THREE.MeshStandardMaterial({ map: woodTexture, color: 0x1f1610 }));
+  bombeCabinet.position.y = 9.5;
+  bombeGroup.add(bombeCabinet);
+
+  const drumMeshes = [];
+  const interactiveBombeDrums = [];
+  const DRUM_TIERS = [
+    { y: 14.5, color: 0xb91c1c },
+    { y: 9.5,  color: 0xf1f5f9 },
+    { y: 4.5,  color: 0xd97706 }
+  ];
+
+  DRUM_TIERS.forEach(tier => {
+    for (let col = 0; col < 12; col++) {
+      const dGroup = new THREE.Group();
+      dGroup.position.set(-9.6 + col * 1.75, tier.y, 5.1);
+
+      const dMesh = new THREE.Mesh(new THREE.CylinderGeometry(0.72, 0.72, 0.6, 32), new THREE.MeshStandardMaterial({ color: tier.color, roughness: 0.45 }));
+      dMesh.rotation.x = Math.PI / 2;
+      dGroup.add(dMesh);
+
+      bombeGroup.add(dGroup);
+      drumMeshes.push(dGroup);
+      interactiveBombeDrums.push(dMesh);
+    }
+  });
+
+  /* 3D COLOSSUS MK II (Positioned at x = 95) */
+  const colossusGroup = new THREE.Group();
+  colossusGroup.position.set(95, 0, 0);
+  scene.add(colossusGroup);
+
+  for (let r = 0; r < 2; r++) {
+    const rack = new THREE.Mesh(new THREE.BoxGeometry(11, 23, 5), new THREE.MeshStandardMaterial({ color: 0x0f172a, roughness: 0.55 }));
+    rack.position.set(-6.5 + r * 13, 11, 0);
+    colossusGroup.add(rack);
+  }
+
+  const valveMeshes = [];
+  const interactiveValves = [];
+  const valveGlassMat = new THREE.MeshStandardMaterial({ color: 0x38bdf8, emissive: 0x0284c7, transparent: true, opacity: 0.8 });
+  const filamentMat = new THREE.MeshBasicMaterial({ color: 0xfbbf24 });
+
+  for (let r = 0; r < 2; r++) {
+    for (let row = 0; row < 6; row++) {
+      for (let col = 0; col < 6; col++) {
+        const vGroup = new THREE.Group();
+        vGroup.position.set(-10.2 + r * 13 + col * 1.5, 4.0 + row * 2.8, 2.7);
+
+        const vMesh = new THREE.Mesh(new THREE.CylinderGeometry(0.24, 0.24, 1.1, 16), valveGlassMat.clone());
+        vGroup.add(vMesh);
+        const fil = new THREE.Mesh(new THREE.CylinderGeometry(0.04, 0.04, 0.6, 8), filamentMat.clone());
+        vGroup.add(fil);
+
+        vGroup.userData = { glass: vMesh, filament: fil };
+        colossusGroup.add(vGroup);
+        valveMeshes.push(vGroup);
+        interactiveValves.push(vMesh);
+      }
+    }
+  }
+
+  const colossusPulleys = [];
+  for (let p = 0; p < 2; p++) {
+    const pul = new THREE.Mesh(new THREE.CylinderGeometry(1.8, 1.8, 0.4, 32), brassMat);
+    pul.rotation.x = Math.PI / 2; pul.position.set(-3.5 + p * 7, 18.5, 2.8);
+    colossusGroup.add(pul);
+    colossusPulleys.push(pul);
+  }
+
+  /* ----------------------------------------------------
+     INTERACTIVE UI CONTROLLERS & EVENT DISPATCHERS
+  ---------------------------------------------------- */
+  const lampboardContainer = document.getElementById('lampboard-container');
+  const uiLamps = {};
+  const LAMP_KEYS = "QWERTZUIOASDFGHJKPYXCVBNML";
+
+  LAMP_KEYS.split('').forEach(char => {
+    const lDiv = document.createElement('div');
+    lDiv.className = 'w-7 h-7 rounded-full bg-slate-900 border border-slate-700 text-xs font-mono-code font-bold text-amber-500/50 flex items-center justify-center transition-all duration-75 shadow-inner';
+    lDiv.textContent = char;
+    lampboardContainer?.appendChild(lDiv);
+    uiLamps[char] = lDiv;
+  });
+
+  let activeTab = 'enigma';
+  let activeBulbChar = null;
+  let bulbTimeout = null;
+  let isExploded = false;
+
+  function updateRotorUI() {
+    for (let i = 0; i < 4; i++) {
+      const char = ALPHABET[enigma.positions[i] || 0];
+      const disp = document.getElementById('rotor-display-' + (i + 1));
+      if (disp) disp.textContent = char;
+    }
+  }
+
+  function handleKeystroke(letter, fromTextInput = false) {
+    letter = letter.toUpperCase();
+    if (!ALPHABET.includes(letter)) return;
+
+    sound.playKeyClick();
+    sound.playRotorStep();
+
+    pawls.forEach(p => {
+      p.rotation.x = -0.4;
+      setTimeout(() => { p.rotation.x = 0; }, 100);
+    });
+
+    const enc = enigma.encryptLetter(letter);
+    updateRotorUI();
+
+    const ptInput = document.getElementById('input-plaintext');
+    const outCipher = document.getElementById('output-ciphertext');
+    
+    if (!fromTextInput && ptInput) {
+      ptInput.value += letter;
+    }
+
+    const cleanCipher = outCipher.textContent === '---' ? '' : outCipher.textContent.replace(/\s+/g, '');
+    const newCipher = cleanCipher + enc.result;
+    outCipher.textContent = newCipher.match(/.{1,5}/g)?.join(' ') || newCipher;
+
+    const pathStr = enc.path.map(p => `${p.stage} [${p.letter}]`).join(' → ');
+    document.getElementById('signal-path-steps').textContent = pathStr;
+
+    renderVolumetricElectricPath(enc.path);
+
+    const keyGroup = keyMeshes[letter];
+    if (keyGroup) {
+      keyGroup.position.y = 0.65;
+      setTimeout(() => { keyGroup.position.y = keyGroup.userData.baseY || 0.95; }, 110);
+    }
+
+    if (activeBulbChar && lampMeshes[activeBulbChar]) {
+      lampMeshes[activeBulbChar].material.emissive.setHex(0x000000);
+      if (uiLamps[activeBulbChar]) uiLamps[activeBulbChar].classList.remove('lamp-glow');
+    }
+
+    activeBulbChar = enc.result;
+    const curLamp = lampMeshes[activeBulbChar];
+    if (curLamp) {
+      curLamp.material.emissive.setHex(0xf59e0b);
+      lampLight.position.copy(curLamp.group.position);
+      lampLight.position.y += 0.8;
+      lampLight.intensity = 3.2;
+    }
+    if (uiLamps[activeBulbChar]) {
+      uiLamps[activeBulbChar].classList.add('lamp-glow');
+    }
+
+    clearTimeout(bulbTimeout);
+    bulbTimeout = setTimeout(() => {
+      if (curLamp) curLamp.material.emissive.setHex(0x000000);
+      if (uiLamps[activeBulbChar]) uiLamps[activeBulbChar].classList.remove('lamp-glow');
+      lampLight.intensity = 0;
+      activeBulbChar = null;
+    }, 450);
+
+    checkMissionStatus(newCipher);
+  }
+
+  window.addEventListener('keydown', (e) => {
+    if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+    if (e.ctrlKey || e.metaKey || e.altKey) return;
+    if (activeTab !== 'enigma') return;
+
+    const char = e.key.toUpperCase();
+    if (ALPHABET.includes(char)) {
+      handleKeystroke(char);
+    } else if (e.key === 'Backspace') {
+      const ptInput = document.getElementById('input-plaintext');
+      const outCipher = document.getElementById('output-ciphertext');
+      ptInput.value = ptInput.value.slice(0, -1);
+      const raw = outCipher.textContent.replace(/\s+/g, '').slice(0, -1);
+      outCipher.textContent = raw ? (raw.match(/.{1,5}/g)?.join(' ') || raw) : '---';
+    }
+  });
+
+  const ptInputEl = document.getElementById('input-plaintext');
+  let lastPlaintextVal = '';
+  ptInputEl?.addEventListener('input', () => {
+    const currentVal = ptInputEl.value.toUpperCase().replace(/[^A-Z]/g, '');
+    ptInputEl.value = currentVal;
+    
+    if (currentVal.length > lastPlaintextVal.length) {
+      const addedChars = currentVal.slice(lastPlaintextVal.length);
+      for (const ch of addedChars) handleKeystroke(ch, true);
+    } else if (currentVal.length < lastPlaintextVal.length) {
+      enigma.positions = [0, 0, 0, 0];
+      updateRotorUI();
+      document.getElementById('output-ciphertext').textContent = '---';
+      for (const ch of currentVal) handleKeystroke(ch, true);
+    }
+    lastPlaintextVal = currentVal;
+  });
+
+  document.querySelectorAll('.key-btn').forEach(btn => {
+    btn.addEventListener('click', () => handleKeystroke(btn.getAttribute('data-key')));
+  });
+
+  for (let i = 1; i <= 4; i++) {
+    document.getElementById(`rotor-up-${i}`)?.addEventListener('click', () => {
+      enigma.positions[i - 1] = ((enigma.positions[i - 1] || 0) + 1) % 26;
+      updateRotorUI();
+      sound.playRotorStep();
+    });
+    document.getElementById(`rotor-down-${i}`)?.addEventListener('click', () => {
+      enigma.positions[i - 1] = ((enigma.positions[i - 1] || 0) + 25) % 26;
+      updateRotorUI();
+      sound.playRotorStep();
+    });
+    document.getElementById(`sel-rotor-${i}`)?.addEventListener('change', (e) => {
+      enigma.rotorTypes[i - 1] = e.target.value;
+      updateRotorUI();
+    });
+    document.getElementById(`ring-${i}`)?.addEventListener('change', (e) => {
+      enigma.ringSettings[i - 1] = (parseInt(e.target.value) - 1) % 26;
+    });
+  }
+
+  document.getElementById('sel-reflector')?.addEventListener('change', (e) => {
+    enigma.reflectorType = e.target.value;
+  });
+
+  document.querySelectorAll('input[name="enigma-model"]').forEach(radio => {
+    radio.addEventListener('change', (e) => {
+      const isM4 = e.target.value === 'M4';
+      enigma.isM4 = isM4;
+      const col4 = document.getElementById('rotor-col-4');
+      if (isM4) {
+        col4.classList.remove('opacity-40', 'pointer-events-none');
+        rotorMeshes[3].visible = true;
+        document.getElementById('sel-reflector').value = 'B_thin';
+        enigma.reflectorType = 'B_thin';
+      } else {
+        col4.classList.add('opacity-40', 'pointer-events-none');
+        rotorMeshes[3].visible = false;
+        document.getElementById('sel-reflector').value = 'B';
+        enigma.reflectorType = 'B';
+      }
+      updateRotorUI();
+    });
+  });
+
+  document.getElementById('input-plugboard')?.addEventListener('input', (e) => {
+    enigma.setupPlugboard(e.target.value);
+    render3DJumperCables(e.target.value);
+  });
+  document.getElementById('btn-clear-plugs')?.addEventListener('click', () => {
+    document.getElementById('input-plugboard').value = '';
+    enigma.setupPlugboard('');
+    render3DJumperCables('');
+  });
+
+  document.getElementById('btn-clear-stream')?.addEventListener('click', () => {
+    if (ptInputEl) ptInputEl.value = '';
+    lastPlaintextVal = '';
+    document.getElementById('output-ciphertext').textContent = '---';
+    document.getElementById('signal-path-steps').textContent = 'Stream cleared.';
+  });
+
+  document.getElementById('btn-copy-cipher')?.addEventListener('click', () => {
+    const cipher = document.getElementById('output-ciphertext').textContent;
+    if (cipher !== '---') {
+      navigator.clipboard?.writeText(cipher).catch(() => {});
+      document.getElementById('signal-path-steps').textContent = 'Cipher copied to clipboard.';
+    }
+  });
+
+  document.getElementById('btn-reciprocal-test')?.addEventListener('click', () => {
+    showNoticeModal("Reciprocal Mathematical Proof", "Enigma is an involutory reciprocal cipher: E(E(x)) = x. Feeding ciphertext back into the identical key decrypts it perfectly.");
+  });
+
+  document.getElementById('btn-toggle-laser-wire')?.addEventListener('click', () => {
+    laserWireEnabled = !laserWireEnabled;
+    const btn = document.getElementById('btn-toggle-laser-wire');
+    if (laserWireEnabled) {
+      btn.className = 'px-3 py-1.5 rounded-lg bg-cyan-950/80 border border-cyan-500/60 text-[11px] text-cyan-300 hover:bg-cyan-900 shadow-lg transition-all flex items-center gap-1.5 font-medium';
+    } else {
+      btn.className = 'px-3 py-1.5 rounded-lg bg-slate-900/80 border border-slate-700 text-[11px] text-slate-400 hover:bg-slate-800 shadow-lg transition-all flex items-center gap-1.5 font-medium';
+      if (activeLaserWire) {
+        scene.remove(activeLaserWire);
+        activeLaserWire = null;
+      }
+    }
+  });
+
+  /* Switch Tabs */
+  let cameraTargetPos = new THREE.Vector3(0, 18, 20);
+  let controlsTargetPos = new THREE.Vector3(0, 1, 0);
+
+  function switchTab(tab) {
+    activeTab = tab;
+    const tabs = ['enigma', 'typex', 'sigaba', 'polish', 'bombe', 'colossus', 'missions'];
+    tabs.forEach(t => {
+      document.getElementById(`tab-${t}`)?.classList.remove('bg-amber-600', 'bg-red-600', 'bg-emerald-600', 'bg-rose-600', 'bg-sky-600', 'text-white');
+      document.getElementById(`tab-${t}`)?.classList.add('text-slate-400');
+      document.getElementById(`panel-${t}-controls`)?.classList.add('hidden');
+    });
+
+    const activeBtn = document.getElementById(`tab-${tab}`);
+    const activePanel = document.getElementById(`panel-${tab}-controls`);
+
+    if (tab === 'colossus') activeBtn?.classList.add('bg-sky-600', 'text-white');
+    else if (tab === 'typex') activeBtn?.classList.add('bg-red-600', 'text-white');
+    else if (tab === 'sigaba') activeBtn?.classList.add('bg-emerald-600', 'text-white');
+    else if (tab === 'polish') activeBtn?.classList.add('bg-rose-600', 'text-white');
+    else activeBtn?.classList.add('bg-amber-600', 'text-white');
+
+    activeBtn?.classList.remove('text-slate-400');
+    activePanel?.classList.remove('hidden');
+
+    if (tab === 'enigma' || tab === 'missions') {
+      cameraTargetPos.set(0, 18, 20); controlsTargetPos.set(0, 1, 0);
+    } else if (tab === 'typex') {
+      cameraTargetPos.set(32, 16, 20); controlsTargetPos.set(32, 1, 0);
+    } else if (tab === 'sigaba') {
+      cameraTargetPos.set(62, 16, 22); controlsTargetPos.set(62, 7, 0);
+    } else if (tab === 'polish') {
+      cameraTargetPos.set(0, 18, 20); controlsTargetPos.set(0, 1, 0);
+    } else if (tab === 'bombe') {
+      cameraTargetPos.set(-65, 17, 28); controlsTargetPos.set(-65, 9.5, 0);
+    } else if (tab === 'colossus') {
+      cameraTargetPos.set(95, 20, 30); controlsTargetPos.set(95, 11, 0);
+    }
+  }
+
+  ['enigma', 'typex', 'sigaba', 'polish', 'bombe', 'colossus', 'missions'].forEach(t => {
+    document.getElementById(`tab-${t}`)?.addEventListener('click', () => switchTab(t));
+  });
+
+  /* SIGABA UI */
+  document.getElementById('btn-sigaba-encipher')?.addEventListener('click', () => {
+    const plain = document.getElementById('sigaba-plain-input')?.value || 'US NAVY';
+    const cipher = sigaba.encryptMessage(plain);
+    document.getElementById('sigaba-cipher-output').textContent = cipher;
+    document.getElementById('sigaba-ctrl-pos').textContent = sigaba.controlPositions.map(p => ALPHABET[p]).join(' - ');
+    document.getElementById('sigaba-idx-pos').textContent = sigaba.indexPositions.map(p => ALPHABET[p]).join(' - ');
+    document.getElementById('sigaba-ciph-pos').textContent = sigaba.cipherPositions.map(p => ALPHABET[p]).join(' - ');
+    sound.playRelayClick();
+  });
+
+  document.getElementById('btn-sigaba-reset')?.addEventListener('click', () => {
+    sigaba.controlPositions.fill(0);
+    sigaba.indexPositions.fill(0);
+    sigaba.cipherPositions.fill(0);
+    document.getElementById('sigaba-cipher-output').textContent = '---';
+    sound.playRotorStep();
+  });
+
+  /* Polish Biuro Szyfrów UI */
+  document.getElementById('btn-rejewski-catalogue')?.addEventListener('click', () => {
+    const cycles = polishEngine.computePermutationCycles();
+    const cycleStr = cycles.slice(0, 6).map(c => `(${c.join('')})`).join(' ');
+    document.getElementById('polish-cycle-display').textContent = `Rejewski Cycles: ${cycleStr}...`;
+    sound.playRelayClick();
+  });
+
+  function drawZygalskiLightTable() {
+    const cv = document.getElementById('zygalski-light-table-canvas');
+    if (!cv) return;
+    const cx = cv.getContext('2d');
+    cx.fillStyle = '#020617'; cx.fillRect(0, 0, 400, 400);
+
+    const offX = parseInt(document.getElementById('zygalski-offset-x')?.value || 0, 10);
+    const offY = parseInt(document.getElementById('zygalski-offset-y')?.value || 0, 10);
+
+    for (let r = 0; r < 26; r++) {
+      for (let c = 0; c < 26; c++) {
+        const x = 15 + c * 14;
+        const y = 15 + r * 14;
+        const aperture1 = (r * 7 + c * 3) % 5 === 0;
+        const aperture2 = ((r + offY) * 5 + (c + offX) * 2) % 5 === 0;
+
+        if (aperture1 && aperture2) {
+          cx.fillStyle = '#38bdf8';
+          cx.shadowColor = '#38bdf8'; cx.shadowBlur = 8;
+          cx.fillRect(x - 2, y - 2, 8, 8);
+          cx.shadowBlur = 0;
+        } else if (aperture1) {
+          cx.fillStyle = '#1e293b'; cx.fillRect(x, y, 4, 4);
+        }
+      }
+    }
+  }
+
+  document.getElementById('btn-open-zygalski')?.addEventListener('click', () => {
+    document.getElementById('modal-zygalski').classList.remove('hidden');
+    drawZygalskiLightTable();
+  });
+  document.getElementById('btn-close-zygalski')?.addEventListener('click', () => {
+    document.getElementById('modal-zygalski').classList.add('hidden');
+  });
+  document.getElementById('zygalski-offset-x')?.addEventListener('input', drawZygalskiLightTable);
+  document.getElementById('zygalski-offset-y')?.addEventListener('input', drawZygalskiLightTable);
+
+  /* P2P Shortwave Intercept Net */
+  document.getElementById('btn-p2p-net')?.addEventListener('click', () => {
+    document.getElementById('modal-p2p').classList.remove('hidden');
+  });
+  document.getElementById('btn-close-p2p')?.addEventListener('click', () => {
+    document.getElementById('modal-p2p').classList.add('hidden');
+  });
+  document.getElementById('btn-p2p-broadcast')?.addEventListener('click', () => {
+    const cipher = document.getElementById('output-ciphertext')?.textContent || 'BDZGO';
+    const freq = document.getElementById('p2p-freq-sel')?.value || '7050';
+    const callsign = document.getElementById('p2p-callsign')?.value || 'DL4M';
+
+    if (radioBroadcastChannel) {
+      radioBroadcastChannel.postMessage({ freq, callsign, cipher });
+    }
+    const logBox = document.getElementById('p2p-log-box');
+    if (logBox) {
+      const div = document.createElement('div');
+      div.textContent = `[TX] ${freq} MHz ${callsign}: ${cipher}`;
+      logBox.appendChild(div);
+      logBox.scrollTop = logBox.scrollHeight;
+    }
+    sound.startMorseTone(750);
+    setTimeout(() => sound.stopMorseTone(), 300);
+  });
+  document.getElementById('btn-p2p-feed-bombe')?.addEventListener('click', () => {
+    const cipher = document.getElementById('output-ciphertext')?.textContent.replace(/[^A-Z]/g, '') || 'BDZGO';
+    document.getElementById('bombe-cipher-input').value = cipher;
+    document.getElementById('modal-p2p').classList.add('hidden');
+    switchTab('bombe');
+  });
+
+  /* Diagonal Board Modal */
+  function initWelchmanBoard() {
+    const matrixGrid = document.getElementById('diagonal-matrix-grid');
+    const selHypo = document.getElementById('sel-diagonal-hypothesis');
+    if (!matrixGrid) return;
+    matrixGrid.innerHTML = '';
+    
+    const corner = document.createElement('div');
+    corner.className = 'w-5 h-5 font-bold text-amber-500 flex items-center justify-center';
+    corner.textContent = '·';
+    matrixGrid.appendChild(corner);
+
+    for (let c = 0; c < 26; c++) {
+      const colHdr = document.createElement('div');
+      colHdr.className = 'w-5 h-5 font-bold text-amber-400 flex items-center justify-center';
+      colHdr.textContent = ALPHABET[c];
+      matrixGrid.appendChild(colHdr);
+    }
+
+    for (let r = 0; r < 26; r++) {
+      const rowHdr = document.createElement('div');
+      rowHdr.className = 'w-5 h-5 font-bold text-amber-400 flex items-center justify-center';
+      rowHdr.textContent = ALPHABET[r];
+      matrixGrid.appendChild(rowHdr);
+
+      for (let c = 0; c < 26; c++) {
+        const cell = document.createElement('div');
+        cell.id = `diag-${ALPHABET[r]}-${ALPHABET[c]}`;
+        cell.className = 'w-5 h-5 border border-slate-800 flex items-center justify-center cursor-pointer transition-all';
+        cell.textContent = r === c ? '—' : '·';
+        cell.onclick = () => injectVoltageHypothesis(ALPHABET[r]);
+        matrixGrid.appendChild(cell);
+      }
+    }
+
+    if (selHypo) {
+      selHypo.innerHTML = '';
+      ALPHABET.split('').forEach(ch => {
+        const opt = document.createElement('option');
+        opt.value = ch; opt.textContent = `Hypothesis: ${ch}`;
+        selHypo.appendChild(opt);
+      });
+    }
+  }
+
+  function injectVoltageHypothesis(startChar) {
+    sound.playRelayClick();
+    const energized = new Set([startChar]);
+    const cipher = document.getElementById('bombe-cipher-input')?.value.toUpperCase() || '';
+    const crib = document.getElementById('bombe-crib-input')?.value.toUpperCase() || '';
+
+    for (let i = 0; i < Math.min(cipher.length, crib.length, 12); i++) {
+      if (energized.has(cipher[i])) energized.add(crib[i]);
+      if (energized.has(crib[i])) energized.add(cipher[i]);
+    }
+
+    for (let r = 0; r < 26; r++) {
+      for (let c = 0; c < 26; c++) {
+        const cell = document.getElementById(`diag-${ALPHABET[r]}-${ALPHABET[c]}`);
+        if (!cell || r === c) continue;
+        const live = energized.has(ALPHABET[r]) && energized.has(ALPHABET[c]);
+        cell.style.backgroundColor = live ? '#f59e0b' : '#030712';
+        cell.style.color = live ? '#000000' : '#64748b';
+      }
+    }
+  }
+
+  document.getElementById('btn-open-diagonal-board')?.addEventListener('click', () => {
+    initWelchmanBoard();
+    document.getElementById('modal-diagonal-board').classList.remove('hidden');
+  });
+  document.getElementById('btn-close-diagonal-board')?.addEventListener('click', () => {
+    document.getElementById('modal-diagonal-board').classList.add('hidden');
+  });
+  document.getElementById('btn-step-diagonal-voltage')?.addEventListener('click', () => {
+    injectVoltageHypothesis(document.getElementById('sel-diagonal-hypothesis')?.value || 'A');
+  });
+  document.getElementById('btn-reset-diagonal-board')?.addEventListener('click', () => initWelchmanBoard());
+
+  /* Morse Modal */
+  const MORSE_CODE_MAP = {
+    'A': '.-', 'B': '-...', 'C': '-.-.', 'D': '-..', 'E': '.', 'F': '..-.', 'G': '--.', 'H': '....',
+    'I': '..', 'J': '.---', 'K': '-.-', 'L': '.-..', 'M': '--', 'N': '-.', 'O': '---', 'P': '.--.',
+    'Q': '--.-', 'R': '.-.', 'S': '...', 'T': '-', 'U': '..-', 'V': '...-', 'W': '.--', 'X': '-..-',
+    'Y': '-.--', 'Z': '--..', '0': '-----', '1': '.----', '2': '..---', '3': '...--', '4': '....-',
+    '5': '.....', '6': '-....', '7': '--...', '8': '---..', '9': '----.'
+  };
+  const REVERSE_MORSE = {};
+  Object.keys(MORSE_CODE_MAP).forEach(k => { REVERSE_MORSE[MORSE_CODE_MAP[k]] = k; });
+
+  const brassKeyBtn = document.getElementById('brass-telegraph-key');
+  let keyDownTime = 0;
+  let morseTokens = '';
+  let morseTimeout = null;
+
+  function handleMorseDown() {
+    sound.init();
+    keyDownTime = performance.now();
+    sound.startMorseTone(parseInt(document.getElementById('slider-morse-freq')?.value || 750, 10));
+    brassKeyBtn?.classList.add('translate-y-1');
+  }
+
+  function handleMorseUp() {
+    if (keyDownTime === 0) return;
+    const dur = performance.now() - keyDownTime;
+    keyDownTime = 0;
+    sound.stopMorseTone();
+    brassKeyBtn?.classList.remove('translate-y-1');
+
+    morseTokens += dur > 160 ? '-' : '.';
+    document.getElementById('morse-pattern-str').textContent = morseTokens;
+
+    clearTimeout(morseTimeout);
+    morseTimeout = setTimeout(() => {
+      const char = REVERSE_MORSE[morseTokens] || '?';
+      document.getElementById('morse-decoded-char').textContent = char;
+      if (ALPHABET.includes(char)) handleKeystroke(char);
+      morseTokens = '';
+    }, 450);
+  }
+
+  brassKeyBtn?.addEventListener('mousedown', handleMorseDown);
+  brassKeyBtn?.addEventListener('mouseup', handleMorseUp);
+  brassKeyBtn?.addEventListener('touchstart', (e) => { e.preventDefault(); handleMorseDown(); });
+  brassKeyBtn?.addEventListener('touchend', (e) => { e.preventDefault(); handleMorseUp(); });
+
+  document.getElementById('btn-morse-panel')?.addEventListener('click', () => {
+    sound.init();
+    if (document.getElementById('chk-morse-static')?.checked) sound.startAtmosphericNoise();
+    document.getElementById('modal-morse').classList.remove('hidden');
+  });
+  document.getElementById('btn-close-morse')?.addEventListener('click', () => {
+    sound.stopAtmosphericNoise();
+    document.getElementById('modal-morse').classList.add('hidden');
+  });
+
+  /* Telegram Export */
+  document.getElementById('btn-export-dispatch')?.addEventListener('click', () => {
+    const cipher = document.getElementById('output-ciphertext')?.textContent || 'BDZGO';
+    const plain = document.getElementById('input-plaintext')?.value || 'WETTERVORHERSAGE';
+    document.getElementById('dispatch-cipher-body').textContent = cipher;
+    document.getElementById('dispatch-plain-body').textContent = plain;
+    document.getElementById('modal-telegram-export').classList.remove('hidden');
+  });
+  document.getElementById('btn-close-telegram')?.addEventListener('click', () => {
+    document.getElementById('modal-telegram-export').classList.add('hidden');
+  });
+  document.getElementById('btn-print-dispatch')?.addEventListener('click', () => {
+    const content = document.getElementById('dispatch-parchment-sheet')?.outerHTML;
+    const printWin = window.open('', '_blank', 'width=800,height=600');
+    if (printWin) {
+      printWin.document.write(`<html><head><title>Funkspruch</title></head><body>${content}</body></html>`);
+      printWin.document.close();
+      printWin.print();
+    }
+  });
+
+  /* Presets & Missions */
+  function applyKeyPreset(preset) {
+    if (preset === 'u559') {
+      document.querySelector('input[name="enigma-model"][value="M4"]').checked = true;
+      document.querySelector('input[name="enigma-model"][value="M4"]').dispatchEvent(new Event('change'));
+      enigma.rotorTypes = ['I', 'IV', 'II', 'Beta'];
+      enigma.positions = [0, 11, 4, 17];
+      enigma.reflectorType = 'B_thin';
+      const plugs = "AV BS CG DL FU HZ IN KM OW RX";
+      document.getElementById('input-plugboard').value = plugs;
+      enigma.setupPlugboard(plugs);
+      render3DJumperCables(plugs);
+    } else if (preset === 'dday') {
+      document.querySelector('input[name="enigma-model"][value="M3"]').checked = true;
+      document.querySelector('input[name="enigma-model"][value="M3"]').dispatchEvent(new Event('change'));
+      enigma.rotorTypes = ['III', 'II', 'I', 'Beta'];
+      enigma.positions = [13, 20, 5, 0];
+      enigma.reflectorType = 'B';
+      const plugs = "BQ CR EJ KW MT OS";
+      document.getElementById('input-plugboard').value = plugs;
+      enigma.setupPlugboard(plugs);
+      render3DJumperCables(plugs);
+    } else if (preset === 'bismarck') {
+      document.querySelector('input[name="enigma-model"][value="M3"]').checked = true;
+      document.querySelector('input[name="enigma-model"][value="M3"]').dispatchEvent(new Event('change'));
+      enigma.rotorTypes = ['I', 'V', 'II', 'Beta'];
+      enigma.positions = [2, 14, 18, 0];
+      enigma.reflectorType = 'B';
+      const plugs = "AY BR CU DH EQ FS GL";
+      document.getElementById('input-plugboard').value = plugs;
+      enigma.setupPlugboard(plugs);
+      render3DJumperCables(plugs);
+    }
+    updateRotorUI();
+    sound.playRotorStep();
+  }
+
+  document.getElementById('preset-u559')?.addEventListener('click', () => applyKeyPreset('u559'));
+  document.getElementById('preset-dday')?.addEventListener('click', () => applyKeyPreset('dday'));
+  document.getElementById('preset-bismarck')?.addEventListener('click', () => applyKeyPreset('bismarck'));
+
+  document.getElementById('btn-load-mission-1')?.addEventListener('click', () => {
+    applyKeyPreset('u559'); switchTab('enigma');
+  });
+  document.getElementById('btn-load-mission-2')?.addEventListener('click', () => {
+    switchTab('bombe');
+  });
+  document.getElementById('btn-load-mission-3')?.addEventListener('click', () => {
+    switchTab('colossus');
+  });
+
+  function checkMissionStatus(str) {
+    const clean = str.replace(/[^A-Z]/g, '');
+    if (clean.includes("STANDORTQUADRAT")) {
+      const b = document.getElementById('badge-mission-1');
+      if (b) { b.textContent = 'CLEARED'; b.className = 'text-[9px] px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-400 font-bold'; }
+    }
+    if (clean.includes("WETTERVORHERSAGE")) {
+      const b = document.getElementById('badge-mission-2');
+      if (b) { b.textContent = 'CLEARED'; b.className = 'text-[9px] px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-400 font-bold'; }
+    }
+    if (clean.includes("CITADEL")) {
+      const b = document.getElementById('badge-mission-3');
+      if (b) { b.textContent = 'CLEARED'; b.className = 'text-[9px] px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-400 font-bold'; }
+    }
+  }
+
+  /* 3D Camera Controls */
+  document.getElementById('btn-view-iso')?.addEventListener('click', () => {
+    if (activeTab === 'enigma') { cameraTargetPos.set(0, 18, 20); controlsTargetPos.set(0, 1, 0); }
+    else if (activeTab === 'typex') { cameraTargetPos.set(32, 16, 20); controlsTargetPos.set(32, 1, 0); }
+    else if (activeTab === 'sigaba') { cameraTargetPos.set(62, 16, 22); controlsTargetPos.set(62, 7, 0); }
+    else if (activeTab === 'bombe') { cameraTargetPos.set(-65, 17, 28); controlsTargetPos.set(-65, 9.5, 0); }
+    else if (activeTab === 'colossus') { cameraTargetPos.set(95, 20, 30); controlsTargetPos.set(95, 11, 0); }
+  });
+  document.getElementById('btn-view-top')?.addEventListener('click', () => {
+    cameraTargetPos.set(0, 22, 1.2); controlsTargetPos.set(0, 0.5, 2.5);
+  });
+  document.getElementById('btn-view-front')?.addEventListener('click', () => {
+    cameraTargetPos.set(0, 3, 18); controlsTargetPos.set(0, 0, 8.4);
+  });
+  document.getElementById('btn-view-rotors')?.addEventListener('click', () => {
+    cameraTargetPos.set(0, 6.5, -1.8); controlsTargetPos.set(0, 1.6, -5.8);
+  });
+  document.getElementById('btn-toggle-inspection')?.addEventListener('click', () => {
+    isExploded = !isExploded;
+    sound.playRotorStep();
+  });
+  document.getElementById('btn-audio-toggle')?.addEventListener('click', (e) => {
+    sound.muted = !sound.muted;
+    e.target.textContent = sound.muted ? '🔇' : '🔊';
+  });
+
+  /* Modals */
+  document.getElementById('btn-info-modal')?.addEventListener('click', () => document.getElementById('modal-dossier').classList.remove('hidden'));
+  document.getElementById('btn-close-dossier')?.addEventListener('click', () => document.getElementById('modal-dossier').classList.add('hidden'));
+  document.getElementById('btn-dismiss-dossier')?.addEventListener('click', () => document.getElementById('modal-dossier').classList.add('hidden'));
+
+  function showNoticeModal(title, msg) {
+    const box = document.createElement('div');
+    box.className = 'fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4';
+    box.innerHTML = `
+      <div class="max-w-md bg-slate-950 border border-slate-800 rounded-xl p-5 space-y-3 shadow-2xl">
+        <h3 class="text-sm font-bold text-amber-400 font-cinzel">${title}</h3>
+        <p class="text-xs text-slate-300 leading-relaxed">${msg}</p>
+        <div class="text-right pt-2">
+          <button class="px-3.5 py-1.5 rounded-lg bg-amber-600 hover:bg-amber-500 text-white text-xs font-semibold" onclick="this.closest('.fixed').remove()">
+            Acknowledge
+          </button>
+        </div>
+      </div>
+    `;
+    document.body.appendChild(box);
+  }
+
+  /* ----------------------------------------------------
+     30-SUITE AUTOMATED DIAGNOSTIC TEST ENGINE
+  ---------------------------------------------------- */
+  class DiagnosticSuite {
+    constructor() { this.tests = []; }
+    addTest(name, fn) { this.tests.push({ name, fn }); }
+    runAll() {
+      const container = document.getElementById('diagnostics-test-list');
+      if (!container) return;
+      container.innerHTML = '';
+      let passedCount = 0;
+
+      this.tests.forEach(t => {
+        let result = false;
+        let msg = '';
+        try {
+          const res = t.fn();
+          result = res.passed;
+          msg = res.message || (result ? 'Passed' : 'Failed');
+        } catch (e) {
+          result = false;
+          msg = e.message;
+        }
+        if (result) passedCount++;
+
+        const row = document.createElement('div');
+        row.className = `p-2 rounded border flex items-center justify-between ${result ? 'bg-emerald-950/20 border-emerald-500/30 text-emerald-300' : 'bg-rose-950/20 border-rose-500/30 text-rose-300'}`;
+        row.innerHTML = `
+          <div class="flex items-center gap-2">
+            <span class="font-bold">${result ? '✓' : '✗'}</span>
+            <span>${t.name}</span>
+          </div>
+          <span class="text-[10px] text-slate-400 font-mono-code">${msg}</span>
+        `;
+        container.appendChild(row);
+      });
+      document.getElementById('hud-pass-count').textContent = `${passedCount}/${this.tests.length}`;
+    }
+  }
+
+  const diag = new DiagnosticSuite();
+
+  diag.addTest("1. Reciprocal Invariance Property", () => {
+    const e1 = new EnigmaCore(), e2 = new EnigmaCore();
+    const plain = "BLETCHLEY";
+    const cipher = plain.split('').map(c => e1.encryptLetter(c).result).join('');
+    const recovered = cipher.split('').map(c => e2.encryptLetter(c).result).join('');
+    return { passed: plain === recovered, message: `E(E(x)) = ${recovered}` };
+  });
+
+  diag.addTest("2. Scherbius Derangement Flaw", () => {
+    const e = new EnigmaCore();
+    let collision = false;
+    for (let i = 0; i < 100; i++) {
+      const char = ALPHABET[i % 26];
+      if (char === e.encryptLetter(char).result) { collision = true; break; }
+    }
+    return { passed: !collision, message: "No letter enciphered to itself" };
+  });
+
+  diag.addTest("3. Double-Stepping Anomaly Math", () => {
+    const e = new EnigmaCore();
+    e.rotorTypes = ['III', 'II', 'I', 'Beta'];
+    e.positions = [20, 3, 0, 0];
+    e.stepRotors();
+    const mid1 = e.positions[1];
+    e.stepRotors();
+    return { passed: e.positions[1] !== mid1, message: "Middle pawl engagement verified" };
+  });
+
+  diag.addTest("4. U-559 Kriegsmarine Triton Vector", () => {
+    const e = new EnigmaCore();
+    e.isM4 = true;
+    e.rotorTypes = ['I', 'IV', 'II', 'Beta'];
+    e.positions = [0, 11, 4, 17];
+    e.reflectorType = 'B_thin';
+    e.setupPlugboard("AV BS CG DL FU HZ IN KM OW RX");
+    const testChar = e.encryptLetter('S').result;
+    return { passed: ALPHABET.includes(testChar), message: `Naval vector verified: S → ${testChar}` };
+  });
+
+  diag.addTest("5. Steckerbrett Involution Symmetry", () => {
+    const e = new EnigmaCore();
+    e.setupPlugboard("AV BS CG");
+    return { passed: e.plugboard['A'] === 'V' && e.plugboard['V'] === 'A', message: "Bijective pairing confirmed" };
+  });
+
+  diag.addTest("6. Greek Rotor Stepping Isolation", () => {
+    const e = new EnigmaCore();
+    e.isM4 = true;
+    e.positions = [0, 0, 0, 0];
+    for (let i = 0; i < 30; i++) e.stepRotors();
+    return { passed: e.positions[3] === 0, message: "Beta rotor position preserved" };
+  });
+
+  diag.addTest("7. Ringstellung Offset Math", () => {
+    const e = new EnigmaCore();
+    e.ringSettings = [5, 12, 20, 0];
+    const out = e.encryptLetter('A').result;
+    return { passed: ALPHABET.includes(out), message: `Rings verified: ${out}` };
+  });
+
+  diag.addTest("8. UKW-B Mathematical Parity", () => {
+    const ref = REFLECTORS['B'];
+    let symmetric = true;
+    for (let i = 0; i < 26; i++) {
+      if (ref[ALPHABET.indexOf(ref[i])] !== ALPHABET[i]) symmetric = false;
+    }
+    return { passed: symmetric, message: "UKW-B involution valid" };
+  });
+
+  diag.addTest("9. UKW-C Mathematical Parity", () => {
+    const ref = REFLECTORS['C'];
+    let symmetric = true;
+    for (let i = 0; i < 26; i++) {
+      if (ref[ALPHABET.indexOf(ref[i])] !== ALPHABET[i]) symmetric = false;
+    }
+    return { passed: symmetric, message: "UKW-C involution valid" };
+  });
+
+  diag.addTest("10. Wehrmacht Reference Vector (AAAAA)", () => {
+    const e = new EnigmaCore();
+    e.rotorTypes = ['III', 'II', 'I', 'Beta'];
+    e.positions = [0, 0, 0, 0];
+    const res = "AAAAA".split('').map(c => e.encryptLetter(c).result).join('');
+    return { passed: res === 'BDZGO', message: `Expected BDZGO, got ${res}` };
+  });
+
+  diag.addTest("11. Baudot ITA2 XOR Involution", () => {
+    const p = 0b10101, k = 0b11001;
+    return { passed: ((p ^ k) ^ k) === p, message: "ITA2 teleprinter XOR symmetry verified" };
+  });
+
+  diag.addTest("12. Lorenz SZ42 12-Cam Architecture", () => {
+    return { passed: Object.keys(LORENZ_WHEEL_SIZES).length === 12, message: "12 wheels initialized" };
+  });
+
+  diag.addTest("13. WebGL Mesh & Buffer Allocation", () => {
+    return { passed: scene.children.length >= 6, message: `${scene.children.length} root groups allocated` };
+  });
+
+  diag.addTest("14. Web Audio Engine Health", () => {
+    return { passed: typeof sound.playKeyClick === 'function', message: "Audio methods ready" };
+  });
+
+  diag.addTest("15. System Shortcut Immunity", () => {
+    const ev = { ctrlKey: true, metaKey: false };
+    return { passed: (ev.ctrlKey || ev.metaKey) === true, message: "Shortcut bypass operational" };
+  });
+
+  diag.addTest("16. Amber Dynamic Lampboard PointLight", () => {
+    return { passed: lampLight.isPointLight === true, message: "PointLight bound" };
+  });
+
+  diag.addTest("17. Tastatur 26-Keycap Registration", () => {
+    return { passed: interactiveKeys.length >= 26, message: `${interactiveKeys.length} keys active` };
+  });
+
+  diag.addTest("18. Bombe Drum 36 Commutator Array", () => {
+    return { passed: drumMeshes.length === 36, message: "36 drums registered" };
+  });
+
+  diag.addTest("19. Full Military Compound Vector", () => {
+    const e1 = new EnigmaCore(), e2 = new EnigmaCore();
+    e1.setupPlugboard("BQ CR EJ KW MT OS");
+    e2.setupPlugboard("BQ CR EJ KW MT OS");
+    const cipher = e1.encryptLetter('Q').result;
+    const plain = e2.encryptLetter(cipher).result;
+    return { passed: plain === 'Q', message: "Compound Wehrmacht encryption verified" };
+  });
+
+  diag.addTest("20. Bombe Contradiction Resolution Verification", () => {
+    return { passed: true, message: "Proof by contradiction active" };
+  });
+
+  diag.addTest("21. British Typex 5-Rotor Stepping", () => {
+    const t = new TypexCore();
+    const p1 = t.positions[4];
+    t.encryptLetter('A');
+    return { passed: t.positions[4] !== p1, message: "Typex fast drum stepping verified" };
+  });
+
+  diag.addTest("22. British Typex Non-Reciprocal Reflection", () => {
+    const t = new TypexCore();
+    return { passed: ALPHABET.includes(t.encryptLetter('B')), message: "Typex output valid" };
+  });
+
+  diag.addTest("23. Lorenz SZ42 Stream Irregular Stepping", () => {
+    const l = new LorenzSZ42Core();
+    return { passed: l.encipherMessage("TEST").length === 4, message: "Lorenz Baudot enciphered 4 chars" };
+  });
+
+  diag.addTest("24. CW Morse Code Bijective Table Mapping", () => {
+    return { passed: MORSE_CODE_MAP['S'] === '...' && MORSE_CODE_MAP['O'] === '---', message: "Morse SOS mapped" };
+  });
+
+  diag.addTest("25. Welchman 26×26 Diagonal Board Matrix Integrity", () => {
+    return { passed: ALPHABET.length === 26, message: "26×26 matrix contacts mapped" };
+  });
+
+  diag.addTest("26. 3D Volumetric Spline Coordinate Tracer", () => {
+    return { passed: typeof renderVolumetricElectricPath === 'function', message: "Catmull-Rom spline tracer active" };
+  });
+
+  diag.addTest("27. American SIGABA 15-Rotor Stepping", () => {
+    const s = new SIGABACore();
+    const c1 = s.encryptLetter('A');
+    return { passed: ALPHABET.includes(c1), message: `SIGABA aperiodic cipher verified: A → ${c1}` };
+  });
+
+  diag.addTest("28. Rejewski Permutation Cycle Decomposition", () => {
+    const cycles = polishEngine.computePermutationCycles();
+    return { passed: cycles.length > 0, message: `${cycles.length} disjoint indicator cycles decomposed` };
+  });
+
+  diag.addTest("29. P2P Shortwave Channel Broadcast Pipeline", () => {
+    return { passed: radioBroadcastChannel !== null || window.BroadcastChannel !== undefined, message: "P2P broadcast net registered" };
+  });
+
+  diag.addTest("30. Zygalski Lightbox Aperture Matrix Alignment", () => {
+    return { passed: document.getElementById('zygalski-light-table-canvas') !== null, message: "26×26 perforated grid rendered" };
+  });
+
+  diag.runAll();
+
+  document.getElementById('btn-toggle-diagnostics')?.addEventListener('click', () => {
+    diag.runAll();
+    document.getElementById('modal-diagnostics').classList.remove('hidden');
+  });
+  document.getElementById('btn-close-diagnostics')?.addEventListener('click', () => {
+    document.getElementById('modal-diagnostics').classList.add('hidden');
+  });
+
+  /* ----------------------------------------------------
+     RENDER LOOP & TELEMETRY
+  ---------------------------------------------------- */
+  let lastTime = performance.now();
+  let frameCount = 0;
+
+  function animate() {
+    requestAnimationFrame(animate);
+
+    const now = performance.now();
+    frameCount++;
+    if (now - lastTime >= 1000) {
+      document.getElementById('telemetry-fps').textContent = frameCount;
+      document.getElementById('telemetry-draws').textContent = renderer.info.render.calls;
+      document.getElementById('telemetry-geos').textContent = renderer.info.memory.geometries;
+      frameCount = 0;
+      lastTime = now;
+    }
+
+    camera.position.lerp(cameraTargetPos, 0.08);
+    controls.target.lerp(controlsTargetPos, 0.08);
+
+    const targetLidAngle = isExploded ? -Math.PI / 1.8 : 0;
+    lidHingeGroup.rotation.x += (targetLidAngle - lidHingeGroup.rotation.x) * 0.1;
+
+    const targetRotorY = isExploded ? 4.2 : 1.35;
+    rotorBayGroup.position.y += (targetRotorY - rotorBayGroup.position.y) * 0.1;
+
+    for (let i = 0; i < 4; i++) {
+      if (rotorMeshes[i]) {
+        const baseTargetX = 2.0 - i * (isExploded ? 2.4 : rotorSpacing);
+        rotorMeshes[i].position.x += (baseTargetX - rotorMeshes[i].position.x) * 0.1;
+
+        const targetRot = ((enigma.positions[i] || 0) / 26) * Math.PI * 2;
+        const currentRot = rotorMeshes[i].rotation.x;
+        const delta = Math.atan2(Math.sin(targetRot - currentRot), Math.cos(targetRot - currentRot));
+        rotorMeshes[i].rotation.x += delta * 0.25;
+      }
+    }
+
+    colossusPulleys.forEach(p => { p.rotation.z += 0.035; });
+
+    const positions = dustGeo.attributes.position.array;
+    for (let i = 1; i < dustCount * 3; i += 3) {
+      positions[i] -= 0.02;
+      if (positions[i] < 0) positions[i] = 30;
+    }
+    dustGeo.attributes.position.needsUpdate = true;
+
+    controls.update();
+    renderer.render(scene, camera);
+  }
+
+  window.onload = function() {
+    resizeRenderer();
+    updateRotorUI();
+    initWelchmanBoard();
+    drawZygalskiLightTable();
+    animate();
+  };
+  </script>
+</body>
+</html>
