@@ -282,6 +282,54 @@ def run_tests():
         assert_test("Standalone bundles RadioVFOReceiver", "RadioVFOReceiver" in script_body)
         assert_test("Standalone bundles calculateIndexOfCoincidence", "calculateIndexOfCoincidence" in script_body)
 
+        # Check for duplicate top-level identifier declarations in standalone script
+        script_no_templates = re.sub(r'`[^`]*`', '""', script_body, flags=re.DOTALL)
+        declarations = {}
+        for line in script_no_templates.splitlines():
+            # Truly top-level (no leading indentation)
+            m = re.match(r'^(?:const|let|var|function|class)\s+([a-zA-Z0-9_$]+)', line)
+            if m:
+                name = m.group(1)
+                declarations[name] = declarations.get(name, 0) + 1
+        dupes = [k for k, v in declarations.items() if v > 1]
+        assert_test("Standalone zero duplicate top-level declarations", len(dupes) == 0)
+
+    # Automated DOM ID resolution check
+    html_content = (BASE_DIR / "index.html").read_text(encoding="utf-8")
+    html_ids = set(re.findall(r'id=["\']([^"\']+)["\']', html_content))
+    missing_ids = []
+    for jf in (BASE_DIR / "src").glob("**/*.js"):
+        code = jf.read_text(encoding="utf-8")
+        used_ids = re.findall(r'getElementById\(["\']([^"\']+)["\']\)', code)
+        for uid in used_ids:
+            if uid not in html_ids:
+                missing_ids.append(f"{jf.name}:{uid}")
+    assert_test("All JS getElementById references resolve in index.html", len(missing_ids) == 0)
+
+    # Automated ES Module import/export integrity check
+    exports_map = {}
+    js_files = list((BASE_DIR / "src").glob("**/*.js"))
+    for jf in js_files:
+        code = jf.read_text(encoding="utf-8")
+        exps = set(re.findall(r'export\s+(?:const|let|var|function|class)\s+([a-zA-Z0-9_$]+)', code))
+        for ne in re.findall(r'export\s*\{([^}]+)\}', code):
+            for item in ne.split(','):
+                sym = item.strip().split(' as ')[-1].strip()
+                if sym: exps.add(sym)
+        exports_map[jf.resolve()] = exps
+
+    broken_imports = []
+    for jf in js_files:
+        code = jf.read_text(encoding="utf-8")
+        for sym_str, rel in re.findall(r'import\s*\{([^}]+)\}\s*from\s*[\'"]([^\'"]+)[\'"]', code, flags=re.DOTALL):
+            target = (jf.parent / rel).resolve()
+            if target.exists():
+                avail = exports_map.get(target, set())
+                for s in [x.strip().split(' as ')[0].strip() for x in sym_str.split(',') if x.strip()]:
+                    if s not in avail:
+                        broken_imports.append(f"{jf.name}->{s}")
+    assert_test("All ES module imports resolve to exported symbols", len(broken_imports) == 0)
+
     print("\n--- 3. Local Loopback Server Smoke Test ---")
     # Launch loopback server on a free port
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)

@@ -5,10 +5,10 @@ export const bombeGroup = new THREE.Group();
 bombeGroup.position.set(-65, 0, 0);
 scene.add(bombeGroup);
 
-const woodTexture = createMahoganyTexture();
+const bombeWoodTexture = createMahoganyTexture();
 const bombeCabinet = new THREE.Mesh(
   new THREE.BoxGeometry(24, 20, 10),
-  new THREE.MeshStandardMaterial({ map: woodTexture, color: 0x1f1610 })
+  new THREE.MeshStandardMaterial({ map: bombeWoodTexture, color: 0x1f1610 })
 );
 bombeCabinet.position.y = 9.5;
 bombeGroup.add(bombeCabinet);

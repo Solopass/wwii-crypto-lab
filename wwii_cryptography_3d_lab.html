@@ -587,6 +587,12 @@ body {
           <button id="btn-rejewski-catalogue" class="w-full py-1.5 rounded bg-rose-950/70 border border-rose-600/60 hover:bg-rose-900 text-rose-200 text-xs font-mono-code">
             ⚡ Decompose Daily Indicator Cycles
           </button>
+          <div class="space-y-1 pt-1 border-t border-slate-800">
+            <span class="text-[10px] font-mono-code text-slate-400 block">Katalog Kart (Card Catalogue Matches):</span>
+            <div id="rejewski-card-results" class="space-y-1.5 max-h-36 overflow-y-auto">
+              <div class="text-[10px] text-slate-500 font-mono-code">Click Decompose to search card catalogue.</div>
+            </div>
+          </div>
         </div>
 
         <!-- Zygalski Perforated Sheets Light Table Launcher -->
@@ -646,6 +652,13 @@ body {
           <div class="flex items-center justify-between">
             <span class="text-xs font-bold uppercase tracking-wider text-slate-300 font-cinzel">Commutator Banks</span>
             <span id="bombe-status-badge" class="text-[10px] font-mono-code px-2 py-0.5 rounded bg-slate-800 text-slate-400">IDLE</span>
+          </div>
+          <div class="flex items-center justify-between text-xs font-mono-code text-slate-300 bg-slate-900/60 p-2 rounded-lg border border-slate-800">
+            <label class="flex items-center gap-2 cursor-pointer">
+              <input id="chk-bombe-scan-60" type="checkbox" checked class="accent-amber-500 rounded">
+              <span class="text-[11px]">Scan All 60 Rotor Combinations</span>
+            </label>
+            <span class="text-[9px] text-amber-400 font-bold">1,054,560 perm</span>
           </div>
           <div class="flex gap-2">
             <button id="btn-run-bombe" class="flex-1 py-2 rounded-lg bg-amber-600 hover:bg-amber-500 text-white font-semibold text-xs transition-colors flex items-center justify-center gap-1.5 shadow-md">
@@ -1307,10 +1320,13 @@ const MORSE_CODE_MAP = {
   '5': '.....', '6': '-....', '7': '--...', '8': '---..', '9': '----.'
 };
 
+const MORSE_MAP = MORSE_CODE_MAP;
+
 const REVERSE_MORSE = {};
 Object.keys(MORSE_CODE_MAP).forEach(k => {
   REVERSE_MORSE[MORSE_CODE_MAP[k]] = k;
 });
+
 
 /* --- enigma.js --- */
 
@@ -3715,10 +3731,10 @@ const bombeGroup = new THREE.Group();
 bombeGroup.position.set(-65, 0, 0);
 scene.add(bombeGroup);
 
-const woodTexture = createMahoganyTexture();
+const bombeWoodTexture = createMahoganyTexture();
 const bombeCabinet = new THREE.Mesh(
   new THREE.BoxGeometry(24, 20, 10),
-  new THREE.MeshStandardMaterial({ map: woodTexture, color: 0x1f1610 })
+  new THREE.MeshStandardMaterial({ map: bombeWoodTexture, color: 0x1f1610 })
 );
 bombeCabinet.position.y = 9.5;
 bombeGroup.add(bombeCabinet);

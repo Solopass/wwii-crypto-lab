@@ -55,7 +55,10 @@ export const MORSE_CODE_MAP = {
   '5': '.....', '6': '-....', '7': '--...', '8': '---..', '9': '----.'
 };
 
+export const MORSE_MAP = MORSE_CODE_MAP;
+
 export const REVERSE_MORSE = {};
 Object.keys(MORSE_CODE_MAP).forEach(k => {
   REVERSE_MORSE[MORSE_CODE_MAP[k]] = k;
 });
+
