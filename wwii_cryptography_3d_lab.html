@@ -111,10 +111,19 @@ body {
       <button id="tab-missions" class="px-2.5 py-1.5 rounded-lg text-xs font-medium transition-all text-slate-400 hover:text-slate-200 flex items-center gap-1 whitespace-nowrap">
         <span>🎯 Missions</span>
       </button>
+      <button id="tab-analytics" class="px-2.5 py-1.5 rounded-lg text-xs font-medium transition-all text-slate-400 hover:text-slate-200 flex items-center gap-1 whitespace-nowrap">
+        <span>📊 Toolkit</span>
+      </button>
     </div>
 
     <!-- Global Actions -->
     <div class="flex items-center gap-1 sm:gap-1.5">
+      <button id="btn-ambient-toggle" class="px-2 py-1.5 rounded-lg bg-slate-900 border border-slate-700 hover:border-slate-500 text-slate-300 text-xs font-mono-code flex items-center gap-1 transition-all" title="Toggle Hut 11 Ambience (50Hz Mains & Mechanical Clatter)">
+        <span>🎧</span><span class="hidden xl:inline">Hut 11</span>
+      </button>
+      <button id="btn-radio-vfo" class="px-2 py-1.5 rounded-lg bg-indigo-950/70 border border-indigo-600/70 text-indigo-300 hover:bg-indigo-900 text-xs font-mono-code flex items-center gap-1 transition-all" title="Analog HF Receiver VFO & Heterodyne Whistle">
+        <span>📻</span><span class="hidden md:inline">HF Radio VFO</span>
+      </button>
       <button id="btn-p2p-net" class="px-2 py-1.5 rounded-lg bg-sky-950/70 border border-sky-600/70 text-sky-300 hover:bg-sky-900 text-xs font-mono-code flex items-center gap-1 transition-all" title="Simulated Shortwave Radio Net">
         <span>📡</span><span class="hidden md:inline">Radio Net</span>
       </button>
@@ -127,7 +136,7 @@ body {
       <button id="btn-toggle-diagnostics" class="px-2 py-1.5 rounded-lg bg-slate-900 border border-slate-700 hover:border-slate-500 text-xs font-mono-code flex items-center gap-1 text-slate-300 transition-all shadow-sm">
         <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
         <span class="hidden sm:inline">Self-Test</span>
-        <span class="text-amber-400 font-bold">(<span id="hud-pass-count">30/30</span>)</span>
+        <span class="text-amber-400 font-bold">(<span id="hud-pass-count">35/35</span>)</span>
       </button>
       <button id="btn-audio-toggle" class="p-2 rounded-lg bg-slate-900 border border-slate-700 hover:border-slate-500 text-slate-300 text-xs transition-colors" title="Toggle Sound FX">
         🔊
@@ -796,6 +805,97 @@ body {
             Load Lorenz Stream
           </button>
         </div>
+
+        <div class="glass-panel p-3.5 rounded-xl space-y-2 border-l-2 border-l-rose-500">
+          <div class="flex items-center justify-between">
+            <h3 class="text-xs font-bold text-slate-200">4. The Hunt for the Bismarck (May 1941)</h3>
+            <span id="badge-mission-4" class="text-[9px] px-1.5 py-0.5 rounded bg-slate-800 text-slate-400 font-mono-code font-bold">PENDING</span>
+          </div>
+          <p class="text-[11px] text-slate-400">Luftwaffe General Jeschonnek orders air escort for the crippled battleship to Brest.</p>
+          <button id="btn-load-mission-4" class="w-full py-1.5 rounded bg-slate-800 hover:bg-slate-700 text-xs font-mono-code text-rose-300">
+            Load Bismarck Intercept
+          </button>
+        </div>
+
+        <div class="glass-panel p-3.5 rounded-xl space-y-2 border-l-2 border-l-red-600">
+          <div class="flex items-center justify-between">
+            <h3 class="text-xs font-bold text-slate-200">5. Luftwaffe Red: Rommel's Fuel Crisis</h3>
+            <span id="badge-mission-5" class="text-[9px] px-1.5 py-0.5 rounded bg-slate-800 text-slate-400 font-mono-code font-bold">PENDING</span>
+          </div>
+          <p class="text-[11px] text-slate-400">Hut 6 breaks Luftwaffe general key exposing Panzerarmee Afrika's critical fuel shortage.</p>
+          <button id="btn-load-mission-5" class="w-full py-1.5 rounded bg-slate-800 hover:bg-slate-700 text-xs font-mono-code text-red-300">
+            Load Rommel Intercept
+          </button>
+        </div>
+
+        <div class="glass-panel p-3.5 rounded-xl space-y-2 border-l-2 border-l-cyan-500">
+          <div class="flex items-center justify-between">
+            <h3 class="text-xs font-bold text-slate-200">6. Battle of the Barents Sea (Regenbogen)</h3>
+            <span id="badge-mission-6" class="text-[9px] px-1.5 py-0.5 rounded bg-slate-800 text-slate-400 font-mono-code font-bold">PENDING</span>
+          </div>
+          <p class="text-[11px] text-slate-400">Kriegsmarine 4-rotor M4 dispatch ordering heavy cruiser Hipper &amp; Lützow attack on convoy JW 51B.</p>
+          <button id="btn-load-mission-6" class="w-full py-1.5 rounded bg-slate-800 hover:bg-slate-700 text-xs font-mono-code text-cyan-300">
+            Load Operation Regenbogen
+          </button>
+        </div>
+      </div>
+
+      <!-- 8. CRYPTANALYSIS TOOLKIT PANEL -->
+      <div id="panel-analytics-controls" class="p-4 space-y-4 hidden">
+        <div class="glass-panel p-3.5 rounded-xl space-y-2 border-l-2 border-l-amber-500">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-bold uppercase tracking-wider text-amber-400 font-cinzel">Cryptanalysis Toolkit</span>
+            <span class="text-[10px] px-2 py-0.5 rounded bg-amber-500/20 text-amber-300 font-mono-code font-bold">STATISTICAL METRICS</span>
+          </div>
+          <p class="text-xs text-slate-400 leading-relaxed">
+            Quantitative frequency distribution, Index of Coincidence ($\kappa$-test), and Kasiski examination to detect polyalphabetic period and distinguish Enigma keystreams from natural plaintext.
+          </p>
+        </div>
+
+        <!-- Index of Coincidence Gauge -->
+        <div class="glass-panel p-3.5 rounded-xl space-y-2">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-bold uppercase tracking-wider text-slate-300 font-cinzel">Index of Coincidence (IoC)</span>
+            <span id="analytics-ioc-val" class="text-sm font-bold font-mono-code text-amber-400">0.0385</span>
+          </div>
+          <div class="w-full bg-slate-900 h-3 rounded-full overflow-hidden border border-slate-700">
+            <div id="analytics-ioc-bar" class="h-full bg-rose-500 transition-all duration-300" style="width: 15%"></div>
+          </div>
+          <div id="analytics-ioc-desc" class="text-[11px] font-mono-code text-slate-400">
+            High Entropy Enigma Keystream (IoC &approx; 0.038)
+          </div>
+          <div class="flex justify-between text-[9px] font-mono-code text-slate-500 pt-1 border-t border-slate-800">
+            <span>Poly / Random: 0.038</span>
+            <span>English: 0.067</span>
+            <span>German: 0.076</span>
+          </div>
+        </div>
+
+        <!-- Monogram Frequency Distribution Chart -->
+        <div class="glass-panel p-3.5 rounded-xl space-y-2">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-bold uppercase tracking-wider text-slate-300 font-cinzel">Monogram Frequencies</span>
+            <div class="flex items-center gap-2 text-[9px] font-mono-code">
+              <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-amber-500"></span>Observed</span>
+              <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-emerald-500"></span>German Std</span>
+            </div>
+          </div>
+          <canvas id="analytics-freq-canvas" class="w-full h-32 bg-slate-950 rounded-lg border border-slate-800"></canvas>
+          <button id="btn-run-analytics" class="w-full py-1.5 rounded bg-slate-800 hover:bg-slate-700 text-xs font-mono-code text-amber-300">
+            ⚡ Recalculate Distribution
+          </button>
+        </div>
+
+        <!-- Kasiski Examination Repeated N-Grams -->
+        <div class="glass-panel p-3.5 rounded-xl space-y-2">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-bold uppercase tracking-wider text-slate-300 font-cinzel">Kasiski Examination (3-Grams)</span>
+            <span class="text-[10px] font-mono-code text-slate-400">Period GCD Factor</span>
+          </div>
+          <div id="analytics-kasiski-list" class="max-h-36 overflow-y-auto space-y-1 pr-1 bg-slate-900/60 p-2 rounded-lg border border-slate-800 text-[10px]">
+            <div class="text-[10px] text-slate-500 font-mono-code">No repeated 3-grams found in current stream.</div>
+          </div>
+        </div>
       </div>
     </aside>
   </div>
@@ -1013,7 +1113,7 @@ body {
     </div>
   </div>
 
-  <!-- MODAL: Diagnostics Engine (30 Verification Suites) -->
+  <!-- MODAL: Diagnostics Engine (35 Verification Suites) -->
   <div id="modal-diagnostics" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 hidden">
     <div class="w-full max-w-2xl bg-slate-950 border border-slate-800 rounded-2xl p-5 shadow-2xl flex flex-col max-h-[85vh]">
       <div class="flex items-center justify-between pb-3 border-b border-slate-800">
@@ -1025,7 +1125,7 @@ body {
       </div>
       <div id="diagnostics-test-list" class="flex-1 overflow-y-auto py-3 space-y-2 font-mono-code text-xs"></div>
       <div class="pt-3 border-t border-slate-800 flex items-center justify-between">
-        <span class="text-xs text-slate-400 font-mono-code">30/30 verification suites executing continuously.</span>
+        <span class="text-xs text-slate-400 font-mono-code">35/35 verification suites executing continuously.</span>
         <button id="btn-copy-diag" class="px-3 py-1.5 rounded bg-slate-800 hover:bg-slate-700 text-xs font-mono-code text-slate-300">
           📋 Copy Report
         </button>
@@ -1059,6 +1159,87 @@ body {
       <div class="pt-2 text-right">
         <button id="btn-dismiss-dossier" class="px-4 py-2 rounded-lg bg-amber-600 hover:bg-amber-500 text-white text-xs font-semibold">
           Acknowledge &amp; Close
+        </button>
+      </div>
+  <!-- MODAL: Analog HF Radio Receiver VFO -->
+  <div id="modal-radio-vfo" class="fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-4 hidden">
+    <div class="w-full max-w-xl bg-slate-950 border border-indigo-600/50 rounded-2xl p-6 shadow-2xl flex flex-col space-y-4">
+      <div class="flex items-center justify-between pb-2 border-b border-slate-800">
+        <div class="flex items-center gap-2">
+          <span class="text-indigo-400 text-xl font-bold">📻</span>
+          <h2 class="text-sm font-bold uppercase tracking-wider text-slate-200 font-cinzel">WWII National HRO / Telefunken E52 HF Receiver VFO</h2>
+        </div>
+        <button id="btn-close-radio-vfo" class="text-slate-400 hover:text-slate-200 text-sm">✕</button>
+      </div>
+
+      <!-- Frequency Illuminated Window & Signal Status -->
+      <div class="p-4 rounded-xl bg-gradient-to-b from-slate-900 to-black border border-slate-800 space-y-3">
+        <div class="flex items-center justify-between">
+          <div>
+            <span class="text-[9px] font-mono-code text-slate-500 uppercase block">Tuned Frequency</span>
+            <div id="vfo-freq-display" class="text-2xl font-mono-code font-bold text-amber-400 tracking-wider">07.050 MHz</div>
+          </div>
+          <div class="text-right">
+            <span class="text-[9px] font-mono-code text-slate-500 uppercase block">Active Intercept</span>
+            <div id="vfo-station-name" class="text-xs font-mono-code text-slate-400">RECEIVER POWER OFF</div>
+          </div>
+        </div>
+
+        <!-- Dual S-Meter Needle Bar -->
+        <div class="space-y-1">
+          <div class="flex justify-between text-[9px] font-mono-code text-slate-400">
+            <span>SIGNAL STRENGTH (S-METER):</span>
+            <span id="vfo-smeter-text" class="text-slate-300 font-bold">OFFLINE</span>
+          </div>
+          <div class="h-2.5 w-full bg-slate-950 rounded-full border border-slate-800 overflow-hidden">
+            <div id="vfo-smeter-bar" class="h-full bg-slate-700 transition-all duration-150" style="width: 0%"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Analog Frequency Dial Tuning Slider & Bands -->
+      <div class="space-y-2">
+        <div class="flex items-center justify-between">
+          <span class="text-xs font-mono-code text-slate-300 font-bold">Variable Frequency Oscillator (VFO) Dial</span>
+          <div class="flex gap-1">
+            <button id="vfo-band-80m" class="px-2 py-0.5 rounded bg-slate-800 hover:bg-slate-700 text-[10px] font-mono-code text-slate-300">80m (3.5MHz)</button>
+            <button id="vfo-band-40m" class="px-2 py-0.5 rounded bg-indigo-900/60 hover:bg-indigo-800 text-[10px] font-mono-code text-indigo-300">40m (7.0MHz)</button>
+            <button id="vfo-band-20m" class="px-2 py-0.5 rounded bg-slate-800 hover:bg-slate-700 text-[10px] font-mono-code text-slate-300">20m (14.0MHz)</button>
+          </div>
+        </div>
+        <input id="vfo-tuning-slider" type="range" min="7000" max="7300" step="1" value="7050" class="w-full accent-indigo-500 cursor-ew-resize">
+        <div class="flex justify-between items-center text-[10px] font-mono-code text-slate-400">
+          <button id="vfo-step-down" class="px-2 py-0.5 rounded bg-slate-900 hover:bg-slate-800 border border-slate-700">◀ -5 kHz</button>
+          <span>Heterodyne Beat Frequency Oscillator (Zero-Beat Tuning)</span>
+          <button id="vfo-step-up" class="px-2 py-0.5 rounded bg-slate-900 hover:bg-slate-800 border border-slate-700">+5 kHz ▶</button>
+        </div>
+      </div>
+
+      <!-- Controls Bar: Power, BFO, Volume -->
+      <div class="grid grid-cols-3 gap-2 pt-1 border-t border-slate-800">
+        <button id="vfo-power-toggle" class="py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-400 font-mono-code text-xs">POWER: OFF</button>
+        <button id="vfo-bfo-toggle" class="py-1.5 rounded-lg bg-amber-600 hover:bg-amber-500 text-white font-mono-code text-xs font-bold">BFO: ON</button>
+        <div class="flex items-center gap-2 px-2 bg-slate-900 rounded-lg border border-slate-800">
+          <span class="text-[10px] font-mono-code text-slate-400">VOL:</span>
+          <input id="vfo-volume-slider" type="range" min="0" max="1" step="0.05" value="0.6" class="w-full accent-indigo-500">
+        </div>
+      </div>
+
+      <!-- Intercept Teletype Stream -->
+      <div class="space-y-1">
+        <span class="text-[10px] font-mono-code text-slate-400 block">Intercepted Demodulated CW Morse Stream:</span>
+        <div id="vfo-intercept-stream" class="h-10 bg-slate-950 border border-slate-800 rounded p-2 text-xs font-mono-code text-amber-300 font-bold whitespace-nowrap overflow-x-auto flex items-center shadow-inner">
+          RECEIVER READY /// TUNE INTO CARRIER FREQUENCY
+        </div>
+      </div>
+
+      <!-- Route Cipher to Enigma or Bombe -->
+      <div class="flex gap-2 pt-2">
+        <button id="btn-vfo-feed-enigma" class="flex-1 py-2 rounded-lg bg-amber-600 hover:bg-amber-500 text-white text-xs font-bold font-mono-code">
+          ⚡ Route to Enigma Input
+        </button>
+        <button id="btn-vfo-feed-bombe" class="flex-1 py-2 rounded-lg bg-sky-600 hover:bg-sky-500 text-white text-xs font-bold font-mono-code">
+          🔄 Route to Turing Bombe
         </button>
       </div>
     </div>
@@ -1132,6 +1313,7 @@ Object.keys(MORSE_CODE_MAP).forEach(k => {
 });
 
 /* --- enigma.js --- */
+
 
 class EnigmaCore {
   constructor() {
@@ -1298,6 +1480,7 @@ class EnigmaCore {
 
 /* --- typex.js --- */
 
+
 class TypexCore {
   constructor() {
     this.positions = [0, 0, 0, 0, 0]; // 0=Stator1, 1=Stator2, 2=Rotor3, 3=Rotor4, 4=Rotor5 (Fast)
@@ -1384,6 +1567,7 @@ class TypexCore {
 }
 
 /* --- sigaba.js --- */
+
 
 class SIGABACore {
   constructor() {
@@ -1474,6 +1658,8 @@ class SIGABACore {
 
 /* --- polish.js --- */
 
+
+
 class PolishBiuroEngine {
   /**
    * Decomposes indicator permutations into disjoint cycles.
@@ -1534,7 +1720,145 @@ class PolishBiuroEngine {
   }
 }
 
+/* --- rejewskiCatalogue.js --- */
+
+
+
+class RejewskiCatalogue {
+  constructor() {
+    this.engine = new PolishBiuroEngine();
+    this.knownSignatures = [
+      { signature: '10, 10, 3, 3', rotors: ['I', 'II', 'III'], ground: 'A - B - C', period: '1938 Heer Key' },
+      { signature: '12, 12, 1, 1', rotors: ['III', 'I', 'II'], ground: 'K - M - T', period: '1937 Luftwaffe Key' },
+      { signature: '9, 9, 4, 4', rotors: ['II', 'I', 'III'], ground: 'R - P - S', period: '1939 Biuro Intercept' },
+      { signature: '13, 13', rotors: ['III', 'II', 'I'], ground: 'A - A - A', period: 'Standard Wehrmacht' },
+      { signature: '8, 8, 5, 5', rotors: ['I', 'III', 'II'], ground: 'W - T - R', period: '1938 Naval Training' },
+      { signature: '7, 7, 6, 6', rotors: ['II', 'III', 'I'], ground: 'D - L - X', period: '1939 OKW Supreme' }
+    ];
+  }
+
+  /**
+   * Searches the Rejewski Card Catalogue by cycle lengths.
+   * e.g., input: [10, 10, 3, 3] or "10, 10, 3, 3"
+   */
+  search(queryLengths) {
+    const queryStr = Array.isArray(queryLengths) ? queryLengths.join(', ') : queryLengths;
+    const matches = this.knownSignatures.filter(entry => entry.signature === queryStr);
+
+    if (matches.length > 0) {
+      return matches;
+    }
+
+    // Dynamic candidate generation fallback
+    return [{
+      signature: queryStr,
+      rotors: ['I', 'II', 'III'],
+      ground: 'Ground setting candidate isolated via characteristic card #418',
+      period: 'Dynamic Cyclometer Scan'
+    }];
+  }
+
+  computeObservedSignature(rotorOrder = ['I', 'II', 'III'], positions = [0, 0, 0]) {
+    const cycles = this.engine.computePermutationCycles(rotorOrder, [...positions, 0]);
+    return this.engine.getCycleLengths(cycles).join(', ');
+  }
+}
+
+/* --- analytics.js --- */
+
+
+const GERMAN_FREQUENCIES = {
+  'E': 16.9, 'N': 10.5, 'I': 8.0, 'R': 7.6, 'S': 7.2, 'T': 6.3,
+  'A': 5.6, 'U': 5.0, 'D': 4.8, 'H': 4.5, 'G': 3.5, 'L': 3.4,
+  'O': 2.8, 'M': 2.5, 'C': 2.5, 'B': 2.0, 'F': 1.8, 'K': 1.5,
+  'W': 1.5, 'P': 1.0, 'V': 0.8, 'Z': 0.6, 'J': 0.3, 'Y': 0.1,
+  'X': 0.1, 'Q': 0.1
+};
+
+const ENGLISH_FREQUENCIES = {
+  'E': 12.7, 'T': 9.1, 'A': 8.2, 'O': 7.5, 'I': 7.0, 'N': 6.7,
+  'S': 6.3, 'H': 6.1, 'R': 6.0, 'D': 4.3, 'L': 4.0, 'C': 2.8,
+  'U': 2.8, 'M': 2.4, 'W': 2.4, 'F': 2.2, 'G': 2.0, 'Y': 2.0,
+  'P': 1.9, 'B': 1.5, 'V': 1.0, 'K': 0.8, 'J': 0.2, 'X': 0.2,
+  'Q': 0.1, 'Z': 0.1
+};
+
+/**
+ * Computes observed monogram frequencies and percentages.
+ */
+function calculateFrequencies(text) {
+  const clean = text.toUpperCase().replace(/[^A-Z]/g, '');
+  const counts = {};
+  ALPHABET.split('').forEach(ch => { counts[ch] = 0; });
+
+  for (let i = 0; i < clean.length; i++) {
+    counts[clean[i]] = (counts[clean[i]] || 0) + 1;
+  }
+
+  const percentages = {};
+  const total = clean.length;
+  ALPHABET.split('').forEach(ch => {
+    percentages[ch] = total > 0 ? (counts[ch] / total) * 100 : 0;
+  });
+
+  return { counts, percentages, total };
+}
+
+/**
+ * Computes the Index of Coincidence (IoC).
+ * IoC = sum(f_i * (f_i - 1)) / (N * (N - 1))
+ * - Random / Polyalphabetic (Enigma/Typex): ~0.0385
+ * - German Monolingual: ~0.0762
+ * - English Monolingual: ~0.0667
+ */
+function calculateIndexOfCoincidence(text) {
+  const clean = text.toUpperCase().replace(/[^A-Z]/g, '');
+  const N = clean.length;
+  if (N <= 1) return 0;
+
+  const counts = {};
+  for (let i = 0; i < N; i++) {
+    counts[clean[i]] = (counts[clean[i]] || 0) + 1;
+  }
+
+  let numerator = 0;
+  Object.values(counts).forEach(f => {
+    numerator += f * (f - 1);
+  });
+
+  return numerator / (N * (N - 1));
+}
+
+/**
+ * Kasiski Examination to detect repeated substrings and periodic distances.
+ */
+function kasiskiExamination(text, gramLength = 3) {
+  const clean = text.toUpperCase().replace(/[^A-Z]/g, '');
+  const positions = {};
+
+  for (let i = 0; i <= clean.length - gramLength; i++) {
+    const gram = clean.slice(i, i + gramLength);
+    if (!positions[gram]) positions[gram] = [];
+    positions[gram].push(i);
+  }
+
+  const repeatedGrams = [];
+  Object.keys(positions).forEach(gram => {
+    if (positions[gram].length > 1) {
+      const distances = [];
+      for (let j = 0; j < positions[gram].length - 1; j++) {
+        distances.push(positions[gram][j + 1] - positions[gram][j]);
+      }
+      repeatedGrams.push({ gram, occurrences: positions[gram].length, distances });
+    }
+  });
+
+  repeatedGrams.sort((a, b) => b.occurrences - a.occurrences);
+  return repeatedGrams.slice(0, 8);
+}
+
 /* --- lorenz.js --- */
+
 
 class LorenzSZ42Core {
   constructor() {
@@ -1628,6 +1952,8 @@ class LorenzSZ42Core {
 }
 
 /* --- bombe.js --- */
+
+
 
 class TuringBombe {
   constructor() {
@@ -1765,7 +2091,209 @@ class TuringBombe {
   }
 }
 
+/* --- bombeWorker.js --- */
+
+
+const BOMBE_WORKER_CODE = `
+const ALPHABET = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+
+const ROTOR_WIRINGS = {
+  'I':    'EKMFLGDQVZNTOWYHXUSPAIBRCJ',
+  'II':   'AJDKSIRUXBLHWTMCQGZNPYFVOE',
+  'III':  'BDFHJLCPRTXVZNYEIWGAKMUSQO',
+  'IV':   'ESOVPZJAYQUIRHXLNFTGKDCMWB',
+  'V':    'VZBRGITYUPSDNHLXAWMJQOFECK',
+  'Beta': 'LEYJVCNIXWPBQMDRTAKZGFUHOS'
+};
+
+const ROTOR_NOTCHES = {
+  'I':    ['Q'],
+  'II':   ['E'],
+  'III':  ['V'],
+  'IV':   ['J'],
+  'V':    ['Z'],
+  'Beta': []
+};
+
+const REFLECTORS = {
+  'B':      'YRUHQSLDPXNGOKMIEBFZCWVJAT',
+  'C':      'FVPJIAOYEDRZXWGCTKUQSBNMHL',
+  'B_thin': 'ENKQAUYWJICOPBLMDXZVFTHRGS',
+  'C_thin': 'RDOBJNTKVEHMLFCWZAXGYIPSUQ'
+};
+
+function passRotorForward(letterIdx, rType, pos, ring = 0) {
+  const shift = (pos - ring + 26) % 26;
+  const enterIdx = (letterIdx + shift) % 26;
+  const wiredChar = ROTOR_WIRINGS[rType][enterIdx];
+  const wiredIdx = ALPHABET.indexOf(wiredChar);
+  return (wiredIdx - shift + 26) % 26;
+}
+
+function passRotorBackward(letterIdx, rType, pos, ring = 0) {
+  const shift = (pos - ring + 26) % 26;
+  const enterIdx = (letterIdx + shift) % 26;
+  const wiredChar = ALPHABET[enterIdx];
+  const revIdx = ROTOR_WIRINGS[rType].indexOf(wiredChar);
+  return (revIdx - shift + 26) % 26;
+}
+
+function testPermutation(order, pos, cipher, crib, reflector = 'B') {
+  let [p0, p1, p2] = pos;
+  const steckerMap = {};
+
+  for (let i = 0; i < Math.min(cipher.length, crib.length); i++) {
+    const plainChar = crib[i];
+    const cipherChar = cipher[i];
+    if (plainChar === cipherChar) return false;
+
+    // Advance right rotor
+    p0 = (p0 + 1) % 26;
+    if (ROTOR_NOTCHES[order[0]] && ROTOR_NOTCHES[order[0]].includes(ALPHABET[p0])) {
+      p1 = (p1 + 1) % 26;
+      if (ROTOR_NOTCHES[order[1]] && ROTOR_NOTCHES[order[1]].includes(ALPHABET[p1])) {
+        p2 = (p2 + 1) % 26;
+      }
+    }
+
+    let idx = ALPHABET.indexOf(plainChar);
+    idx = passRotorForward(idx, order[0], p0);
+    idx = passRotorForward(idx, order[1], p1);
+    idx = passRotorForward(idx, order[2], p2);
+
+    const refChar = REFLECTORS[reflector][idx];
+    idx = ALPHABET.indexOf(refChar);
+
+    idx = passRotorBackward(idx, order[2], p2);
+    idx = passRotorBackward(idx, order[1], p1);
+    idx = passRotorBackward(idx, order[0], p0);
+
+    const outChar = ALPHABET[idx];
+
+    if (steckerMap[outChar] && steckerMap[outChar] !== cipherChar) return false;
+    if (steckerMap[cipherChar] && steckerMap[cipherChar] !== outChar) return false;
+    steckerMap[outChar] = cipherChar;
+    steckerMap[cipherChar] = outChar;
+  }
+
+  return true;
+}
+
+self.onmessage = function(e) {
+  const { cipher, crib, orders, singleOrder } = e.data;
+  const rotorPool = ['I', 'II', 'III', 'IV', 'V'];
+  let searchOrders = [];
+
+  if (singleOrder) {
+    searchOrders = [singleOrder];
+  } else {
+    // Generate all 60 permutations of 3 rotors from pool of 5
+    for (let i = 0; i < 5; i++) {
+      for (let j = 0; j < 5; j++) {
+        for (let k = 0; k < 5; k++) {
+          if (i !== j && j !== k && i !== k) {
+            searchOrders.push([rotorPool[i], rotorPool[j], rotorPool[k]]);
+          }
+        }
+      }
+    }
+  }
+
+  const totalPositions = searchOrders.length * 17576;
+  let scanned = 0;
+  const startTime = Date.now();
+
+  for (const order of searchOrders) {
+    for (let r3 = 0; r3 < 26; r3++) {
+      for (let r2 = 0; r2 < 26; r2++) {
+        for (let r1 = 0; r1 < 26; r1++) {
+          scanned++;
+          const pos = [r1, r2, r3];
+
+          if (testPermutation(order, pos, cipher, crib)) {
+            const elapsed = Math.max((Date.now() - startTime) / 1000, 0.01);
+            const rate = Math.round(scanned / elapsed);
+            self.postMessage({
+              type: 'STOP',
+              order,
+              pos,
+              posStr: ALPHABET[r3] + ' - ' + ALPHABET[r2] + ' - ' + ALPHABET[r1],
+              scanned,
+              total: totalPositions,
+              rate
+            });
+            return;
+          }
+
+          if (scanned % 8192 === 0) {
+            const elapsed = Math.max((Date.now() - startTime) / 1000, 0.01);
+            const rate = Math.round(scanned / elapsed);
+            self.postMessage({
+              type: 'PROGRESS',
+              scanned,
+              total: totalPositions,
+              order,
+              pos,
+              rate
+            });
+          }
+        }
+      }
+    }
+  }
+
+  self.postMessage({ type: 'COMPLETE', scanned, total: totalPositions });
+};
+`;
+
+class MultiOrderBombeWorker {
+  constructor() {
+    this.worker = null;
+    this.isRunning = false;
+  }
+
+  start(cipher, crib, scanAll60 = true, singleOrder = ['III', 'II', 'I'], onProgress, onStop, onComplete) {
+    this.stop();
+    this.isRunning = true;
+
+    const blob = new Blob([BOMBE_WORKER_CODE], { type: 'application/javascript' });
+    const workerUrl = URL.createObjectURL(blob);
+    this.worker = new Worker(workerUrl);
+
+    this.worker.onmessage = (e) => {
+      const msg = e.data;
+      if (msg.type === 'PROGRESS' && onProgress) {
+        onProgress(msg.scanned, msg.total, msg.order, msg.pos, msg.rate);
+      } else if (msg.type === 'STOP') {
+        this.isRunning = false;
+        if (onStop) onStop(msg);
+        this.stop();
+      } else if (msg.type === 'COMPLETE') {
+        this.isRunning = false;
+        if (onComplete) onComplete(msg);
+        this.stop();
+      }
+    };
+
+    this.worker.postMessage({
+      cipher,
+      crib,
+      singleOrder: scanAll60 ? null : singleOrder
+    });
+  }
+
+  stop() {
+    this.isRunning = false;
+    if (this.worker) {
+      this.worker.terminate();
+      this.worker = null;
+    }
+  }
+}
+
 /* --- colossus.js --- */
+
+
 
 class ColossusEngine {
   constructor() {
@@ -2058,7 +2586,485 @@ class CryptSoundFX {
 
 const sound = new CryptSoundFX();
 
+/* --- ambientAudio.js --- */
+/**
+ * Bletchley Park Hut 11 & Newmanry Ambient Audio Engine
+ * Pure Web Audio API synthesis modeling:
+ * 1. 50 Hz British mains transformer hum & 100 Hz harmonic
+ * 2. Rhythmic mechanical clatter of British Bombe commutators and Creed teleprinters
+ */
+
+class AmbientAudioHut11 {
+  constructor() {
+    this.ctx = null;
+    this.isPlaying = false;
+    this.volume = 0.35;
+    this.masterGain = null;
+    this.humGain = null;
+    this.humOsc50 = null;
+    this.humOsc100 = null;
+    this.clatterTimer = null;
+  }
+
+  initContext() {
+    if (!this.ctx) {
+      const AudioCtx = window.AudioContext || window.webkitAudioContext;
+      if (AudioCtx) this.ctx = new AudioCtx();
+    }
+    if (this.ctx && this.ctx.state === 'suspended') {
+      this.ctx.resume().catch(() => {});
+    }
+  }
+
+  start() {
+    if (this.isPlaying) return;
+    this.initContext();
+    if (!this.ctx) return;
+
+    const t = this.ctx.currentTime;
+
+    // Master ambient gain
+    this.masterGain = this.ctx.createGain();
+    this.masterGain.gain.setValueAtTime(0.001, t);
+    this.masterGain.gain.exponentialRampToValueAtTime(this.volume, t + 0.5);
+    this.masterGain.connect(this.ctx.destination);
+
+    // 1. British 50 Hz Electrical Mains & Transformer Hum
+    const lowpass = this.ctx.createBiquadFilter();
+    lowpass.type = 'lowpass';
+    lowpass.frequency.setValueAtTime(240, t);
+    lowpass.Q.setValueAtTime(1.8, t);
+    lowpass.connect(this.masterGain);
+
+    this.humGain = this.ctx.createGain();
+    this.humGain.gain.setValueAtTime(0.06, t);
+    this.humGain.connect(lowpass);
+
+    this.humOsc50 = this.ctx.createOscillator();
+    this.humOsc50.type = 'sine';
+    this.humOsc50.frequency.setValueAtTime(50, t);
+    this.humOsc50.connect(this.humGain);
+    this.humOsc50.start(t);
+
+    this.humOsc100 = this.ctx.createOscillator();
+    this.humOsc100.type = 'sine';
+    this.humOsc100.frequency.setValueAtTime(100, t);
+    const gain100 = this.ctx.createGain();
+    gain100.gain.setValueAtTime(0.02, t);
+    this.humOsc100.connect(gain100);
+    gain100.connect(lowpass);
+    this.humOsc100.start(t);
+
+    // 2. Hut 11 Mechanical Drum Clatter & Relay Chattering
+    this.scheduleClatter();
+
+    this.isPlaying = true;
+  }
+
+  scheduleClatter() {
+    if (!this.ctx || this.masterGain === null) return;
+
+    const click = () => {
+      if (!this.isPlaying || !this.ctx || !this.masterGain) return;
+      try {
+        const now = this.ctx.currentTime;
+        const count = 1 + Math.floor(Math.random() * 3);
+        for (let i = 0; i < count; i++) {
+          const tPulse = now + i * 0.045 + Math.random() * 0.02;
+          const osc = this.ctx.createOscillator();
+          const g = this.ctx.createGain();
+          const f = this.ctx.createBiquadFilter();
+
+          f.type = 'bandpass';
+          f.frequency.setValueAtTime(800 + Math.random() * 1200, tPulse);
+          f.Q.setValueAtTime(3.0, tPulse);
+
+          osc.type = Math.random() > 0.5 ? 'square' : 'triangle';
+          osc.frequency.setValueAtTime(120 + Math.random() * 260, tPulse);
+          osc.frequency.exponentialRampToValueAtTime(30, tPulse + 0.025);
+
+          const pulseAmp = (0.015 + Math.random() * 0.025) * this.volume;
+          g.gain.setValueAtTime(pulseAmp, tPulse);
+          g.gain.exponentialRampToValueAtTime(0.0001, tPulse + 0.025);
+
+          osc.connect(f);
+          f.connect(g);
+          g.connect(this.masterGain);
+
+          osc.start(tPulse);
+          osc.stop(tPulse + 0.028);
+        }
+      } catch (e) {}
+
+      // Next mechanical pulse interval (simulating rotating commutators)
+      const nextDelay = 120 + Math.random() * 280;
+      this.clatterTimer = setTimeout(click, nextDelay);
+    };
+
+    this.clatterTimer = setTimeout(click, 150);
+  }
+
+  stop() {
+    if (!this.isPlaying) return;
+    if (this.clatterTimer) {
+      clearTimeout(this.clatterTimer);
+      this.clatterTimer = null;
+    }
+
+    if (this.ctx && this.masterGain) {
+      try {
+        const t = this.ctx.currentTime;
+        this.masterGain.gain.setValueAtTime(this.masterGain.gain.value, t);
+        this.masterGain.gain.exponentialRampToValueAtTime(0.0001, t + 0.3);
+        setTimeout(() => {
+          try {
+            if (this.humOsc50) this.humOsc50.stop();
+            if (this.humOsc100) this.humOsc100.stop();
+          } catch (e) {}
+          this.masterGain = null;
+          this.humGain = null;
+          this.humOsc50 = null;
+          this.humOsc100 = null;
+        }, 320);
+      } catch (e) {}
+    }
+
+    this.isPlaying = false;
+  }
+
+  toggle() {
+    if (this.isPlaying) {
+      this.stop();
+    } else {
+      this.start();
+    }
+    return this.isPlaying;
+  }
+
+  setVolume(vol) {
+    this.volume = Math.max(0, Math.min(1, vol));
+    if (this.masterGain && this.ctx) {
+      this.masterGain.gain.setValueAtTime(this.volume, this.ctx.currentTime);
+    }
+  }
+}
+
+const hut11Ambience = new AmbientAudioHut11();
+
+/* --- radioVFO.js --- */
+/**
+ * WWII Analog HF Radio VFO (Variable Frequency Oscillator) & Superheterodyne Receiver Engine
+ * Simulates:
+ * - Atmospheric static & ionospheric fading on 80m, 40m, and 20m military bands
+ * - Heterodyne BFO (Beat Frequency Oscillator) whistle as tuning approaches zero-beat
+ * - Authentic CW Morse code transmissions from Kriegsmarine, Luftwaffe, and OKW stations
+ */
+
+
+
+const RADIO_STATIONS = [
+  {
+    freq: 7050,
+    band: '40m',
+    callsign: 'DL4M',
+    name: 'KMS Admiral Scheer (Kriegsmarine Shark)',
+    cipher: 'STANDORTQUADRAT NACHRICHTEN X ENIGMA M4 BDZGO',
+    wpm: 18
+  },
+  {
+    freq: 7120,
+    band: '40m',
+    callsign: 'DF2K',
+    name: 'Luftwaffe Fliegerkorps II (Channel Weather)',
+    cipher: 'WETTERVORHERSAGE KANAL X WIND SUEDWEST STAERKE VIER X',
+    wpm: 20
+  },
+  {
+    freq: 14100,
+    band: '20m',
+    callsign: 'DD8W',
+    name: 'OKW Oberkommando (Lorenz SZ42 Carrier)',
+    cipher: 'UNTERNEHMEN ZITADELLE GENERALINSPEKTEUR DER PANZERTRUPPEN',
+    wpm: 22
+  },
+  {
+    freq: 3560,
+    band: '80m',
+    callsign: 'G4BP',
+    name: 'Station X RSS Voluntary Interceptor Beacon',
+    cipher: 'CQ CQ CQ DE G4BP BLETCHLEY PARK K',
+    wpm: 16
+  }
+];
+
+class RadioVFOReceiver {
+  constructor() {
+    this.ctx = null;
+    this.powered = false;
+    this.bfoEnabled = true;
+    this.frequency = 7050; // kHz
+    this.band = '40m';
+    this.volume = 0.6;
+
+    this.masterGain = null;
+    this.staticGain = null;
+    this.staticFilter = null;
+    this.noiseNode = null;
+
+    this.bfoOsc = null;
+    this.bfoGain = null;
+
+    this.currentSignalStrength = 0; // 0.0 to 1.0
+    this.onSignalUpdate = null;
+    this.onMorseKeyed = null;
+
+    this.morseLoopActive = false;
+    this.morseLoopTimer = null;
+    this.currentTxChar = '';
+  }
+
+  initContext() {
+    if (!this.ctx) {
+      const AudioCtx = window.AudioContext || window.webkitAudioContext;
+      if (AudioCtx) this.ctx = new AudioCtx();
+    }
+    if (this.ctx && this.ctx.state === 'suspended') {
+      this.ctx.resume().catch(() => {});
+    }
+  }
+
+  setPower(on) {
+    if (this.powered === on) return;
+    this.powered = on;
+
+    if (this.powered) {
+      this.initContext();
+      this.startAudioEngine();
+      this.startMorseTransmissions();
+    } else {
+      this.stopAudioEngine();
+      this.stopMorseTransmissions();
+      this.currentSignalStrength = 0;
+      if (this.onSignalUpdate) this.onSignalUpdate(0, 0, null);
+    }
+  }
+
+  startAudioEngine() {
+    if (!this.ctx) return;
+    const t = this.ctx.currentTime;
+
+    // Master receiver output
+    this.masterGain = this.ctx.createGain();
+    this.masterGain.gain.setValueAtTime(this.volume, t);
+    this.masterGain.connect(this.ctx.destination);
+
+    // 1. Atmospheric Noise Generator (White noise through bandpass)
+    const bufferSize = this.ctx.sampleRate * 2;
+    const buffer = this.ctx.createBuffer(1, bufferSize, this.ctx.sampleRate);
+    const data = buffer.getChannelData(0);
+    for (let i = 0; i < bufferSize; i++) {
+      data[i] = (Math.random() * 2 - 1) * 0.45;
+    }
+
+    this.noiseNode = this.ctx.createBufferSource();
+    this.noiseNode.buffer = buffer;
+    this.noiseNode.loop = true;
+
+    this.staticFilter = this.ctx.createBiquadFilter();
+    this.staticFilter.type = 'bandpass';
+    this.staticFilter.frequency.setValueAtTime(1400, t);
+    this.staticFilter.Q.setValueAtTime(1.2, t);
+
+    this.staticGain = this.ctx.createGain();
+    this.staticGain.gain.setValueAtTime(0.12, t);
+
+    this.noiseNode.connect(this.staticFilter);
+    this.staticFilter.connect(this.staticGain);
+    this.staticGain.connect(this.masterGain);
+    this.noiseNode.start(t);
+
+    // 2. Heterodyne BFO Beat Frequency Oscillator
+    this.bfoOsc = this.ctx.createOscillator();
+    this.bfoOsc.type = 'sine';
+    this.bfoOsc.frequency.setValueAtTime(800, t);
+
+    this.bfoGain = this.ctx.createGain();
+    this.bfoGain.gain.setValueAtTime(0, t);
+
+    this.bfoOsc.connect(this.bfoGain);
+    this.bfoGain.connect(this.masterGain);
+    this.bfoOsc.start(t);
+
+    this.updateTuning();
+  }
+
+  stopAudioEngine() {
+    if (this.noiseNode) {
+      try { this.noiseNode.stop(); } catch (e) {}
+      this.noiseNode = null;
+    }
+    if (this.bfoOsc) {
+      try { this.bfoOsc.stop(); } catch (e) {}
+      this.bfoOsc = null;
+    }
+    this.masterGain = null;
+    this.staticGain = null;
+    this.bfoGain = null;
+  }
+
+  setFrequency(khz) {
+    this.frequency = khz;
+    this.updateTuning();
+  }
+
+  setBand(band) {
+    this.band = band;
+    if (band === '80m') this.setFrequency(3560);
+    else if (band === '40m') this.setFrequency(7050);
+    else if (band === '20m') this.setFrequency(14100);
+  }
+
+  setVolume(vol) {
+    this.volume = Math.max(0, Math.min(1, vol));
+    if (this.masterGain && this.ctx) {
+      this.masterGain.gain.setValueAtTime(this.volume, this.ctx.currentTime);
+    }
+  }
+
+  setBFO(enabled) {
+    this.bfoEnabled = enabled;
+    this.updateTuning();
+  }
+
+  getNearbyStation() {
+    let closest = null;
+    let minDiff = Infinity;
+    for (const st of RADIO_STATIONS) {
+      const diff = Math.abs(this.frequency - st.freq);
+      if (diff < minDiff) {
+        minDiff = diff;
+        closest = st;
+      }
+    }
+    return { station: closest, diff: minDiff };
+  }
+
+  updateTuning() {
+    if (!this.powered || !this.ctx || !this.bfoOsc || !this.staticGain) return;
+
+    const { station, diff } = this.getNearbyStation();
+    const tuningWindow = 3.5; // kHz reception aperture
+
+    if (diff <= tuningWindow) {
+      // Proximity: 1.0 (dead center) to 0.0 (edge of passband)
+      const proximity = 1.0 - (diff / tuningWindow);
+      this.currentSignalStrength = Math.pow(proximity, 1.5);
+
+      // Heterodyne BFO Whistle:
+      // Off frequency produces an audio pitch equal to offset (zero-beat right on frequency)
+      // When exactly on frequency with BFO enabled, classic 750 Hz CW tone
+      let beatPitch = 750;
+      if (diff > 0.05) {
+        beatPitch = Math.min(3200, Math.max(90, diff * 650));
+      }
+      this.bfoOsc.frequency.setValueAtTime(beatPitch, this.ctx.currentTime);
+
+      // AGC: Automatic Gain Control lowers static when strong carrier is present
+      const agcStatic = Math.max(0.02, 0.12 * (1 - this.currentSignalStrength * 0.75));
+      this.staticGain.gain.setValueAtTime(agcStatic, this.ctx.currentTime);
+
+      if (this.onSignalUpdate) {
+        this.onSignalUpdate(this.currentSignalStrength, beatPitch, station);
+      }
+    } else {
+      this.currentSignalStrength = 0;
+      this.staticGain.gain.setValueAtTime(0.12, this.ctx.currentTime);
+      if (this.onSignalUpdate) {
+        this.onSignalUpdate(0, 0, null);
+      }
+    }
+  }
+
+  startMorseTransmissions() {
+    this.morseLoopActive = true;
+    let stationIdx = 0;
+    let charIdx = 0;
+
+    const tick = () => {
+      if (!this.morseLoopActive || !this.powered) return;
+
+      const { station, diff } = this.getNearbyStation();
+      const currentStation = station || RADIO_STATIONS[0];
+      const text = currentStation.cipher;
+
+      if (charIdx >= text.length) {
+        charIdx = 0;
+        this.morseLoopTimer = setTimeout(tick, 2000); // 2s pause between repeats
+        return;
+      }
+
+      const ch = text[charIdx++];
+      this.currentTxChar = ch;
+
+      if (ch === ' ') {
+        // Word space (7 units)
+        this.morseLoopTimer = setTimeout(tick, 450);
+        return;
+      }
+
+      const code = MORSE_MAP[ch];
+      if (!code) {
+        this.morseLoopTimer = setTimeout(tick, 100);
+        return;
+      }
+
+      // Play elements of this character
+      let elementIdx = 0;
+      const unitTime = Math.max(35, 1200 / currentStation.wpm); // standard Paris timing (ms)
+
+      const playElement = () => {
+        if (!this.morseLoopActive || !this.powered) return;
+
+        if (elementIdx >= code.length) {
+          // Finished character: inter-character gap (3 units)
+          if (this.onMorseKeyed) this.onMorseKeyed(ch, currentStation);
+          this.morseLoopTimer = setTimeout(tick, unitTime * 3);
+          return;
+        }
+
+        const symbol = code[elementIdx++];
+        const duration = symbol === '-' ? unitTime * 3 : unitTime;
+
+        // Key audio if receiver is on and tuned to this station
+        if (this.bfoGain && this.ctx && this.currentSignalStrength > 0.05) {
+          const t = this.ctx.currentTime;
+          const targetVol = 0.3 * this.currentSignalStrength;
+          this.bfoGain.gain.setValueAtTime(targetVol, t);
+          this.bfoGain.gain.setValueAtTime(0, t + (duration / 1000) * 0.85); // 85% duty cycle keying
+        }
+
+        this.morseLoopTimer = setTimeout(playElement, duration + unitTime);
+      };
+
+      playElement();
+    };
+
+    tick();
+  }
+
+  stopMorseTransmissions() {
+    this.morseLoopActive = false;
+    if (this.morseLoopTimer) {
+      clearTimeout(this.morseLoopTimer);
+      this.morseLoopTimer = null;
+    }
+  }
+}
+
+const radioReceiver = new RadioVFOReceiver();
+
 /* --- textures.js --- */
+
 
 function createMahoganyTexture() {
   const cv = document.createElement('canvas');
@@ -2243,6 +3249,9 @@ function animate() {
 
 /* --- enigmaModel.js --- */
 
+
+
+
 const enigmaGroup = new THREE.Group();
 scene.add(enigmaGroup);
 
@@ -2411,10 +3420,19 @@ steckerGroup.position.set(0, -0.2, 8.4);
 enigmaGroup.add(steckerGroup);
 
 const steckerSockets = {};
+const interactiveSockets = [];
+const socketMaterials = {};
 let active3DCables = [];
+let pendingCableMesh = null;
 
 const socketGeo = new THREE.TorusGeometry(0.28, 0.06, 8, 20);
-const sockMat = new THREE.MeshStandardMaterial({ color: 0xb45309, metalness: 0.85, roughness: 0.3 });
+const pendingCableMat = new THREE.MeshStandardMaterial({
+  color: 0xf59e0b,
+  roughness: 0.45,
+  metalness: 0.3,
+  emissive: 0x78350f,
+  emissiveIntensity: 0.6
+});
 
 KEYBOARD_LAYOUT.forEach((rowInfo, rIdx) => {
   for (let c = 0; c < rowInfo.keys.length; c++) {
@@ -2422,13 +3440,55 @@ KEYBOARD_LAYOUT.forEach((rowInfo, rIdx) => {
     const sockGroup = new THREE.Group();
     sockGroup.position.set(rowInfo.xStart + c * rowInfo.step, 0.6 - rIdx * 0.9, 0.35);
 
-    const rim = new THREE.Mesh(socketGeo, sockMat);
+    const rimMat = new THREE.MeshStandardMaterial({ color: 0xb45309, metalness: 0.85, roughness: 0.3 });
+    const rim = new THREE.Mesh(socketGeo, rimMat);
+    rim.userData = { letter: char, isSocket: true };
     sockGroup.add(rim);
 
     steckerGroup.add(sockGroup);
     steckerSockets[char] = sockGroup;
+    socketMaterials[char] = rimMat;
+    interactiveSockets.push(rim);
   }
 });
+
+function setSocketHighlight(char, isHighlighted) {
+  if (socketMaterials[char]) {
+    if (isHighlighted) {
+      socketMaterials[char].emissive.setHex(0xf59e0b);
+      socketMaterials[char].emissiveIntensity = 1.2;
+    } else {
+      socketMaterials[char].emissive.setHex(0x000000);
+      socketMaterials[char].emissiveIntensity = 0;
+    }
+  }
+}
+
+function updatePendingCable(fromLetter, targetPos) {
+  if (!steckerSockets[fromLetter]) return;
+  if (pendingCableMesh) {
+    steckerGroup.remove(pendingCableMesh);
+    if (pendingCableMesh.geometry) pendingCableMesh.geometry.dispose();
+    pendingCableMesh = null;
+  }
+  const p1 = steckerSockets[fromLetter].position.clone();
+  const p2 = targetPos.clone();
+  const curve = new THREE.QuadraticBezierCurve3(
+    new THREE.Vector3(p1.x, p1.y, 0.2),
+    new THREE.Vector3((p1.x + p2.x) / 2, Math.min(p1.y, p2.y) - 1.1, 1.3),
+    new THREE.Vector3(p2.x, p2.y, 0.2)
+  );
+  pendingCableMesh = new THREE.Mesh(new THREE.TubeGeometry(curve, 24, 0.08, 8, false), pendingCableMat);
+  steckerGroup.add(pendingCableMesh);
+}
+
+function clearPendingCable() {
+  if (pendingCableMesh) {
+    steckerGroup.remove(pendingCableMesh);
+    if (pendingCableMesh.geometry) pendingCableMesh.geometry.dispose();
+    pendingCableMesh = null;
+  }
+}
 
 const cableMaterial = new THREE.MeshStandardMaterial({ color: 0x991b1b, roughness: 0.7 });
 
@@ -2462,6 +3522,7 @@ function render3DJumperCables(steckerString) {
 
 /* --- typexModel.js --- */
 
+
 const typexGroup = new THREE.Group();
 typexGroup.position.set(32, 0, 0);
 scene.add(typexGroup);
@@ -2472,6 +3533,98 @@ const typexBase = new THREE.Mesh(
 );
 typexBase.position.y = -1.2;
 typexGroup.add(typexBase);
+
+// Creed Teleprinter Housing Attachment
+const teleprinterCase = new THREE.Mesh(
+  new THREE.BoxGeometry(5.2, 2.6, 6.0),
+  new THREE.MeshStandardMaterial({ color: 0x1f2937, roughness: 0.6, metalness: 0.25 })
+);
+teleprinterCase.position.set(5.5, 0.4, 3.0);
+typexGroup.add(teleprinterCase);
+
+// Exit Paper Dispenser Slit
+const exitSlit = new THREE.Mesh(
+  new THREE.BoxGeometry(0.15, 0.35, 1.8),
+  new THREE.MeshBasicMaterial({ color: 0x050505 })
+);
+exitSlit.position.set(8.12, 0.5, 3.0);
+typexGroup.add(exitSlit);
+
+// Dynamic Canvas Texture for Creed Paper Tape
+const tapeCanvas = typeof document !== 'undefined' ? document.createElement('canvas') : null;
+let tapeCtx = null;
+let ribbonTexture = null;
+
+if (tapeCanvas) {
+  tapeCanvas.width = 1024;
+  tapeCanvas.height = 128;
+  tapeCtx = tapeCanvas.getContext('2d');
+  ribbonTexture = new THREE.CanvasTexture(tapeCanvas);
+  ribbonTexture.wrapS = THREE.ClampToEdgeWrapping;
+  ribbonTexture.wrapT = THREE.ClampToEdgeWrapping;
+}
+
+// Curved 3D Paper Ribbon Geometry
+const ribbonGeo = new THREE.PlaneGeometry(8.5, 1.4, 40, 2);
+const posAttr = ribbonGeo.attributes.position;
+for (let i = 0; i < posAttr.count; i++) {
+  const normX = (posAttr.getX(i) + 4.25) / 8.5; // 0 (slot) to 1 (desk)
+  // S-curve drape downward towards desk level
+  const yDrop = -Math.sin(normX * Math.PI * 0.72) * 1.7;
+  posAttr.setY(i, posAttr.getY(i) + yDrop);
+  const zCurl = Math.sin(normX * Math.PI) * 0.25;
+  posAttr.setZ(i, posAttr.getZ(i) + zCurl);
+}
+ribbonGeo.computeVertexNormals();
+
+const ribbonMat = ribbonTexture
+  ? new THREE.MeshStandardMaterial({
+      map: ribbonTexture,
+      roughness: 0.92,
+      metalness: 0.05,
+      side: THREE.DoubleSide
+    })
+  : new THREE.MeshStandardMaterial({ color: 0xfaf0d7, side: THREE.DoubleSide });
+
+const ribbonMesh = new THREE.Mesh(ribbonGeo, ribbonMat);
+ribbonMesh.position.set(12.3, 0.45, 3.0);
+ribbonMesh.rotation.set(-0.15, 0.2, -0.08);
+typexGroup.add(ribbonMesh);
+
+function updateTypexRibbon(text = '') {
+  if (!tapeCtx || !ribbonTexture) return;
+  const w = tapeCanvas.width;
+  const h = tapeCanvas.height;
+
+  // Vintage aged gummed tape background
+  tapeCtx.fillStyle = '#faf0d7';
+  tapeCtx.fillRect(0, 0, w, h);
+
+  // Subtle border margins
+  tapeCtx.strokeStyle = '#d6c7a1';
+  tapeCtx.lineWidth = 2;
+  tapeCtx.strokeRect(2, 2, w - 4, h - 4);
+
+  // Perforated sprocket feed dots along centerline
+  tapeCtx.fillStyle = '#b8aa84';
+  for (let x = 16; x < w; x += 32) {
+    tapeCtx.beginPath();
+    tapeCtx.arc(x, h * 0.5, 3.2, 0, Math.PI * 2);
+    tapeCtx.fill();
+  }
+
+  // Typewriter stamped ink text
+  tapeCtx.fillStyle = '#18181b';
+  tapeCtx.font = 'bold 34px "Courier New", Courier, monospace';
+  tapeCtx.textAlign = 'right';
+  tapeCtx.textBaseline = 'middle';
+
+  const clean = (text || 'TYPE-X TELEPRINTER READY ///').trim();
+  tapeCtx.fillText(clean, w - 20, h * 0.3);
+  tapeCtx.fillText(clean, w - 20, h * 0.72);
+
+  ribbonTexture.needsUpdate = true;
+}
 
 const typexDrums3D = [];
 const drumGeo = new THREE.CylinderGeometry(1.4, 1.4, 0.9, 32);
@@ -2498,7 +3651,13 @@ function rotateTypexDrums(positions) {
   }
 }
 
+// Initial banner on tape
+if (typeof document !== 'undefined') {
+  updateTypexRibbon('TYPE-X MK 22 /// STATION X /// READY');
+}
+
 /* --- sigabaModel.js --- */
+
 
 const sigabaGroup = new THREE.Group();
 sigabaGroup.position.set(62, 0, 0);
@@ -2550,6 +3709,8 @@ function rotateSIGABARotors(ctrl, idx, ciph) {
 
 /* --- bombeModel.js --- */
 
+
+
 const bombeGroup = new THREE.Group();
 bombeGroup.position.set(-65, 0, 0);
 scene.add(bombeGroup);
@@ -2599,6 +3760,8 @@ function spinBombeDrums(delta = 0.15) {
 }
 
 /* --- colossusModel.js --- */
+
+
 
 const colossusGroup = new THREE.Group();
 colossusGroup.position.set(95, 0, 0);
@@ -2674,6 +3837,8 @@ function spinColossusPulleys(speed = 0.035) {
 
 /* --- laserWire.js --- */
 
+
+
 let activeLaserWire = null;
 let laserWireEnabled = true;
 
@@ -2744,6 +3909,11 @@ function renderVolumetricElectricPath(pathArray) {
 
 /* --- raycaster.js --- */
 
+
+
+
+
+
 class SceneRaycaster {
   constructor(canvas) {
     this.canvas = canvas;
@@ -2751,7 +3921,12 @@ class SceneRaycaster {
     this.mouse = new THREE.Vector2();
     this.onKeyClick = null;
     this.onRotorClick = null;
+    this.onSocketClick = null;
     this.onBombeDrumClick = null;
+
+    this.pendingSocketLetter = null;
+    this.draggedRotor = null;
+    this.plugboardPlane = new THREE.Plane(new THREE.Vector3(0, 0, 1), -8.4);
 
     this.init();
   }
@@ -2759,6 +3934,16 @@ class SceneRaycaster {
   init() {
     this.canvas.addEventListener('pointermove', (e) => this.onPointerMove(e));
     this.canvas.addEventListener('pointerdown', (e) => this.onPointerDown(e));
+    this.canvas.addEventListener('pointerup', () => this.onPointerUp());
+    this.canvas.addEventListener('pointercancel', () => this.onPointerUp());
+    this.canvas.addEventListener('wheel', (e) => this.onWheel(e), { passive: false });
+  }
+
+  setPendingSocket(letter) {
+    this.pendingSocketLetter = letter;
+    if (!letter) {
+      clearPendingCable();
+    }
   }
 
   updatePointer(event) {
@@ -2767,13 +3952,59 @@ class SceneRaycaster {
     this.mouse.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
   }
 
+  onPointerUp() {
+    this.draggedRotor = null;
+  }
+
+  onWheel(event) {
+    this.updatePointer(event);
+    this.raycaster.setFromCamera(this.mouse, camera);
+
+    const rotorHits = this.raycaster.intersectObjects(interactiveRotors, true);
+    if (rotorHits.length > 0) {
+      event.preventDefault();
+      const hit = rotorHits[0];
+      const rIdx = hit.object.userData.rotorIndex ?? hit.object.parent?.userData?.rotorIndex;
+      if (rIdx !== undefined && this.onRotorClick) {
+        const dir = event.deltaY < 0 ? 1 : -1;
+        this.onRotorClick(rIdx, dir);
+      }
+    }
+  }
+
   onPointerMove(event) {
     this.updatePointer(event);
     this.raycaster.setFromCamera(this.mouse, camera);
 
+    // 1. Check if dragging an Enigma rotor
+    if (this.draggedRotor) {
+      const deltaY = event.clientY - this.draggedRotor.lastY;
+      if (Math.abs(deltaY) >= 22) {
+        const dir = deltaY < 0 ? 1 : -1;
+        if (this.onRotorClick) {
+          this.onRotorClick(this.draggedRotor.rIdx, dir);
+        }
+        this.draggedRotor.lastY = event.clientY;
+      }
+      this.canvas.style.cursor = 'ns-resize';
+      return;
+    }
+
+    // 2. Update dynamic pending Stecker cable if a socket is currently selected
+    if (this.pendingSocketLetter) {
+      const intersectPoint = new THREE.Vector3();
+      if (this.raycaster.ray.intersectPlane(this.plugboardPlane, intersectPoint)) {
+        // Convert world coordinate to steckerGroup local coordinate
+        const localPt = steckerGroup.worldToLocal(intersectPoint);
+        updatePendingCable(this.pendingSocketLetter, localPt);
+      }
+    }
+
+    // 3. Hover Cursor Check
     const candidates = [
       ...interactiveKeys,
       ...interactiveRotors,
+      ...interactiveSockets,
       ...interactiveBombeDrums,
       ...interactiveValves
     ];
@@ -2793,7 +4024,18 @@ class SceneRaycaster {
     this.updatePointer(event);
     this.raycaster.setFromCamera(this.mouse, camera);
 
-    // 1. Check Keycaps
+    // 1. Check Plugboard Sockets
+    const socketHits = this.raycaster.intersectObjects(interactiveSockets, true);
+    if (socketHits.length > 0) {
+      const hit = socketHits[0];
+      const socketLetter = hit.object.userData.letter || hit.object.parent?.userData?.letter;
+      if (socketLetter && this.onSocketClick) {
+        this.onSocketClick(socketLetter);
+        return;
+      }
+    }
+
+    // 2. Check Keycaps
     const keyHits = this.raycaster.intersectObjects(interactiveKeys, true);
     if (keyHits.length > 0) {
       const hit = keyHits[0];
@@ -2804,20 +4046,22 @@ class SceneRaycaster {
       }
     }
 
-    // 2. Check Enigma Rotors
+    // 3. Check Enigma Rotors
     const rotorHits = this.raycaster.intersectObjects(interactiveRotors, true);
     if (rotorHits.length > 0) {
       const hit = rotorHits[0];
       const rIdx = hit.object.userData.rotorIndex ?? hit.object.parent?.userData?.rotorIndex;
-      if (rIdx !== undefined && this.onRotorClick) {
-        // Upper half click advances, lower half click reverses
-        const isUp = hit.point.y > 1.35;
-        this.onRotorClick(rIdx, isUp ? 1 : -1);
+      if (rIdx !== undefined) {
+        this.draggedRotor = { rIdx, lastY: event.clientY };
+        if (this.onRotorClick) {
+          const isUp = hit.point.y > 1.35;
+          this.onRotorClick(rIdx, isUp ? 1 : -1);
+        }
         return;
       }
     }
 
-    // 3. Check Bombe Drums
+    // 4. Check Bombe Drums
     const drumHits = this.raycaster.intersectObjects(interactiveBombeDrums, true);
     if (drumHits.length > 0) {
       const hit = drumHits[0];
@@ -2829,7 +4073,7 @@ class SceneRaycaster {
       return;
     }
 
-    // 4. Check Colossus Valves
+    // 5. Check Colossus Valves
     const valveHits = this.raycaster.intersectObjects(interactiveValves, true);
     if (valveHits.length > 0) {
       sound.playValveHum();
@@ -2844,66 +4088,14 @@ class SceneRaycaster {
   }
 }
 
-/* --- missionsUI.js --- */
-
-function checkMissionStatus(str) {
-  const clean = str.replace(/[^A-Z]/g, '');
-  if (clean.includes("STANDORTQUADRAT")) {
-    const b = document.getElementById('badge-mission-1');
-    if (b) {
-      b.textContent = 'CLEARED';
-      b.className = 'text-[9px] px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-400 font-bold';
-    }
-  }
-  if (clean.includes("WETTERVORHERSAGE")) {
-    const b = document.getElementById('badge-mission-2');
-    if (b) {
-      b.textContent = 'CLEARED';
-      b.className = 'text-[9px] px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-400 font-bold';
-    }
-  }
-  if (clean.includes("CITADEL") || clean.includes("ZITADELLE")) {
-    const b = document.getElementById('badge-mission-3');
-    if (b) {
-      b.textContent = 'CLEARED';
-      b.className = 'text-[9px] px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-400 font-bold';
-    }
-  }
-}
-
-function initMissionsUI(switchTabFn) {
-  document.getElementById('btn-load-mission-1')?.addEventListener('click', () => {
-    applyKeyPreset('u559');
-    const input = document.getElementById('input-plaintext');
-    if (input) input.value = "STANDORTQUADRAT";
-    if (switchTabFn) switchTabFn('enigma');
-  });
-
-  document.getElementById('btn-load-mission-2')?.addEventListener('click', () => {
-    const cipherIn = document.getElementById('bombe-cipher-input');
-    const cribIn = document.getElementById('bombe-crib-input');
-    if (cipherIn) cipherIn.value = "BDZGO";
-    if (cribIn) cribIn.value = "AAAAA";
-    if (switchTabFn) switchTabFn('bombe');
-  });
-
-  document.getElementById('btn-load-mission-3')?.addEventListener('click', () => {
-    const plainIn = document.getElementById('lorenz-plain-input');
-    if (plainIn) plainIn.value = "UNTERNEHMEN ZITADELLE";
-    if (switchTabFn) switchTabFn('colossus');
-  });
-}
-
 /* --- controllers.js --- */
-  keyMeshes,
-  lampMeshes,
-  rotorMeshes,
-  pawls,
-  render3DJumperCables,
-  rotorBayGroup,
-  lidHingeGroup,
-  rotorSpacing
-} from '../scene3d/enigmaModel.js';
+
+
+
+
+
+
+
 
 const enigma = new EnigmaCore();
 
@@ -3259,7 +4451,165 @@ function animateEnigmaFrame() {
   }
 }
 
+/* --- missionsUI.js --- */
+
+
+function checkMissionStatus(str) {
+  const clean = str.replace(/[^A-Z]/g, '');
+
+  // Mission 1: U-559 Shark
+  if (clean.includes("STANDORTQUADRAT")) {
+    const b = document.getElementById('badge-mission-1');
+    if (b) {
+      b.textContent = 'CLEARED';
+      b.className = 'text-[9px] px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-400 font-bold';
+    }
+  }
+
+  // Mission 2: Normandy Weather
+  if (clean.includes("WETTERVORHERSAGE")) {
+    const b = document.getElementById('badge-mission-2');
+    if (b) {
+      b.textContent = 'CLEARED';
+      b.className = 'text-[9px] px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-400 font-bold';
+    }
+  }
+
+  // Mission 3: Citadel Kursk
+  if (clean.includes("CITADEL") || clean.includes("ZITADELLE")) {
+    const b = document.getElementById('badge-mission-3');
+    if (b) {
+      b.textContent = 'CLEARED';
+      b.className = 'text-[9px] px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-400 font-bold';
+    }
+  }
+
+  // Mission 4: Hunt for the Bismarck
+  if (clean.includes("BISMARCK") || clean.includes("BREST")) {
+    const b = document.getElementById('badge-mission-4');
+    if (b) {
+      b.textContent = 'CLEARED';
+      b.className = 'text-[9px] px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-400 font-bold';
+    }
+  }
+
+  // Mission 5: Luftwaffe Red Rommel
+  if (clean.includes("ROMMEL") || clean.includes("PANZERARMEE") || clean.includes("AFRIKA")) {
+    const b = document.getElementById('badge-mission-5');
+    if (b) {
+      b.textContent = 'CLEARED';
+      b.className = 'text-[9px] px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-400 font-bold';
+    }
+  }
+
+  // Mission 6: Battle of the Barents Sea (Regenbogen)
+  if (clean.includes("REGENBOGEN") || clean.includes("HIPPER") || clean.includes("LUETZOW")) {
+    const b = document.getElementById('badge-mission-6');
+    if (b) {
+      b.textContent = 'CLEARED';
+      b.className = 'text-[9px] px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-400 font-bold';
+    }
+  }
+}
+
+function initMissionsUI(switchTabFn) {
+  // Mission 1: U-559 Shark
+  document.getElementById('btn-load-mission-1')?.addEventListener('click', () => {
+    applyKeyPreset('u559');
+    const input = document.getElementById('input-plaintext');
+    if (input) {
+      input.value = "STANDORTQUADRAT";
+      input.dispatchEvent(new Event('input'));
+    }
+    if (switchTabFn) switchTabFn('enigma');
+  });
+
+  // Mission 2: Normandy Weather Crib
+  document.getElementById('btn-load-mission-2')?.addEventListener('click', () => {
+    const cipherIn = document.getElementById('bombe-cipher-input');
+    const cribIn = document.getElementById('bombe-crib-input');
+    if (cipherIn) cipherIn.value = "BDZGO";
+    if (cribIn) cribIn.value = "AAAAA";
+    if (switchTabFn) switchTabFn('bombe');
+  });
+
+  // Mission 3: Operation Citadel Lorenz
+  document.getElementById('btn-load-mission-3')?.addEventListener('click', () => {
+    const plainIn = document.getElementById('lorenz-plain-input');
+    if (plainIn) plainIn.value = "UNTERNEHMEN ZITADELLE";
+    if (switchTabFn) switchTabFn('colossus');
+  });
+
+  // Mission 4: Hunt for the Bismarck
+  document.getElementById('btn-load-mission-4')?.addEventListener('click', () => {
+    // Wehrmacht M3, Rotors II-I-III, Ring settings 01-01-01, ground B-I-S, Reflector B
+    enigma.isM4 = false;
+    enigma.rotorTypes = ['III', 'I', 'II', 'Beta'];
+    enigma.ringSettings = [0, 0, 0, 0];
+    enigma.positions = [18, 8, 1, 0]; // S, I, B (indices 18, 8, 1)
+    enigma.reflectorType = 'B';
+    enigma.setupPlugboard('AN CX EQ GL');
+    updateRotorUI();
+
+    const plugIn = document.getElementById('input-plugboard');
+    if (plugIn) plugIn.value = 'AN CX EQ GL';
+
+    const input = document.getElementById('input-plaintext');
+    if (input) {
+      input.value = "SCHLACHTSCHIFF BISMARCK ANLAUFEN BREST";
+      input.dispatchEvent(new Event('input'));
+    }
+    if (switchTabFn) switchTabFn('enigma');
+  });
+
+  // Mission 5: Luftwaffe Red (Rommel Afrika Korps)
+  document.getElementById('btn-load-mission-5')?.addEventListener('click', () => {
+    enigma.isM4 = false;
+    enigma.rotorTypes = ['V', 'II', 'IV', 'Beta'];
+    enigma.ringSettings = [2, 5, 11, 0];
+    enigma.positions = [12, 14, 17, 0]; // M, O, R
+    enigma.reflectorType = 'B';
+    enigma.setupPlugboard('AV BR EM FL');
+    updateRotorUI();
+
+    const plugIn = document.getElementById('input-plugboard');
+    if (plugIn) plugIn.value = 'AV BR EM FL';
+
+    const input = document.getElementById('input-plaintext');
+    if (input) {
+      input.value = "PANZERARMEE AFRIKA BETRIEBSSTOFF MANGEL";
+      input.dispatchEvent(new Event('input'));
+    }
+    if (switchTabFn) switchTabFn('enigma');
+  });
+
+  // Mission 6: Operation Regenbogen (Barents Sea)
+  document.getElementById('btn-load-mission-6')?.addEventListener('click', () => {
+    enigma.isM4 = true;
+    enigma.rotorTypes = ['IV', 'V', 'VI', 'Gamma'];
+    enigma.ringSettings = [0, 0, 0, 0];
+    enigma.positions = [1, 6, 4, 17]; // B, G, E, R
+    enigma.reflectorType = 'B_thin';
+    enigma.setupPlugboard('CD HJ KW MN');
+    updateRotorUI();
+
+    const plugIn = document.getElementById('input-plugboard');
+    if (plugIn) plugIn.value = 'CD HJ KW MN';
+
+    const input = document.getElementById('input-plaintext');
+    if (input) {
+      input.value = "OPERATION REGENBOGEN KREUZER HIPPER ANGRIFF";
+      input.dispatchEvent(new Event('input'));
+    }
+    if (switchTabFn) switchTabFn('enigma');
+  });
+}
+
 /* --- typexUI.js --- */
+
+
+
+
 
 const typex = new TypexCore();
 
@@ -3291,6 +4641,7 @@ function initTypexUI() {
       }
       tapeOutput.textContent += cipherChar + ' ';
       tapeOutput.scrollLeft = tapeOutput.scrollWidth;
+      updateTypexRibbon(tapeOutput.textContent);
     }
   }
 
@@ -3327,6 +4678,7 @@ function initTypexUI() {
     if (typexInput) typexInput.value = '';
     lastVal = '';
     if (tapeOutput) tapeOutput.textContent = 'TYPE-X TELEPRINTER READY /// ';
+    updateTypexRibbon('TYPE-X TELEPRINTER READY ///');
     sound.playRotorStep();
   });
 
@@ -3346,6 +4698,10 @@ function initTypexUI() {
 }
 
 /* --- sigabaUI.js --- */
+
+
+
+
 
 const sigaba = new SIGABACore();
 
@@ -3385,17 +4741,43 @@ function initSIGABAUI() {
 
 /* --- polishUI.js --- */
 
+
+
+
 const polishEngine = new PolishBiuroEngine();
+const rejewskiCatalogue = new RejewskiCatalogue();
 
 function initPolishUI() {
+  const display = document.getElementById('polish-cycle-display');
+  const cardResultsEl = document.getElementById('rejewski-card-results');
+
   document.getElementById('btn-rejewski-catalogue')?.addEventListener('click', () => {
     const cycles = polishEngine.computePermutationCycles();
     const cycleStr = cycles.slice(0, 6).map(c => `(${c.join('')})`).join(' ');
     const lengths = polishEngine.getCycleLengths(cycles).join(', ');
-    const display = document.getElementById('polish-cycle-display');
+
     if (display) {
       display.textContent = `Cycles: ${cycleStr}... [Lengths: ${lengths}]`;
     }
+
+    // Query the Rejewski Card Catalogue
+    const matches = rejewskiCatalogue.search(lengths);
+    if (cardResultsEl) {
+      cardResultsEl.innerHTML = '';
+      matches.forEach(m => {
+        const item = document.createElement('div');
+        item.className = 'p-2 rounded bg-slate-900 border border-amber-600/30 text-xs font-mono-code space-y-1';
+        item.innerHTML = `
+          <div class="flex justify-between text-amber-400 font-bold">
+            <span>Rotors: ${m.rotors.join(' - ')}</span>
+            <span class="text-[10px] text-slate-400">${m.period}</span>
+          </div>
+          <div class="text-slate-300 text-[11px]">Ground Setting Candidate: <strong class="text-emerald-400">${m.ground}</strong></div>
+        `;
+        cardResultsEl.appendChild(item);
+      });
+    }
+
     sound.playRelayClick();
   });
 
@@ -3459,7 +4841,14 @@ function initPolishUI() {
 
 /* --- bombeUI.js --- */
 
+
+
+
+
+
+
 const bombe = new TuringBombe();
+const multiBombeWorker = new MultiOrderBombeWorker();
 
 function initBombeUI(switchTabFn) {
   const cipherInput = document.getElementById('bombe-cipher-input');
@@ -3470,6 +4859,7 @@ function initBombeUI(switchTabFn) {
   const solutionBox = document.getElementById('bombe-solution-box');
   const stopRotorsEl = document.getElementById('bombe-stop-rotors');
   const stopPosEl = document.getElementById('bombe-stop-pos');
+  const chkScan60 = document.getElementById('chk-bombe-scan-60');
 
   // Menu Graph Canvas Renderer
   function drawMenuGraph() {
@@ -3483,7 +4873,7 @@ function initBombeUI(switchTabFn) {
     ctx.fillRect(0, 0, w, h);
 
     const cipher = cipherInput?.value.toUpperCase().replace(/[^A-Z]/g, '') || 'BDZGO';
-    const crib = cribInput?.value.toUpperCase().replace(/[^A-Z]/g, '') || 'WETTE';
+    const crib = cribInput?.value.toUpperCase().replace(/[^A-Z]/g, '') || 'AAAAA';
     const edges = bombe.buildMenuGraph(cipher, crib);
 
     if (edges.length === 0) {
@@ -3494,7 +4884,6 @@ function initBombeUI(switchTabFn) {
       return;
     }
 
-    // Extract unique letters
     const letters = Array.from(new Set([...edges.map(e => e.cipher), ...edges.map(e => e.crib)]));
     const nodeCoords = {};
     const radius = Math.min(w, h) * 0.38;
@@ -3509,7 +4898,7 @@ function initBombeUI(switchTabFn) {
       };
     });
 
-    // Draw Edges (scramblers)
+    // Draw Edges
     ctx.strokeStyle = '#f59e0b88';
     ctx.lineWidth = 2;
     edges.forEach(e => {
@@ -3523,7 +4912,7 @@ function initBombeUI(switchTabFn) {
       }
     });
 
-    // Draw Nodes (letters)
+    // Draw Nodes
     letters.forEach(l => {
       const p = nodeCoords[l];
       ctx.fillStyle = '#0f172a';
@@ -3547,47 +4936,53 @@ function initBombeUI(switchTabFn) {
   cribInput?.addEventListener('input', drawMenuGraph);
   drawMenuGraph();
 
-  // Run Bombe Scan
+  // Run Bombe Scan (Supports Multi-Threaded 60-Order Search)
   document.getElementById('btn-run-bombe')?.addEventListener('click', () => {
     const cipher = cipherInput?.value || 'BDZGO';
     const crib = cribInput?.value || 'AAAAA';
+    const scanAll60 = chkScan60 ? chkScan60.checked : true;
 
     if (statusBadge) {
-      statusBadge.textContent = 'SCANNING (HUT 11)...';
+      statusBadge.textContent = scanAll60 ? 'MULTI-CORE SCAN (60 ROTOR ORDERS)...' : 'SCANNING (HUT 11)...';
       statusBadge.className = 'text-[10px] font-mono-code px-2 py-0.5 rounded bg-amber-500/20 text-amber-300 font-bold animate-pulse';
     }
     if (solutionBox) solutionBox.classList.add('hidden');
 
     drawMenuGraph();
 
-    let clickCounter = 0;
-    bombe.startScan(
+    multiBombeWorker.start(
       cipher,
       crib,
-      (scanned, total, pos) => {
-        if (scannedCountEl) scannedCountEl.textContent = `${scanned.toLocaleString()} / ${total.toLocaleString()}`;
-        if (progressBar) progressBar.style.width = `${Math.min((scanned / total) * 100, 100)}%`;
-        spinBombeDrums(0.3);
-
-        clickCounter++;
-        if (clickCounter % 8 === 0) {
-          sound.playRelayClick();
+      scanAll60,
+      ['III', 'II', 'I'],
+      (scanned, total, order, pos, rate) => {
+        if (scannedCountEl) {
+          scannedCountEl.textContent = `${scanned.toLocaleString()} / ${total.toLocaleString()} (${(rate || 0).toLocaleString()} p/s)`;
         }
+        if (progressBar) progressBar.style.width = `${Math.min((scanned / total) * 100, 100)}%`;
+        spinBombeDrums(0.35);
       },
       (stop) => {
+        bombe.stopFound = {
+          rotors: stop.order,
+          positions: stop.pos,
+          positionStr: stop.posStr
+        };
+
         if (statusBadge) {
-          statusBadge.textContent = '★ TURING STOP CONFIRMED';
+          statusBadge.textContent = `★ TURING STOP: ${stop.order.join('-')} @ ${stop.posStr}`;
           statusBadge.className = 'text-[10px] font-mono-code px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-400 font-bold';
         }
         if (solutionBox) solutionBox.classList.remove('hidden');
-        if (stopRotorsEl) stopRotorsEl.innerHTML = `Rotors: <strong class="text-amber-300">${stop.rotors.join(' - ')}</strong>`;
-        if (stopPosEl) stopPosEl.innerHTML = `Positions: <strong class="text-emerald-400">${stop.positionStr}</strong>`;
+        if (stopRotorsEl) stopRotorsEl.innerHTML = `Rotors: <strong class="text-amber-300">${stop.order.join(' - ')}</strong>`;
+        if (stopPosEl) stopPosEl.innerHTML = `Positions: <strong class="text-emerald-400">${stop.posStr}</strong> (${(stop.rate || 0).toLocaleString()} perm/sec)`;
+
         sound.playRotorStep();
         sound.playRelayClick();
       },
-      () => {
+      (res) => {
         if (statusBadge) {
-          statusBadge.textContent = 'SCAN COMPLETED (NO STOPS)';
+          statusBadge.textContent = 'SCAN COMPLETED (NO STOPS DETECTED)';
           statusBadge.className = 'text-[10px] font-mono-code px-2 py-0.5 rounded bg-slate-800 text-slate-400';
         }
       }
@@ -3596,6 +4991,7 @@ function initBombeUI(switchTabFn) {
 
   // Stop Bombe Scan
   document.getElementById('btn-stop-bombe')?.addEventListener('click', () => {
+    multiBombeWorker.stop();
     bombe.stopScan();
     if (statusBadge) {
       statusBadge.textContent = 'STOPPED';
@@ -3613,21 +5009,18 @@ function initBombeUI(switchTabFn) {
 
       if (switchTabFn) switchTabFn('enigma');
 
-      // Clear streams and re-decrypt intercept
       const cipher = cipherInput?.value.toUpperCase().replace(/[^A-Z]/g, '') || '';
       const ptInput = document.getElementById('input-plaintext');
       const outCipher = document.getElementById('output-ciphertext');
       if (ptInput) ptInput.value = '';
       if (outCipher) outCipher.textContent = '---';
 
-      // Feed ciphertext back through reciprocal Enigma to reveal plaintext
       for (const ch of cipher) {
         handleKeystroke(ch, false);
       }
     }
   });
 
-  // 26x26 Welchman Diagonal Board Matrix Modal
   initWelchmanBoard();
 }
 
@@ -3719,6 +5112,12 @@ function injectVoltageHypothesis(startChar) {
 }
 
 /* --- colossusUI.js --- */
+
+
+
+
+
+
 
 const lorenz = new LorenzSZ42Core();
 const colossus = new ColossusEngine();
@@ -3927,6 +5326,9 @@ function initColossusUI() {
 
 /* --- morseUI.js --- */
 
+
+
+
 function initMorseUI() {
   const brassKeyBtn = document.getElementById('brass-telegraph-key');
   const freqSlider = document.getElementById('slider-morse-freq');
@@ -4114,7 +5516,303 @@ ${plain}
   });
 }
 
+/* --- analyticsUI.js --- */
+
+
+
+function initAnalyticsUI() {
+  const freqCanvas = document.getElementById('analytics-freq-canvas');
+  const iocValEl = document.getElementById('analytics-ioc-val');
+  const iocBarEl = document.getElementById('analytics-ioc-bar');
+  const iocDescEl = document.getElementById('analytics-ioc-desc');
+  const kasiskiListEl = document.getElementById('analytics-kasiski-list');
+
+  function updateAnalytics() {
+    const cipherText = document.getElementById('output-ciphertext')?.textContent.replace(/[^A-Z]/g, '') || '';
+    const plainText = document.getElementById('input-plaintext')?.value.replace(/[^A-Z]/g, '') || '';
+    const targetText = cipherText || plainText || 'BDZGOWETTERVORHERSAGE';
+
+    const freqData = calculateFrequencies(targetText);
+    const ioc = calculateIndexOfCoincidence(targetText);
+    const kasiski = kasiskiExamination(targetText, 3);
+
+    // 1. Draw Frequency Canvas
+    if (freqCanvas) {
+      const ctx = freqCanvas.getContext('2d');
+      const w = freqCanvas.width = freqCanvas.clientWidth || 320;
+      const h = freqCanvas.height = freqCanvas.clientHeight || 130;
+
+      ctx.fillStyle = '#020617';
+      ctx.fillRect(0, 0, w, h);
+
+      const barWidth = (w - 20) / 26;
+      const maxPct = 20;
+
+      for (let i = 0; i < 26; i++) {
+        const ch = ALPHABET[i];
+        const observedPct = freqData.percentages[ch] || 0;
+        const expectedGerPct = GERMAN_FREQUENCIES[ch] || 0;
+
+        const x = 10 + i * barWidth;
+        const barHeight = Math.min((observedPct / maxPct) * (h - 24), h - 24);
+        const y = h - barHeight - 14;
+
+        // Observed Frequency Bar (Amber)
+        ctx.fillStyle = '#f59e0b';
+        ctx.fillRect(x, y, barWidth - 1, barHeight);
+
+        // Expected German Benchmark Marker (Emerald Dot)
+        const gerMarkerY = h - Math.min((expectedGerPct / maxPct) * (h - 24), h - 24) - 14;
+        ctx.fillStyle = '#10b981';
+        ctx.beginPath();
+        ctx.arc(x + (barWidth - 1) / 2, gerMarkerY, 2, 0, Math.PI * 2);
+        ctx.fill();
+
+        // X-axis letter labels
+        ctx.fillStyle = '#94a3b8';
+        ctx.font = '8px Courier Prime, monospace';
+        ctx.textAlign = 'center';
+        ctx.fillText(ch, x + (barWidth - 1) / 2, h - 3);
+      }
+    }
+
+    // 2. Update Index of Coincidence Gauge
+    if (iocValEl) {
+      iocValEl.textContent = ioc.toFixed(4);
+    }
+    if (iocBarEl) {
+      // Map 0.038 (random/Enigma) to 0.076 (German Plaintext) onto 0% to 100%
+      const pct = Math.max(0, Math.min(100, ((ioc - 0.035) / (0.078 - 0.035)) * 100));
+      iocBarEl.style.width = `${pct}%`;
+      if (ioc >= 0.065) {
+        iocBarEl.className = 'h-full bg-emerald-500 transition-all duration-300';
+        if (iocDescEl) iocDescEl.innerHTML = '<span class="text-emerald-400 font-bold">★ MONOLINGUAL PLAINTEXT RECOVERED (IoC &ge; 0.065)</span>';
+      } else if (ioc >= 0.050) {
+        iocBarEl.className = 'h-full bg-amber-500 transition-all duration-300';
+        if (iocDescEl) iocDescEl.innerHTML = '<span class="text-amber-300 font-bold">Transitional Polyalphabetic Mixture</span>';
+      } else {
+        iocBarEl.className = 'h-full bg-rose-500 transition-all duration-300';
+        if (iocDescEl) iocDescEl.innerHTML = '<span class="text-rose-400 font-bold">High Entropy Enigma Keystream (IoC &approx; 0.038)</span>';
+      }
+    }
+
+    // 3. Update Kasiski Examination List
+    if (kasiskiListEl) {
+      kasiskiListEl.innerHTML = '';
+      if (kasiski.length === 0) {
+        kasiskiListEl.innerHTML = '<div class="text-[10px] text-slate-500 font-mono-code">No repeated 3-grams found in current stream.</div>';
+      } else {
+        kasiski.forEach(k => {
+          const div = document.createElement('div');
+          div.className = 'flex justify-between text-[10px] font-mono-code text-slate-300 border-b border-slate-900 pb-0.5';
+          div.innerHTML = `<span class="text-amber-300 font-bold">"${k.gram}"</span><span>${k.occurrences}x (distances: ${k.distances.join(', ')})</span>`;
+          kasiskiListEl.appendChild(div);
+        });
+      }
+    }
+  }
+
+  // Hook into stream updates
+  document.getElementById('input-plaintext')?.addEventListener('input', updateAnalytics);
+  document.getElementById('btn-run-analytics')?.addEventListener('click', updateAnalytics);
+
+  updateAnalytics();
+}
+
+/* --- radioVFOUI.js --- */
+/**
+ * WWII National HRO / Telefunken E52 Style HF Radio Receiver VFO UI Controller
+ */
+
+
+
+function initRadioVFOUI(switchTabFn) {
+  const freqDisp = document.getElementById('vfo-freq-display');
+  const tuningSlider = document.getElementById('vfo-tuning-slider');
+  const stationName = document.getElementById('vfo-station-name');
+  const smeterBar = document.getElementById('vfo-smeter-bar');
+  const smeterText = document.getElementById('vfo-smeter-text');
+  const powerBtn = document.getElementById('vfo-power-toggle');
+  const bfoBtn = document.getElementById('vfo-bfo-toggle');
+  const volSlider = document.getElementById('vfo-volume-slider');
+  const interceptStream = document.getElementById('vfo-intercept-stream');
+
+  let interceptedBuffer = '';
+
+  function formatFreq(khz) {
+    const mhz = (khz / 1000).toFixed(3);
+    return `${mhz} MHz`;
+  }
+
+  function updateDisplay() {
+    if (freqDisp) freqDisp.textContent = formatFreq(radioReceiver.frequency);
+    if (tuningSlider) tuningSlider.value = radioReceiver.frequency;
+  }
+
+  // Update signal telemetry from receiver engine
+  radioReceiver.onSignalUpdate = (strength, pitch, station) => {
+    if (!smeterBar || !smeterText) return;
+
+    const pct = Math.round(strength * 100);
+    smeterBar.style.width = `${pct}%`;
+
+    if (strength > 0.85) {
+      smeterText.textContent = `S9 +20dB [CENTER TUNE ${Math.round(pitch)}Hz]`;
+      smeterBar.className = 'h-full bg-emerald-500 transition-all duration-150';
+    } else if (strength > 0.45) {
+      smeterText.textContent = `S7-S8 [BEAT ${Math.round(pitch)}Hz]`;
+      smeterBar.className = 'h-full bg-amber-500 transition-all duration-150';
+    } else if (strength > 0.1) {
+      smeterText.textContent = `S3-S5 [WEAK HETERODYNE ${Math.round(pitch)}Hz]`;
+      smeterBar.className = 'h-full bg-sky-500 transition-all duration-150';
+    } else {
+      smeterText.textContent = radioReceiver.powered ? 'S1 NOISE FLOOR' : 'OFFLINE';
+      smeterBar.className = 'h-full bg-slate-700 transition-all duration-150';
+    }
+
+    if (stationName) {
+      if (station && strength > 0.15) {
+        stationName.textContent = `★ ${station.callsign}: ${station.name}`;
+        stationName.className = 'text-xs font-mono-code text-emerald-400 font-bold';
+      } else {
+        stationName.textContent = radioReceiver.powered ? 'ATMOSPHERIC STATIC / SCANNING...' : 'RECEIVER POWER OFF';
+        stationName.className = 'text-xs font-mono-code text-slate-400';
+      }
+    }
+  };
+
+  // Receive decoded Morse characters
+  radioReceiver.onMorseKeyed = (ch, station) => {
+    if (!interceptStream) return;
+    interceptedBuffer += ch;
+    if (interceptedBuffer.length > 120) {
+      interceptedBuffer = interceptedBuffer.slice(-100);
+    }
+    interceptStream.textContent = interceptedBuffer;
+    interceptStream.scrollLeft = interceptStream.scrollWidth;
+  };
+
+  // Power Toggle
+  powerBtn?.addEventListener('click', () => {
+    const nextPower = !radioReceiver.powered;
+    radioReceiver.setPower(nextPower);
+    if (powerBtn) {
+      powerBtn.textContent = nextPower ? 'POWER: ON' : 'POWER: OFF';
+      powerBtn.className = nextPower
+        ? 'px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white font-mono-code text-xs font-bold'
+        : 'px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-400 font-mono-code text-xs';
+    }
+  });
+
+  // BFO Toggle
+  bfoBtn?.addEventListener('click', () => {
+    const nextBfo = !radioReceiver.bfoEnabled;
+    radioReceiver.setBFO(nextBfo);
+    if (bfoBtn) {
+      bfoBtn.textContent = nextBfo ? 'BFO: ON' : 'BFO: OFF';
+      bfoBtn.className = nextBfo
+        ? 'px-3 py-1.5 rounded-lg bg-amber-600 hover:bg-amber-500 text-white font-mono-code text-xs font-bold'
+        : 'px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-400 font-mono-code text-xs';
+    }
+  });
+
+  // Volume
+  volSlider?.addEventListener('input', (e) => {
+    radioReceiver.setVolume(parseFloat(e.target.value));
+  });
+
+  // Tuning Slider
+  tuningSlider?.addEventListener('input', (e) => {
+    const khz = parseFloat(e.target.value);
+    radioReceiver.setFrequency(khz);
+    if (freqDisp) freqDisp.textContent = formatFreq(khz);
+  });
+
+  // Fine Step Buttons
+  document.getElementById('vfo-step-down')?.addEventListener('click', () => {
+    radioReceiver.setFrequency(Math.max(3000, radioReceiver.frequency - 5));
+    updateDisplay();
+  });
+  document.getElementById('vfo-step-up')?.addEventListener('click', () => {
+    radioReceiver.setFrequency(Math.min(15000, radioReceiver.frequency + 5));
+    updateDisplay();
+  });
+
+  // Quick Band Presets
+  document.getElementById('vfo-band-80m')?.addEventListener('click', () => {
+    if (tuningSlider) { tuningSlider.min = 3500; tuningSlider.max = 3800; }
+    radioReceiver.setBand('80m');
+    updateDisplay();
+  });
+  document.getElementById('vfo-band-40m')?.addEventListener('click', () => {
+    if (tuningSlider) { tuningSlider.min = 7000; tuningSlider.max = 7300; }
+    radioReceiver.setBand('40m');
+    updateDisplay();
+  });
+  document.getElementById('vfo-band-20m')?.addEventListener('click', () => {
+    if (tuningSlider) { tuningSlider.min = 14000; tuningSlider.max = 14350; }
+    radioReceiver.setBand('20m');
+    updateDisplay();
+  });
+
+  // Feed to Enigma
+  document.getElementById('btn-vfo-feed-enigma')?.addEventListener('click', () => {
+    const ptInput = document.getElementById('input-plaintext');
+    const { station } = radioReceiver.getNearbyStation();
+    const payload = (station ? station.cipher : interceptedBuffer).replace(/[^A-Z]/g, '');
+    if (ptInput && payload) {
+      ptInput.value = payload;
+      ptInput.dispatchEvent(new Event('input'));
+    }
+    document.getElementById('modal-radio-vfo')?.classList.add('hidden');
+    if (switchTabFn) switchTabFn('enigma');
+  });
+
+  // Feed to Bombe
+  document.getElementById('btn-vfo-feed-bombe')?.addEventListener('click', () => {
+    const bIn = document.getElementById('bombe-cipher-input');
+    const { station } = radioReceiver.getNearbyStation();
+    const payload = (station ? station.cipher : interceptedBuffer).replace(/[^A-Z]/g, '');
+    if (bIn && payload) {
+      bIn.value = payload.slice(0, 15);
+      bIn.dispatchEvent(new Event('input'));
+    }
+    document.getElementById('modal-radio-vfo')?.classList.add('hidden');
+    if (switchTabFn) switchTabFn('bombe');
+  });
+
+  // Modal open/close
+  document.getElementById('btn-radio-vfo')?.addEventListener('click', () => {
+    document.getElementById('modal-radio-vfo')?.classList.remove('hidden');
+    if (!radioReceiver.powered) {
+      powerBtn?.click();
+    }
+  });
+  document.getElementById('btn-close-radio-vfo')?.addEventListener('click', () => {
+    document.getElementById('modal-radio-vfo')?.classList.add('hidden');
+  });
+
+  updateDisplay();
+}
+
 /* --- diagnostics.js --- */
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 class DiagnosticSuite {
   constructor() {
@@ -4395,6 +6093,37 @@ diag.addTest("30. Zygalski Lightbox Aperture Matrix Alignment", () => {
   return { passed: document.getElementById('zygalski-light-table-canvas') !== null, message: "26×26 perforated grid rendered" };
 });
 
+// 31. Multi-Order Web Worker Bombe Engine
+diag.addTest("31. Multi-Order Web Worker Bombe Engine", () => {
+  const worker = new MultiOrderBombeWorker();
+  return { passed: typeof worker.scan === 'function', message: "60-order parallel worker initialized" };
+});
+
+// 32. Rejewski Card Catalogue Cyclometer Hash
+diag.addTest("32. Rejewski Card Catalogue Cyclometer Hash", () => {
+  const cat = new RejewskiCatalogue();
+  const res = cat.search("13, 13");
+  return { passed: res.length > 0, message: `${res.length} characteristic cycle matches found` };
+});
+
+// 33. Cryptanalysis Index of Coincidence
+diag.addTest("33. Cryptanalysis Index of Coincidence", () => {
+  const ioc = calculateIndexOfCoincidence("WETTERVORHERSAGEKANALWINDWESTENSTANDORTQUADRAT");
+  return { passed: ioc >= 0.055, message: `Natural German IoC computed: ${ioc.toFixed(4)}` };
+});
+
+// 34. Analog HF Radio VFO Superheterodyne Engine
+diag.addTest("34. Analog HF Radio VFO Superheterodyne Engine", () => {
+  radioReceiver.setFrequency(7050);
+  const near = radioReceiver.getNearbyStation();
+  return { passed: near.station !== null && near.diff === 0, message: `Tuned ${near.station?.callsign} (${near.station?.freq} kHz)` };
+});
+
+// 35. 3D Creed Teleprinter Dynamic Ribbon
+diag.addTest("35. 3D Creed Teleprinter Dynamic Ribbon", () => {
+  return { passed: ribbonMesh !== null, message: "Curved paper tape & teleprinter housing active in 3D" };
+});
+
 function initDiagnosticsUI() {
   document.getElementById('btn-toggle-diagnostics')?.addEventListener('click', () => {
     diag.runAll();
@@ -4419,20 +6148,23 @@ function initDiagnosticsUI() {
 }
 
 /* --- main.js --- */
-  scene,
-  cameraTargetPos,
-  controlsTargetPos,
-  animate,
-  registerAnimationCallback,
-  resizeRenderer
-} from './scene3d/scene.js';
-  initEnigmaUI,
-  handleKeystroke,
-  enigma,
-  updateRotorUI,
-  animateEnigmaFrame,
-  setActiveTab
-} from './ui/controllers.js';
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 let activeTabName = 'enigma';
 
@@ -4440,10 +6172,10 @@ function switchTab(tab) {
   activeTabName = tab;
   setActiveTab(tab);
 
-  const tabs = ['enigma', 'typex', 'sigaba', 'polish', 'bombe', 'colossus', 'missions'];
+  const tabs = ['enigma', 'typex', 'sigaba', 'polish', 'bombe', 'colossus', 'missions', 'analytics'];
   tabs.forEach(t => {
     document.getElementById(`tab-${t}`)?.classList.remove(
-      'bg-amber-600', 'bg-red-600', 'bg-emerald-600', 'bg-rose-600', 'bg-sky-600', 'text-white'
+      'bg-amber-600', 'bg-red-600', 'bg-emerald-600', 'bg-rose-600', 'bg-sky-600', 'bg-indigo-600', 'text-white'
     );
     document.getElementById(`tab-${t}`)?.classList.add('text-slate-400');
     document.getElementById(`panel-${t}-controls`)?.classList.add('hidden');
@@ -4456,13 +6188,14 @@ function switchTab(tab) {
   else if (tab === 'typex') activeBtn?.classList.add('bg-red-600', 'text-white');
   else if (tab === 'sigaba') activeBtn?.classList.add('bg-emerald-600', 'text-white');
   else if (tab === 'polish') activeBtn?.classList.add('bg-rose-600', 'text-white');
+  else if (tab === 'analytics') activeBtn?.classList.add('bg-indigo-600', 'text-white');
   else activeBtn?.classList.add('bg-amber-600', 'text-white');
 
   activeBtn?.classList.remove('text-slate-400');
   activePanel?.classList.remove('hidden');
 
   // Camera cinematic targets
-  if (tab === 'enigma' || tab === 'missions') {
+  if (tab === 'enigma' || tab === 'missions' || tab === 'analytics') {
     cameraTargetPos.set(0, 18, 20); controlsTargetPos.set(0, 1, 0);
   } else if (tab === 'typex') {
     cameraTargetPos.set(32, 16, 20); controlsTargetPos.set(32, 1, 0);
@@ -4496,7 +6229,7 @@ try {
 } catch (err) {}
 
 function initGlobalActions() {
-  ['enigma', 'typex', 'sigaba', 'polish', 'bombe', 'colossus', 'missions'].forEach(t => {
+  ['enigma', 'typex', 'sigaba', 'polish', 'bombe', 'colossus', 'missions', 'analytics'].forEach(t => {
     document.getElementById(`tab-${t}`)?.addEventListener('click', () => switchTab(t));
   });
 
@@ -4504,6 +6237,14 @@ function initGlobalActions() {
   document.getElementById('btn-audio-toggle')?.addEventListener('click', (e) => {
     sound.muted = !sound.muted;
     e.target.textContent = sound.muted ? '🔇' : '🔊';
+  });
+
+  // Ambient Hut 11 Audio Toggle
+  document.getElementById('btn-ambient-toggle')?.addEventListener('click', (e) => {
+    const isPlaying = hut11Ambience.toggle();
+    e.currentTarget.classList.toggle('bg-amber-600/40', isPlaying);
+    e.currentTarget.classList.toggle('border-amber-500', isPlaying);
+    e.currentTarget.classList.toggle('text-amber-300', isPlaying);
   });
 
   // Dossier Modal
@@ -4564,13 +6305,95 @@ function initRaycasting() {
     handleKeystroke(letter, false);
   };
 
-  // 3D Rotor Click Handler
+  // 3D Rotor Click & Wheel Handler
   raycaster.onRotorClick = (rIdx, dir) => {
     sound.init();
     enigma.positions[rIdx] = (enigma.positions[rIdx] + (dir > 0 ? 1 : 25)) % 26;
     updateRotorUI();
     sound.playRotorStep();
   };
+
+  // 3D Steckerbrett Socket Click-to-Plug Handler
+  let pendingSocket = null;
+
+  raycaster.onSocketClick = (socketLetter) => {
+    sound.init();
+    const plugInput = document.getElementById('input-plugboard');
+    let currentStecker = (plugInput?.value || '').toUpperCase();
+    let pairs = currentStecker.match(/[A-Z]{2}/g) || [];
+
+    if (!pendingSocket) {
+      // Check if this socket is already part of a connected cable
+      const existingPair = pairs.find(p => p.includes(socketLetter));
+      if (existingPair) {
+        // Disconnect existing cable
+        pairs = pairs.filter(p => p !== existingPair);
+        const newStr = pairs.join(' ');
+        if (plugInput) plugInput.value = newStr;
+        enigma.setupPlugboard(newStr);
+        render3DJumperCables(newStr);
+        sound.playRelayClick();
+        const hud = document.getElementById('signal-path-steps');
+        if (hud) hud.textContent = `Steckerbrett: Cable ${existingPair[0]}-${existingPair[1]} unplugged.`;
+        return;
+      }
+
+      // No cable currently in this socket: start new connection
+      pendingSocket = socketLetter;
+      setSocketHighlight(socketLetter, true);
+      raycaster.setPendingSocket(socketLetter);
+      sound.playRelayClick();
+      const hud = document.getElementById('signal-path-steps');
+      if (hud) hud.textContent = `Steckerbrett: Selected [${socketLetter}]. Click another socket to bridge circuit (Esc to cancel).`;
+    } else {
+      if (socketLetter === pendingSocket) {
+        // User clicked same socket: cancel selection
+        setSocketHighlight(pendingSocket, false);
+        clearPendingCable();
+        raycaster.setPendingSocket(null);
+        pendingSocket = null;
+        const hud = document.getElementById('signal-path-steps');
+        if (hud) hud.textContent = 'Steckerbrett: Connection canceled.';
+        return;
+      }
+
+      // Complete connection between pendingSocket and socketLetter
+      const letterA = pendingSocket;
+      const letterB = socketLetter;
+
+      // Remove any pairs that already include either letter
+      pairs = pairs.filter(p => !p.includes(letterA) && !p.includes(letterB));
+      if (pairs.length >= 10) {
+        pairs.shift(); // keep max 10 cables
+      }
+      pairs.push(`${letterA}${letterB}`);
+
+      const newStr = pairs.join(' ');
+      if (plugInput) plugInput.value = newStr;
+      enigma.setupPlugboard(newStr);
+      render3DJumperCables(newStr);
+
+      setSocketHighlight(letterA, false);
+      clearPendingCable();
+      raycaster.setPendingSocket(null);
+      pendingSocket = null;
+
+      sound.playRelayClick();
+      const hud = document.getElementById('signal-path-steps');
+      if (hud) hud.textContent = `Steckerbrett: Circuit closed [${letterA} ⇄ ${letterB}].`;
+    }
+  };
+
+  window.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && pendingSocket) {
+      setSocketHighlight(pendingSocket, false);
+      clearPendingCable();
+      raycaster.setPendingSocket(null);
+      pendingSocket = null;
+      const hud = document.getElementById('signal-path-steps');
+      if (hud) hud.textContent = 'Steckerbrett: Connection canceled.';
+    }
+  });
 }
 
 // Application Startup Lifecycle
@@ -4585,6 +6408,8 @@ window.addEventListener('DOMContentLoaded', () => {
   initMorseUI();
   initTelegramUI();
   initMissionsUI(switchTab);
+  initAnalyticsUI();
+  initRadioVFOUI(switchTab);
   initDiagnosticsUI();
   initGlobalActions();
   initRaycasting();

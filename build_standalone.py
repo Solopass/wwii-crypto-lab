@@ -15,10 +15,15 @@ MODULE_ORDER = [
     BASE_DIR / "src" / "crypto" / "typex.js",
     BASE_DIR / "src" / "crypto" / "sigaba.js",
     BASE_DIR / "src" / "crypto" / "polish.js",
+    BASE_DIR / "src" / "crypto" / "rejewskiCatalogue.js",
+    BASE_DIR / "src" / "crypto" / "analytics.js",
     BASE_DIR / "src" / "crypto" / "lorenz.js",
     BASE_DIR / "src" / "crypto" / "bombe.js",
+    BASE_DIR / "src" / "crypto" / "bombeWorker.js",
     BASE_DIR / "src" / "crypto" / "colossus.js",
     BASE_DIR / "src" / "audio" / "soundFX.js",
+    BASE_DIR / "src" / "audio" / "ambientAudio.js",
+    BASE_DIR / "src" / "audio" / "radioVFO.js",
     BASE_DIR / "src" / "scene3d" / "textures.js",
     BASE_DIR / "src" / "scene3d" / "scene.js",
     BASE_DIR / "src" / "scene3d" / "enigmaModel.js",
@@ -28,8 +33,8 @@ MODULE_ORDER = [
     BASE_DIR / "src" / "scene3d" / "colossusModel.js",
     BASE_DIR / "src" / "scene3d" / "laserWire.js",
     BASE_DIR / "src" / "scene3d" / "raycaster.js",
-    BASE_DIR / "src" / "ui" / "missionsUI.js",
     BASE_DIR / "src" / "ui" / "controllers.js",
+    BASE_DIR / "src" / "ui" / "missionsUI.js",
     BASE_DIR / "src" / "ui" / "typexUI.js",
     BASE_DIR / "src" / "ui" / "sigabaUI.js",
     BASE_DIR / "src" / "ui" / "polishUI.js",
@@ -37,14 +42,18 @@ MODULE_ORDER = [
     BASE_DIR / "src" / "ui" / "colossusUI.js",
     BASE_DIR / "src" / "ui" / "morseUI.js",
     BASE_DIR / "src" / "ui" / "telegramUI.js",
+    BASE_DIR / "src" / "ui" / "analyticsUI.js",
+    BASE_DIR / "src" / "ui" / "radioVFOUI.js",
     BASE_DIR / "src" / "ui" / "diagnostics.js",
     BASE_DIR / "src" / "main.js"
 ]
 
 def clean_module_code(code: str, is_main: bool = False) -> str:
+    # Remove multi-line and single-line import blocks
+    code = re.sub(r'import\s*\{[^}]*\}\s*from\s*[\'"][^\'"]+[\'"]\s*;?', '', code, flags=re.DOTALL)
     lines = []
     for line in code.splitlines():
-        # Remove import statements
+        # Remove single line import statements
         if re.match(r'^\s*import\s+', line):
             continue
         # Remove 'export default ' or 'export ' before declarations

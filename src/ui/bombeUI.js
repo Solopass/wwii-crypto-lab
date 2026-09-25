@@ -1,10 +1,12 @@
 import { ALPHABET } from '../crypto/constants.js';
 import { TuringBombe } from '../crypto/bombe.js';
+import { MultiOrderBombeWorker } from '../crypto/bombeWorker.js';
 import { sound } from '../audio/soundFX.js';
 import { spinBombeDrums } from '../scene3d/bombeModel.js';
 import { enigma, updateRotorUI, handleKeystroke } from './controllers.js';
 
 export const bombe = new TuringBombe();
+export const multiBombeWorker = new MultiOrderBombeWorker();
 
 export function initBombeUI(switchTabFn) {
   const cipherInput = document.getElementById('bombe-cipher-input');
@@ -15,6 +17,7 @@ export function initBombeUI(switchTabFn) {
   const solutionBox = document.getElementById('bombe-solution-box');
   const stopRotorsEl = document.getElementById('bombe-stop-rotors');
   const stopPosEl = document.getElementById('bombe-stop-pos');
+  const chkScan60 = document.getElementById('chk-bombe-scan-60');
 
   // Menu Graph Canvas Renderer
   function drawMenuGraph() {
@@ -28,7 +31,7 @@ export function initBombeUI(switchTabFn) {
     ctx.fillRect(0, 0, w, h);
 
     const cipher = cipherInput?.value.toUpperCase().replace(/[^A-Z]/g, '') || 'BDZGO';
-    const crib = cribInput?.value.toUpperCase().replace(/[^A-Z]/g, '') || 'WETTE';
+    const crib = cribInput?.value.toUpperCase().replace(/[^A-Z]/g, '') || 'AAAAA';
     const edges = bombe.buildMenuGraph(cipher, crib);
 
     if (edges.length === 0) {
@@ -39,7 +42,6 @@ export function initBombeUI(switchTabFn) {
       return;
     }
 
-    // Extract unique letters
     const letters = Array.from(new Set([...edges.map(e => e.cipher), ...edges.map(e => e.crib)]));
     const nodeCoords = {};
     const radius = Math.min(w, h) * 0.38;
@@ -54,7 +56,7 @@ export function initBombeUI(switchTabFn) {
       };
     });
 
-    // Draw Edges (scramblers)
+    // Draw Edges
     ctx.strokeStyle = '#f59e0b88';
     ctx.lineWidth = 2;
     edges.forEach(e => {
@@ -68,7 +70,7 @@ export function initBombeUI(switchTabFn) {
       }
     });
 
-    // Draw Nodes (letters)
+    // Draw Nodes
     letters.forEach(l => {
       const p = nodeCoords[l];
       ctx.fillStyle = '#0f172a';
@@ -92,47 +94,53 @@ export function initBombeUI(switchTabFn) {
   cribInput?.addEventListener('input', drawMenuGraph);
   drawMenuGraph();
 
-  // Run Bombe Scan
+  // Run Bombe Scan (Supports Multi-Threaded 60-Order Search)
   document.getElementById('btn-run-bombe')?.addEventListener('click', () => {
     const cipher = cipherInput?.value || 'BDZGO';
     const crib = cribInput?.value || 'AAAAA';
+    const scanAll60 = chkScan60 ? chkScan60.checked : true;
 
     if (statusBadge) {
-      statusBadge.textContent = 'SCANNING (HUT 11)...';
+      statusBadge.textContent = scanAll60 ? 'MULTI-CORE SCAN (60 ROTOR ORDERS)...' : 'SCANNING (HUT 11)...';
       statusBadge.className = 'text-[10px] font-mono-code px-2 py-0.5 rounded bg-amber-500/20 text-amber-300 font-bold animate-pulse';
     }
     if (solutionBox) solutionBox.classList.add('hidden');
 
     drawMenuGraph();
 
-    let clickCounter = 0;
-    bombe.startScan(
+    multiBombeWorker.start(
       cipher,
       crib,
-      (scanned, total, pos) => {
-        if (scannedCountEl) scannedCountEl.textContent = `${scanned.toLocaleString()} / ${total.toLocaleString()}`;
-        if (progressBar) progressBar.style.width = `${Math.min((scanned / total) * 100, 100)}%`;
-        spinBombeDrums(0.3);
-
-        clickCounter++;
-        if (clickCounter % 8 === 0) {
-          sound.playRelayClick();
+      scanAll60,
+      ['III', 'II', 'I'],
+      (scanned, total, order, pos, rate) => {
+        if (scannedCountEl) {
+          scannedCountEl.textContent = `${scanned.toLocaleString()} / ${total.toLocaleString()} (${(rate || 0).toLocaleString()} p/s)`;
         }
+        if (progressBar) progressBar.style.width = `${Math.min((scanned / total) * 100, 100)}%`;
+        spinBombeDrums(0.35);
       },
       (stop) => {
+        bombe.stopFound = {
+          rotors: stop.order,
+          positions: stop.pos,
+          positionStr: stop.posStr
+        };
+
         if (statusBadge) {
-          statusBadge.textContent = '★ TURING STOP CONFIRMED';
+          statusBadge.textContent = `★ TURING STOP: ${stop.order.join('-')} @ ${stop.posStr}`;
           statusBadge.className = 'text-[10px] font-mono-code px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-400 font-bold';
         }
         if (solutionBox) solutionBox.classList.remove('hidden');
-        if (stopRotorsEl) stopRotorsEl.innerHTML = `Rotors: <strong class="text-amber-300">${stop.rotors.join(' - ')}</strong>`;
-        if (stopPosEl) stopPosEl.innerHTML = `Positions: <strong class="text-emerald-400">${stop.positionStr}</strong>`;
+        if (stopRotorsEl) stopRotorsEl.innerHTML = `Rotors: <strong class="text-amber-300">${stop.order.join(' - ')}</strong>`;
+        if (stopPosEl) stopPosEl.innerHTML = `Positions: <strong class="text-emerald-400">${stop.posStr}</strong> (${(stop.rate || 0).toLocaleString()} perm/sec)`;
+
         sound.playRotorStep();
         sound.playRelayClick();
       },
-      () => {
+      (res) => {
         if (statusBadge) {
-          statusBadge.textContent = 'SCAN COMPLETED (NO STOPS)';
+          statusBadge.textContent = 'SCAN COMPLETED (NO STOPS DETECTED)';
           statusBadge.className = 'text-[10px] font-mono-code px-2 py-0.5 rounded bg-slate-800 text-slate-400';
         }
       }
@@ -141,6 +149,7 @@ export function initBombeUI(switchTabFn) {
 
   // Stop Bombe Scan
   document.getElementById('btn-stop-bombe')?.addEventListener('click', () => {
+    multiBombeWorker.stop();
     bombe.stopScan();
     if (statusBadge) {
       statusBadge.textContent = 'STOPPED';
@@ -158,21 +167,18 @@ export function initBombeUI(switchTabFn) {
 
       if (switchTabFn) switchTabFn('enigma');
 
-      // Clear streams and re-decrypt intercept
       const cipher = cipherInput?.value.toUpperCase().replace(/[^A-Z]/g, '') || '';
       const ptInput = document.getElementById('input-plaintext');
       const outCipher = document.getElementById('output-ciphertext');
       if (ptInput) ptInput.value = '';
       if (outCipher) outCipher.textContent = '---';
 
-      // Feed ciphertext back through reciprocal Enigma to reveal plaintext
       for (const ch of cipher) {
         handleKeystroke(ch, false);
       }
     }
   });
 
-  // 26x26 Welchman Diagonal Board Matrix Modal
   initWelchmanBoard();
 }
 

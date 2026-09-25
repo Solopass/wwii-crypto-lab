@@ -1,10 +1,15 @@
-import { ALPHABET, REFLECTORS, LORENZ_WHEEL_SIZES, MORSE_CODE_MAP } from '../crypto/constants.js';
+import { ALPHABET, REFLECTORS, LORENZ_WHEEL_SIZES, MORSE_MAP } from '../crypto/constants.js';
 import { EnigmaCore } from '../crypto/enigma.js';
 import { TypexCore } from '../crypto/typex.js';
 import { SIGABACore } from '../crypto/sigaba.js';
 import { PolishBiuroEngine } from '../crypto/polish.js';
 import { LorenzSZ42Core } from '../crypto/lorenz.js';
 import { TuringBombe } from '../crypto/bombe.js';
+import { MultiOrderBombeWorker } from '../crypto/bombeWorker.js';
+import { RejewskiCatalogue } from '../crypto/rejewskiCatalogue.js';
+import { calculateIndexOfCoincidence } from '../crypto/analytics.js';
+import { radioReceiver } from '../audio/radioVFO.js';
+import { ribbonMesh } from '../scene3d/typexModel.js';
 import { sound } from '../audio/soundFX.js';
 import { scene, lampLight } from '../scene3d/scene.js';
 import { interactiveKeys } from '../scene3d/enigmaModel.js';
@@ -288,6 +293,37 @@ diag.addTest("29. P2P Shortwave Channel Broadcast Pipeline", () => {
 // 30. Zygalski Lightbox Aperture Matrix Alignment
 diag.addTest("30. Zygalski Lightbox Aperture Matrix Alignment", () => {
   return { passed: document.getElementById('zygalski-light-table-canvas') !== null, message: "26×26 perforated grid rendered" };
+});
+
+// 31. Multi-Order Web Worker Bombe Engine
+diag.addTest("31. Multi-Order Web Worker Bombe Engine", () => {
+  const worker = new MultiOrderBombeWorker();
+  return { passed: typeof worker.scan === 'function', message: "60-order parallel worker initialized" };
+});
+
+// 32. Rejewski Card Catalogue Cyclometer Hash
+diag.addTest("32. Rejewski Card Catalogue Cyclometer Hash", () => {
+  const cat = new RejewskiCatalogue();
+  const res = cat.search("13, 13");
+  return { passed: res.length > 0, message: `${res.length} characteristic cycle matches found` };
+});
+
+// 33. Cryptanalysis Index of Coincidence
+diag.addTest("33. Cryptanalysis Index of Coincidence", () => {
+  const ioc = calculateIndexOfCoincidence("WETTERVORHERSAGEKANALWINDWESTENSTANDORTQUADRAT");
+  return { passed: ioc >= 0.055, message: `Natural German IoC computed: ${ioc.toFixed(4)}` };
+});
+
+// 34. Analog HF Radio VFO Superheterodyne Engine
+diag.addTest("34. Analog HF Radio VFO Superheterodyne Engine", () => {
+  radioReceiver.setFrequency(7050);
+  const near = radioReceiver.getNearbyStation();
+  return { passed: near.station !== null && near.diff === 0, message: `Tuned ${near.station?.callsign} (${near.station?.freq} kHz)` };
+});
+
+// 35. 3D Creed Teleprinter Dynamic Ribbon
+diag.addTest("35. 3D Creed Teleprinter Dynamic Ribbon", () => {
+  return { passed: ribbonMesh !== null, message: "Curved paper tape & teleprinter housing active in 3D" };
 });
 
 export function initDiagnosticsUI() {

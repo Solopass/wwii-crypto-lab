@@ -49,10 +49,19 @@
       <button id="tab-missions" class="px-2.5 py-1.5 rounded-lg text-xs font-medium transition-all text-slate-400 hover:text-slate-200 flex items-center gap-1 whitespace-nowrap">
         <span>🎯 Missions</span>
       </button>
+      <button id="tab-analytics" class="px-2.5 py-1.5 rounded-lg text-xs font-medium transition-all text-slate-400 hover:text-slate-200 flex items-center gap-1 whitespace-nowrap">
+        <span>📊 Toolkit</span>
+      </button>
     </div>
 
     <!-- Global Actions -->
     <div class="flex items-center gap-1 sm:gap-1.5">
+      <button id="btn-ambient-toggle" class="px-2 py-1.5 rounded-lg bg-slate-900 border border-slate-700 hover:border-slate-500 text-slate-300 text-xs font-mono-code flex items-center gap-1 transition-all" title="Toggle Hut 11 Ambience (50Hz Mains & Mechanical Clatter)">
+        <span>🎧</span><span class="hidden xl:inline">Hut 11</span>
+      </button>
+      <button id="btn-radio-vfo" class="px-2 py-1.5 rounded-lg bg-indigo-950/70 border border-indigo-600/70 text-indigo-300 hover:bg-indigo-900 text-xs font-mono-code flex items-center gap-1 transition-all" title="Analog HF Receiver VFO & Heterodyne Whistle">
+        <span>📻</span><span class="hidden md:inline">HF Radio VFO</span>
+      </button>
       <button id="btn-p2p-net" class="px-2 py-1.5 rounded-lg bg-sky-950/70 border border-sky-600/70 text-sky-300 hover:bg-sky-900 text-xs font-mono-code flex items-center gap-1 transition-all" title="Simulated Shortwave Radio Net">
         <span>📡</span><span class="hidden md:inline">Radio Net</span>
       </button>
@@ -65,7 +74,7 @@
       <button id="btn-toggle-diagnostics" class="px-2 py-1.5 rounded-lg bg-slate-900 border border-slate-700 hover:border-slate-500 text-xs font-mono-code flex items-center gap-1 text-slate-300 transition-all shadow-sm">
         <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
         <span class="hidden sm:inline">Self-Test</span>
-        <span class="text-amber-400 font-bold">(<span id="hud-pass-count">30/30</span>)</span>
+        <span class="text-amber-400 font-bold">(<span id="hud-pass-count">35/35</span>)</span>
       </button>
       <button id="btn-audio-toggle" class="p-2 rounded-lg bg-slate-900 border border-slate-700 hover:border-slate-500 text-slate-300 text-xs transition-colors" title="Toggle Sound FX">
         🔊
@@ -734,6 +743,97 @@
             Load Lorenz Stream
           </button>
         </div>
+
+        <div class="glass-panel p-3.5 rounded-xl space-y-2 border-l-2 border-l-rose-500">
+          <div class="flex items-center justify-between">
+            <h3 class="text-xs font-bold text-slate-200">4. The Hunt for the Bismarck (May 1941)</h3>
+            <span id="badge-mission-4" class="text-[9px] px-1.5 py-0.5 rounded bg-slate-800 text-slate-400 font-mono-code font-bold">PENDING</span>
+          </div>
+          <p class="text-[11px] text-slate-400">Luftwaffe General Jeschonnek orders air escort for the crippled battleship to Brest.</p>
+          <button id="btn-load-mission-4" class="w-full py-1.5 rounded bg-slate-800 hover:bg-slate-700 text-xs font-mono-code text-rose-300">
+            Load Bismarck Intercept
+          </button>
+        </div>
+
+        <div class="glass-panel p-3.5 rounded-xl space-y-2 border-l-2 border-l-red-600">
+          <div class="flex items-center justify-between">
+            <h3 class="text-xs font-bold text-slate-200">5. Luftwaffe Red: Rommel's Fuel Crisis</h3>
+            <span id="badge-mission-5" class="text-[9px] px-1.5 py-0.5 rounded bg-slate-800 text-slate-400 font-mono-code font-bold">PENDING</span>
+          </div>
+          <p class="text-[11px] text-slate-400">Hut 6 breaks Luftwaffe general key exposing Panzerarmee Afrika's critical fuel shortage.</p>
+          <button id="btn-load-mission-5" class="w-full py-1.5 rounded bg-slate-800 hover:bg-slate-700 text-xs font-mono-code text-red-300">
+            Load Rommel Intercept
+          </button>
+        </div>
+
+        <div class="glass-panel p-3.5 rounded-xl space-y-2 border-l-2 border-l-cyan-500">
+          <div class="flex items-center justify-between">
+            <h3 class="text-xs font-bold text-slate-200">6. Battle of the Barents Sea (Regenbogen)</h3>
+            <span id="badge-mission-6" class="text-[9px] px-1.5 py-0.5 rounded bg-slate-800 text-slate-400 font-mono-code font-bold">PENDING</span>
+          </div>
+          <p class="text-[11px] text-slate-400">Kriegsmarine 4-rotor M4 dispatch ordering heavy cruiser Hipper &amp; Lützow attack on convoy JW 51B.</p>
+          <button id="btn-load-mission-6" class="w-full py-1.5 rounded bg-slate-800 hover:bg-slate-700 text-xs font-mono-code text-cyan-300">
+            Load Operation Regenbogen
+          </button>
+        </div>
+      </div>
+
+      <!-- 8. CRYPTANALYSIS TOOLKIT PANEL -->
+      <div id="panel-analytics-controls" class="p-4 space-y-4 hidden">
+        <div class="glass-panel p-3.5 rounded-xl space-y-2 border-l-2 border-l-amber-500">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-bold uppercase tracking-wider text-amber-400 font-cinzel">Cryptanalysis Toolkit</span>
+            <span class="text-[10px] px-2 py-0.5 rounded bg-amber-500/20 text-amber-300 font-mono-code font-bold">STATISTICAL METRICS</span>
+          </div>
+          <p class="text-xs text-slate-400 leading-relaxed">
+            Quantitative frequency distribution, Index of Coincidence ($\kappa$-test), and Kasiski examination to detect polyalphabetic period and distinguish Enigma keystreams from natural plaintext.
+          </p>
+        </div>
+
+        <!-- Index of Coincidence Gauge -->
+        <div class="glass-panel p-3.5 rounded-xl space-y-2">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-bold uppercase tracking-wider text-slate-300 font-cinzel">Index of Coincidence (IoC)</span>
+            <span id="analytics-ioc-val" class="text-sm font-bold font-mono-code text-amber-400">0.0385</span>
+          </div>
+          <div class="w-full bg-slate-900 h-3 rounded-full overflow-hidden border border-slate-700">
+            <div id="analytics-ioc-bar" class="h-full bg-rose-500 transition-all duration-300" style="width: 15%"></div>
+          </div>
+          <div id="analytics-ioc-desc" class="text-[11px] font-mono-code text-slate-400">
+            High Entropy Enigma Keystream (IoC &approx; 0.038)
+          </div>
+          <div class="flex justify-between text-[9px] font-mono-code text-slate-500 pt-1 border-t border-slate-800">
+            <span>Poly / Random: 0.038</span>
+            <span>English: 0.067</span>
+            <span>German: 0.076</span>
+          </div>
+        </div>
+
+        <!-- Monogram Frequency Distribution Chart -->
+        <div class="glass-panel p-3.5 rounded-xl space-y-2">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-bold uppercase tracking-wider text-slate-300 font-cinzel">Monogram Frequencies</span>
+            <div class="flex items-center gap-2 text-[9px] font-mono-code">
+              <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-amber-500"></span>Observed</span>
+              <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-emerald-500"></span>German Std</span>
+            </div>
+          </div>
+          <canvas id="analytics-freq-canvas" class="w-full h-32 bg-slate-950 rounded-lg border border-slate-800"></canvas>
+          <button id="btn-run-analytics" class="w-full py-1.5 rounded bg-slate-800 hover:bg-slate-700 text-xs font-mono-code text-amber-300">
+            ⚡ Recalculate Distribution
+          </button>
+        </div>
+
+        <!-- Kasiski Examination Repeated N-Grams -->
+        <div class="glass-panel p-3.5 rounded-xl space-y-2">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-bold uppercase tracking-wider text-slate-300 font-cinzel">Kasiski Examination (3-Grams)</span>
+            <span class="text-[10px] font-mono-code text-slate-400">Period GCD Factor</span>
+          </div>
+          <div id="analytics-kasiski-list" class="max-h-36 overflow-y-auto space-y-1 pr-1 bg-slate-900/60 p-2 rounded-lg border border-slate-800 text-[10px]">
+            <div class="text-[10px] text-slate-500 font-mono-code">No repeated 3-grams found in current stream.</div>
+          </div>
+        </div>
       </div>
     </aside>
   </div>
@@ -951,7 +1051,7 @@
     </div>
   </div>
 
-  <!-- MODAL: Diagnostics Engine (30 Verification Suites) -->
+  <!-- MODAL: Diagnostics Engine (35 Verification Suites) -->
   <div id="modal-diagnostics" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 hidden">
     <div class="w-full max-w-2xl bg-slate-950 border border-slate-800 rounded-2xl p-5 shadow-2xl flex flex-col max-h-[85vh]">
       <div class="flex items-center justify-between pb-3 border-b border-slate-800">
@@ -963,7 +1063,7 @@
       </div>
       <div id="diagnostics-test-list" class="flex-1 overflow-y-auto py-3 space-y-2 font-mono-code text-xs"></div>
       <div class="pt-3 border-t border-slate-800 flex items-center justify-between">
-        <span class="text-xs text-slate-400 font-mono-code">30/30 verification suites executing continuously.</span>
+        <span class="text-xs text-slate-400 font-mono-code">35/35 verification suites executing continuously.</span>
         <button id="btn-copy-diag" class="px-3 py-1.5 rounded bg-slate-800 hover:bg-slate-700 text-xs font-mono-code text-slate-300">
           📋 Copy Report
         </button>
@@ -997,6 +1097,87 @@
       <div class="pt-2 text-right">
         <button id="btn-dismiss-dossier" class="px-4 py-2 rounded-lg bg-amber-600 hover:bg-amber-500 text-white text-xs font-semibold">
           Acknowledge &amp; Close
+        </button>
+      </div>
+  <!-- MODAL: Analog HF Radio Receiver VFO -->
+  <div id="modal-radio-vfo" class="fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-4 hidden">
+    <div class="w-full max-w-xl bg-slate-950 border border-indigo-600/50 rounded-2xl p-6 shadow-2xl flex flex-col space-y-4">
+      <div class="flex items-center justify-between pb-2 border-b border-slate-800">
+        <div class="flex items-center gap-2">
+          <span class="text-indigo-400 text-xl font-bold">📻</span>
+          <h2 class="text-sm font-bold uppercase tracking-wider text-slate-200 font-cinzel">WWII National HRO / Telefunken E52 HF Receiver VFO</h2>
+        </div>
+        <button id="btn-close-radio-vfo" class="text-slate-400 hover:text-slate-200 text-sm">✕</button>
+      </div>
+
+      <!-- Frequency Illuminated Window & Signal Status -->
+      <div class="p-4 rounded-xl bg-gradient-to-b from-slate-900 to-black border border-slate-800 space-y-3">
+        <div class="flex items-center justify-between">
+          <div>
+            <span class="text-[9px] font-mono-code text-slate-500 uppercase block">Tuned Frequency</span>
+            <div id="vfo-freq-display" class="text-2xl font-mono-code font-bold text-amber-400 tracking-wider">07.050 MHz</div>
+          </div>
+          <div class="text-right">
+            <span class="text-[9px] font-mono-code text-slate-500 uppercase block">Active Intercept</span>
+            <div id="vfo-station-name" class="text-xs font-mono-code text-slate-400">RECEIVER POWER OFF</div>
+          </div>
+        </div>
+
+        <!-- Dual S-Meter Needle Bar -->
+        <div class="space-y-1">
+          <div class="flex justify-between text-[9px] font-mono-code text-slate-400">
+            <span>SIGNAL STRENGTH (S-METER):</span>
+            <span id="vfo-smeter-text" class="text-slate-300 font-bold">OFFLINE</span>
+          </div>
+          <div class="h-2.5 w-full bg-slate-950 rounded-full border border-slate-800 overflow-hidden">
+            <div id="vfo-smeter-bar" class="h-full bg-slate-700 transition-all duration-150" style="width: 0%"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Analog Frequency Dial Tuning Slider & Bands -->
+      <div class="space-y-2">
+        <div class="flex items-center justify-between">
+          <span class="text-xs font-mono-code text-slate-300 font-bold">Variable Frequency Oscillator (VFO) Dial</span>
+          <div class="flex gap-1">
+            <button id="vfo-band-80m" class="px-2 py-0.5 rounded bg-slate-800 hover:bg-slate-700 text-[10px] font-mono-code text-slate-300">80m (3.5MHz)</button>
+            <button id="vfo-band-40m" class="px-2 py-0.5 rounded bg-indigo-900/60 hover:bg-indigo-800 text-[10px] font-mono-code text-indigo-300">40m (7.0MHz)</button>
+            <button id="vfo-band-20m" class="px-2 py-0.5 rounded bg-slate-800 hover:bg-slate-700 text-[10px] font-mono-code text-slate-300">20m (14.0MHz)</button>
+          </div>
+        </div>
+        <input id="vfo-tuning-slider" type="range" min="7000" max="7300" step="1" value="7050" class="w-full accent-indigo-500 cursor-ew-resize">
+        <div class="flex justify-between items-center text-[10px] font-mono-code text-slate-400">
+          <button id="vfo-step-down" class="px-2 py-0.5 rounded bg-slate-900 hover:bg-slate-800 border border-slate-700">◀ -5 kHz</button>
+          <span>Heterodyne Beat Frequency Oscillator (Zero-Beat Tuning)</span>
+          <button id="vfo-step-up" class="px-2 py-0.5 rounded bg-slate-900 hover:bg-slate-800 border border-slate-700">+5 kHz ▶</button>
+        </div>
+      </div>
+
+      <!-- Controls Bar: Power, BFO, Volume -->
+      <div class="grid grid-cols-3 gap-2 pt-1 border-t border-slate-800">
+        <button id="vfo-power-toggle" class="py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-400 font-mono-code text-xs">POWER: OFF</button>
+        <button id="vfo-bfo-toggle" class="py-1.5 rounded-lg bg-amber-600 hover:bg-amber-500 text-white font-mono-code text-xs font-bold">BFO: ON</button>
+        <div class="flex items-center gap-2 px-2 bg-slate-900 rounded-lg border border-slate-800">
+          <span class="text-[10px] font-mono-code text-slate-400">VOL:</span>
+          <input id="vfo-volume-slider" type="range" min="0" max="1" step="0.05" value="0.6" class="w-full accent-indigo-500">
+        </div>
+      </div>
+
+      <!-- Intercept Teletype Stream -->
+      <div class="space-y-1">
+        <span class="text-[10px] font-mono-code text-slate-400 block">Intercepted Demodulated CW Morse Stream:</span>
+        <div id="vfo-intercept-stream" class="h-10 bg-slate-950 border border-slate-800 rounded p-2 text-xs font-mono-code text-amber-300 font-bold whitespace-nowrap overflow-x-auto flex items-center shadow-inner">
+          RECEIVER READY /// TUNE INTO CARRIER FREQUENCY
+        </div>
+      </div>
+
+      <!-- Route Cipher to Enigma or Bombe -->
+      <div class="flex gap-2 pt-2">
+        <button id="btn-vfo-feed-enigma" class="flex-1 py-2 rounded-lg bg-amber-600 hover:bg-amber-500 text-white text-xs font-bold font-mono-code">
+          ⚡ Route to Enigma Input
+        </button>
+        <button id="btn-vfo-feed-bombe" class="flex-1 py-2 rounded-lg bg-sky-600 hover:bg-sky-500 text-white text-xs font-bold font-mono-code">
+          🔄 Route to Turing Bombe
         </button>
       </div>
     </div>

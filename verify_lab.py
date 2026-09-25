@@ -183,6 +183,41 @@ def run_tests():
         is_involutory = all(ref[ALPHABET.index(ref[i])] == ALPHABET[i] for i in range(26))
         assert_test(f"Reflector {rname} Involution Parity", is_involutory)
 
+    # Vector 8: Cryptanalysis Toolkit - Index of Coincidence (IoC)
+    def calc_ioc(text):
+        clean = [c for c in text.upper() if c in ALPHABET]
+        n = len(clean)
+        if n < 2: return 0.0
+        counts = {c: clean.count(c) for c in set(clean)}
+        sum_f = sum(f * (f - 1) for f in counts.values())
+        return sum_f / (n * (n - 1))
+
+    natural_ioc = calc_ioc("WETTERVORHERSAGEKANALWINDWESTENSTANDORTQUADRAT")
+    assert_test("Natural Language IoC >= 0.060", natural_ioc >= 0.060)
+
+    # Vector 9: Kasiski Examination
+    def kasiski_test(text, length=3):
+        clean = [c for c in text.upper() if c in ALPHABET]
+        clean_str = "".join(clean)
+        repeats = {}
+        for i in range(len(clean_str) - length + 1):
+            sub = clean_str[i:i+length]
+            pos = [m.start() for m in re.finditer(re.escape(sub), clean_str)]
+            if len(pos) > 1 and sub not in repeats:
+                repeats[sub] = [pos[j] - pos[j-1] for j in range(1, len(pos))]
+        return repeats
+
+    k_results = kasiski_test("ABCXYZDEFABCXYZGHIABCXYZ")
+    assert_test("Kasiski finds repeated trigram 'ABC'", "ABC" in k_results and len(k_results["ABC"]) >= 2)
+
+    # Vector 10: Radio VFO Stations
+    stations = [7050, 7120, 14100, 3560]
+    for s_freq in stations:
+        diff = abs(7052 - s_freq) # 2 kHz off
+        in_band = diff < 3.5
+        if s_freq == 7050:
+            assert_test(f"Radio VFO Station {s_freq} in passband (+2kHz offset)", in_band)
+
     print("\n--- 2. File Integrity & Architecture Checks ---")
 
     required_files = [
@@ -192,13 +227,18 @@ def run_tests():
         BASE_DIR / "css" / "lab.css",
         BASE_DIR / "src" / "main.js",
         BASE_DIR / "src" / "audio" / "soundFX.js",
+        BASE_DIR / "src" / "audio" / "ambientAudio.js",
+        BASE_DIR / "src" / "audio" / "radioVFO.js",
         BASE_DIR / "src" / "crypto" / "constants.js",
         BASE_DIR / "src" / "crypto" / "enigma.js",
         BASE_DIR / "src" / "crypto" / "typex.js",
         BASE_DIR / "src" / "crypto" / "sigaba.js",
         BASE_DIR / "src" / "crypto" / "polish.js",
+        BASE_DIR / "src" / "crypto" / "rejewskiCatalogue.js",
+        BASE_DIR / "src" / "crypto" / "analytics.js",
         BASE_DIR / "src" / "crypto" / "lorenz.js",
         BASE_DIR / "src" / "crypto" / "bombe.js",
+        BASE_DIR / "src" / "crypto" / "bombeWorker.js",
         BASE_DIR / "src" / "crypto" / "colossus.js",
         BASE_DIR / "src" / "scene3d" / "scene.js",
         BASE_DIR / "src" / "scene3d" / "textures.js",
@@ -210,6 +250,7 @@ def run_tests():
         BASE_DIR / "src" / "scene3d" / "laserWire.js",
         BASE_DIR / "src" / "scene3d" / "raycaster.js",
         BASE_DIR / "src" / "ui" / "controllers.js",
+        BASE_DIR / "src" / "ui" / "missionsUI.js",
         BASE_DIR / "src" / "ui" / "typexUI.js",
         BASE_DIR / "src" / "ui" / "sigabaUI.js",
         BASE_DIR / "src" / "ui" / "polishUI.js",
@@ -217,7 +258,8 @@ def run_tests():
         BASE_DIR / "src" / "ui" / "colossusUI.js",
         BASE_DIR / "src" / "ui" / "morseUI.js",
         BASE_DIR / "src" / "ui" / "telegramUI.js",
-        BASE_DIR / "src" / "ui" / "missionsUI.js",
+        BASE_DIR / "src" / "ui" / "analyticsUI.js",
+        BASE_DIR / "src" / "ui" / "radioVFOUI.js",
         BASE_DIR / "src" / "ui" / "diagnostics.js",
     ]
 
@@ -234,6 +276,11 @@ def run_tests():
         has_js_import = bool(re.search(r'^\s*import\s+', script_body, re.MULTILINE))
         has_js_export = bool(re.search(r'^\s*export\s+', script_body, re.MULTILINE))
         assert_test("Standalone has zero unresolved module imports", not has_js_import and not has_js_export)
+        assert_test("Standalone bundles MultiOrderBombeWorker", "MultiOrderBombeWorker" in script_body)
+        assert_test("Standalone bundles RejewskiCatalogue", "RejewskiCatalogue" in script_body)
+        assert_test("Standalone bundles AmbientAudioHut11", "AmbientAudioHut11" in script_body)
+        assert_test("Standalone bundles RadioVFOReceiver", "RadioVFOReceiver" in script_body)
+        assert_test("Standalone bundles calculateIndexOfCoincidence", "calculateIndexOfCoincidence" in script_body)
 
     print("\n--- 3. Local Loopback Server Smoke Test ---")
     # Launch loopback server on a free port

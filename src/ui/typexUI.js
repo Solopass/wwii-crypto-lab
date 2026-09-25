@@ -1,7 +1,7 @@
 import { ALPHABET } from '../crypto/constants.js';
 import { TypexCore } from '../crypto/typex.js';
 import { sound } from '../audio/soundFX.js';
-import { rotateTypexDrums } from '../scene3d/typexModel.js';
+import { rotateTypexDrums, updateTypexRibbon } from '../scene3d/typexModel.js';
 
 export const typex = new TypexCore();
 
@@ -33,6 +33,7 @@ export function initTypexUI() {
       }
       tapeOutput.textContent += cipherChar + ' ';
       tapeOutput.scrollLeft = tapeOutput.scrollWidth;
+      updateTypexRibbon(tapeOutput.textContent);
     }
   }
 
@@ -69,6 +70,7 @@ export function initTypexUI() {
     if (typexInput) typexInput.value = '';
     lastVal = '';
     if (tapeOutput) tapeOutput.textContent = 'TYPE-X TELEPRINTER READY /// ';
+    updateTypexRibbon('TYPE-X TELEPRINTER READY ///');
     sound.playRotorStep();
   });
 

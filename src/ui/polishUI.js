@@ -1,17 +1,41 @@
 import { PolishBiuroEngine } from '../crypto/polish.js';
+import { RejewskiCatalogue } from '../crypto/rejewskiCatalogue.js';
 import { sound } from '../audio/soundFX.js';
 
 export const polishEngine = new PolishBiuroEngine();
+export const rejewskiCatalogue = new RejewskiCatalogue();
 
 export function initPolishUI() {
+  const display = document.getElementById('polish-cycle-display');
+  const cardResultsEl = document.getElementById('rejewski-card-results');
+
   document.getElementById('btn-rejewski-catalogue')?.addEventListener('click', () => {
     const cycles = polishEngine.computePermutationCycles();
     const cycleStr = cycles.slice(0, 6).map(c => `(${c.join('')})`).join(' ');
     const lengths = polishEngine.getCycleLengths(cycles).join(', ');
-    const display = document.getElementById('polish-cycle-display');
+
     if (display) {
       display.textContent = `Cycles: ${cycleStr}... [Lengths: ${lengths}]`;
     }
+
+    // Query the Rejewski Card Catalogue
+    const matches = rejewskiCatalogue.search(lengths);
+    if (cardResultsEl) {
+      cardResultsEl.innerHTML = '';
+      matches.forEach(m => {
+        const item = document.createElement('div');
+        item.className = 'p-2 rounded bg-slate-900 border border-amber-600/30 text-xs font-mono-code space-y-1';
+        item.innerHTML = `
+          <div class="flex justify-between text-amber-400 font-bold">
+            <span>Rotors: ${m.rotors.join(' - ')}</span>
+            <span class="text-[10px] text-slate-400">${m.period}</span>
+          </div>
+          <div class="text-slate-300 text-[11px]">Ground Setting Candidate: <strong class="text-emerald-400">${m.ground}</strong></div>
+        `;
+        cardResultsEl.appendChild(item);
+      });
+    }
+
     sound.playRelayClick();
   });
 

@@ -170,10 +170,19 @@ steckerGroup.position.set(0, -0.2, 8.4);
 enigmaGroup.add(steckerGroup);
 
 export const steckerSockets = {};
+export const interactiveSockets = [];
+export const socketMaterials = {};
 export let active3DCables = [];
+let pendingCableMesh = null;
 
 const socketGeo = new THREE.TorusGeometry(0.28, 0.06, 8, 20);
-const sockMat = new THREE.MeshStandardMaterial({ color: 0xb45309, metalness: 0.85, roughness: 0.3 });
+const pendingCableMat = new THREE.MeshStandardMaterial({
+  color: 0xf59e0b,
+  roughness: 0.45,
+  metalness: 0.3,
+  emissive: 0x78350f,
+  emissiveIntensity: 0.6
+});
 
 KEYBOARD_LAYOUT.forEach((rowInfo, rIdx) => {
   for (let c = 0; c < rowInfo.keys.length; c++) {
@@ -181,13 +190,55 @@ KEYBOARD_LAYOUT.forEach((rowInfo, rIdx) => {
     const sockGroup = new THREE.Group();
     sockGroup.position.set(rowInfo.xStart + c * rowInfo.step, 0.6 - rIdx * 0.9, 0.35);
 
-    const rim = new THREE.Mesh(socketGeo, sockMat);
+    const rimMat = new THREE.MeshStandardMaterial({ color: 0xb45309, metalness: 0.85, roughness: 0.3 });
+    const rim = new THREE.Mesh(socketGeo, rimMat);
+    rim.userData = { letter: char, isSocket: true };
     sockGroup.add(rim);
 
     steckerGroup.add(sockGroup);
     steckerSockets[char] = sockGroup;
+    socketMaterials[char] = rimMat;
+    interactiveSockets.push(rim);
   }
 });
+
+export function setSocketHighlight(char, isHighlighted) {
+  if (socketMaterials[char]) {
+    if (isHighlighted) {
+      socketMaterials[char].emissive.setHex(0xf59e0b);
+      socketMaterials[char].emissiveIntensity = 1.2;
+    } else {
+      socketMaterials[char].emissive.setHex(0x000000);
+      socketMaterials[char].emissiveIntensity = 0;
+    }
+  }
+}
+
+export function updatePendingCable(fromLetter, targetPos) {
+  if (!steckerSockets[fromLetter]) return;
+  if (pendingCableMesh) {
+    steckerGroup.remove(pendingCableMesh);
+    if (pendingCableMesh.geometry) pendingCableMesh.geometry.dispose();
+    pendingCableMesh = null;
+  }
+  const p1 = steckerSockets[fromLetter].position.clone();
+  const p2 = targetPos.clone();
+  const curve = new THREE.QuadraticBezierCurve3(
+    new THREE.Vector3(p1.x, p1.y, 0.2),
+    new THREE.Vector3((p1.x + p2.x) / 2, Math.min(p1.y, p2.y) - 1.1, 1.3),
+    new THREE.Vector3(p2.x, p2.y, 0.2)
+  );
+  pendingCableMesh = new THREE.Mesh(new THREE.TubeGeometry(curve, 24, 0.08, 8, false), pendingCableMat);
+  steckerGroup.add(pendingCableMesh);
+}
+
+export function clearPendingCable() {
+  if (pendingCableMesh) {
+    steckerGroup.remove(pendingCableMesh);
+    if (pendingCableMesh.geometry) pendingCableMesh.geometry.dispose();
+    pendingCableMesh = null;
+  }
+}
 
 const cableMaterial = new THREE.MeshStandardMaterial({ color: 0x991b1b, roughness: 0.7 });
 
